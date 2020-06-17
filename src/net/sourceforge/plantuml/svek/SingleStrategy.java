@@ -1,0 +1,77 @@
+/* ========================================================================
+ * PlantUML : a free UML diagram generator
+ * ========================================================================
+ *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ *
+ * Original Author:  Arnaud Roques
+ */
+package net.sourceforge.plantuml.svek;
+
+
+public enum SingleStrategy {
+
+	SQUARRE, HLINE, VLINE;
+
+//	private Collection<Link> generateLinks(List<ILeaf> standalones) {
+//		return putInSquare(standalones);
+//	}
+
+//	private Collection<Link> putInSquare(List<ILeaf> standalones) {
+//		final List<Link> result = new ArrayList<Link>();
+//		final LinkType linkType = new LinkType(LinkDecor.NONE, LinkDecor.NONE).getInvisible();
+//		final int branch = computeBranch(standalones.size());
+//		int headBranch = 0;
+//		for (int i = 1; i < standalones.size(); i++) {
+//			final int dist = i - headBranch;
+//			final IEntity ent2 = standalones.get(i);
+//			final Link link;
+//			if (dist == branch) {
+//				final IEntity ent1 = standalones.get(headBranch);
+//				link = new Link(ent1, ent2, linkType, Display.NULL, 2);
+//				headBranch = i;
+//			} else {
+//				final IEntity ent1 = standalones.get(i - 1);
+//				link = new Link(ent1, ent2, linkType, Display.NULL, 1);
+//			}
+//			result.add(link);
+//		}
+//		return Collections.unmodifiableCollection(result);
+//	}
+
+	static int computeBranch(int size) {
+		final double sqrt = Math.sqrt(size);
+		final int r = (int) sqrt;
+		if (r * r == size) {
+			return r;
+		}
+		return r + 1;
+	}
+
+}

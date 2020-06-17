@@ -1,0 +1,70 @@
+/* ========================================================================
+ * PlantUML : a free UML diagram generator
+ * ========================================================================
+ *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ *
+ * Original Author:  Arnaud Roques
+ */
+package net.sourceforge.plantuml.api;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
+public class NiceNumber {
+
+	public static int getNicer(final int value) {
+		if (value <= 18) {
+			return value;
+		}
+		if (value < 93) {
+			return ((value + 2) / 5) * 5;
+		}
+		if (value < 100) {
+			return ((value + 5) / 10) * 10;
+		}
+		int m = 1;
+		double head = value;
+		while (head >= 100) {
+			head = head / 10.0;
+			m *= 10;
+		}
+		return getNicer((int) Math.round(head)) * m;
+	}
+
+	public static String format(final long v) {
+		final DecimalFormat df = new DecimalFormat();
+		df.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
+		df.setGroupingSize(3);
+		df.setMaximumFractionDigits(0);
+		final String t = df.format(v).replace(',', ' ');
+		return t;
+	}
+}
