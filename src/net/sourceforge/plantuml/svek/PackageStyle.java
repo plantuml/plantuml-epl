@@ -83,7 +83,7 @@ public enum PackageStyle {
 			return USymbol.RECTANGLE;
 		}
 		if (this == FOLDER) {
-			return USymbol.FOLDER;
+			return USymbol.PACKAGE;
 		}
 		return null;
 	}

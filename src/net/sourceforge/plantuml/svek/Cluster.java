@@ -874,10 +874,10 @@ public class Cluster implements Moveable {
 
 	private String empty() {
 		// return "empty" + color;
-        // We use the same node with one for thereALinkFromOrToGroup2 as an empty
-        // because we cannot put a new node in the nested inside of the cluster
-        // if thereALinkFromOrToGroup2 is enabled.
-        return getSpecialPointId(group);
+		// We use the same node with one for thereALinkFromOrToGroup2 as an empty
+		// because we cannot put a new node in the nested inside of the cluster
+		// if thereALinkFromOrToGroup2 is enabled.
+		return getSpecialPointId(group);
 	}
 
 	public boolean isLabel() {

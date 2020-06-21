@@ -65,6 +65,11 @@ public class USymbolFolder extends USymbol {
 	}
 
 	@Override
+	public String toString() {
+		return super.toString() + " " + skinParameter + " " + showTitle;
+	}
+
+	@Override
 	public SkinParameter getSkinParameter() {
 		return skinParameter;
 	}
@@ -166,7 +171,8 @@ public class USymbolFolder extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext,
+			final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
