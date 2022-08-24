@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -33,6 +33,9 @@
  * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.sequencediagram;
+
+import java.util.Collections;
+import java.util.List;
 
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
@@ -76,6 +79,16 @@ public final class Message extends AbstractMessage {
 
 	public boolean isSelfMessage() {
 		return p1 == p2;
+	}
+
+	private List<Participant> multicast = Collections.emptyList();
+
+	public void setMulticast(List<Participant> multicast) {
+		this.multicast = multicast;
+	}
+
+	public List<Participant> getMulticast() {
+		return multicast;
 	}
 
 }

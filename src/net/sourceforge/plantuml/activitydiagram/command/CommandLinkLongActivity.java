@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,7 +42,7 @@ import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.activitydiagram.ActivityDiagram;
 import net.sourceforge.plantuml.classdiagram.command.CommandLinkClass;
 import net.sourceforge.plantuml.command.BlocLines;
@@ -69,6 +69,7 @@ import net.sourceforge.plantuml.cucadiagram.NamespaceStrategy;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram> {
 
@@ -78,7 +79,7 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^[%s]*([^%g]*)[%g](?:[%s]+as[%s]+([\\p{L}0-9][\\p{L}0-9_.]*))?[%s]*(\\<\\<.*\\>\\>)?[%s]*(?:in[%s]+([%g][^%g]+[%g]|\\S+))?[%s]*(#\\w+)?$";
+		return "^[%s]*([^%g]*)[%g](?:[%s]+as[%s]+([%pLN][%pLN_.]*))?[%s]*(\\<\\<.*\\>\\>)?[%s]*(?:in[%s]+([%g][^%g]+[%g]|\\S+))?[%s]*(#\\w+)?$";
 	}
 
 	static IRegex getRegexConcat() {
@@ -86,9 +87,9 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 				new RegexOptional(//
 						new RegexOr("FIRST", //
 								new RegexLeaf("STAR", "(\\(\\*(top)?\\))"), //
-								new RegexLeaf("CODE", "([\\p{L}0-9][\\p{L}0-9_.]*)"), //
-								new RegexLeaf("BAR", "(?:==+)[%s]*([\\p{L}0-9_.]+)[%s]*(?:==+)"), //
-								new RegexLeaf("QUOTED", "[%g]([^%g]+)[%g](?:[%s]+as[%s]+([\\p{L}0-9_.]+))?"))), //
+								new RegexLeaf("CODE", "([%pLN][%pLN_.]*)"), //
+								new RegexLeaf("BAR", "(?:==+)[%s]*([%pLN_.]+)[%s]*(?:==+)"), //
+								new RegexLeaf("QUOTED", "[%g]([^%g]+)[%g](?:[%s]+as[%s]+([%pLN_.]+))?"))), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -113,7 +114,8 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines)
+			throws NoSuchColorException {
 		lines = lines.trim();
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 
@@ -123,12 +125,12 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 		}
 
 		if (line0.get("STEREOTYPE", 0) != null) {
-			entity1.setStereotype(new Stereotype(line0.get("STEREOTYPE", 0)));
+			entity1.setStereotype(Stereotype.build(line0.get("STEREOTYPE", 0)));
 		}
 		final String stringColor = line0.get("BACKCOLOR", 0);
 		if (stringColor != null) {
 			entity1.setSpecificColorTOBEREMOVED(ColorType.BACK, diagram.getSkinParam().getIHtmlColorSet()
-					.getColorIfValid(stringColor));
+					.getColor(diagram.getSkinParam().getThemeStyle(), stringColor));
 		}
 		final StringBuilder sb = new StringBuilder();
 
@@ -156,8 +158,8 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 			}
 		}
 
-		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()), lines.getLast()
-				.getString());
+		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()),
+				lines.getLast().getString());
 		if (StringUtils.isNotEmpty(lineLast.get(0))) {
 			if (sb.length() > 0 && sb.toString().endsWith(BackSlash.BS_BS_N) == false) {
 				sb.append(BackSlash.BS_BS_N);
@@ -193,11 +195,12 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 		}
 
 		if (lineLast.get(2) != null) {
-			entity2.setStereotype(new Stereotype(lineLast.get(2)));
+			entity2.setStereotype(Stereotype.build(lineLast.get(2)));
 		}
 		if (lineLast.get(4) != null) {
-			entity2.setSpecificColorTOBEREMOVED(ColorType.BACK, diagram.getSkinParam().getIHtmlColorSet()
-					.getColorIfValid(lineLast.get(4)));
+			String s = lineLast.get(4);
+			entity2.setSpecificColorTOBEREMOVED(ColorType.BACK,
+					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		}
 
 		final String arrowBody1 = CommandLinkClass.notNull(line0.get("ARROW_BODY1", 0));
@@ -214,19 +217,20 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 		if (arrow.contains(".")) {
 			type = type.goDotted();
 		}
-		Link link = new Link(entity1, entity2, type, linkLabel, lenght, diagram.getSkinParam().getCurrentStyleBuilder());
+		Link link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), entity1, entity2, type, linkLabel,
+				lenght);
 		final Direction direction = StringUtils.getArrowDirection(arrowBody1 + arrowDirection + arrowBody2 + ">");
 		if (direction == Direction.LEFT || direction == Direction.UP) {
 			link = link.getInv();
 		}
 
 		if (line0.get("URL", 0) != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url urlLink = urlBuilder.getUrl(line0.get("URL", 0));
 			link.setUrl(urlLink);
 		}
 
-		link.applyStyle(line0.getLazzy("ARROW_STYLE", 0));
+		link.applyStyle(diagram.getSkinParam().getThemeStyle(), line0.getLazzy("ARROW_STYLE", 0));
 		diagram.addLink(link);
 
 		return CommandExecutionResult.ok();
@@ -237,7 +241,7 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 	}
 
 	public Url extractUrlString(final ActivityDiagram diagram, String string) {
-		final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+		final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 		return urlBuilder.getUrl(string);
 	}
 

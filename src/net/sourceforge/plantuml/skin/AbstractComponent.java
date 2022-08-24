@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,12 +34,11 @@
  */
 package net.sourceforge.plantuml.skin;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -49,7 +48,7 @@ public abstract class AbstractComponent implements Component {
 		throw new UnsupportedOperationException();
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
+	public StyleSignatureBasic getStyleSignature() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -63,7 +62,6 @@ public abstract class AbstractComponent implements Component {
 		return style;
 	}
 
-
 	abstract protected void drawInternalU(UGraphic ug, Area area);
 
 	protected void drawBackgroundInternalU(UGraphic ug, Area area) {
@@ -71,11 +69,11 @@ public abstract class AbstractComponent implements Component {
 
 	public final void drawU(UGraphic ug, Area area, Context2D context) {
 		ug = ug.apply(new UTranslate(getPaddingX(), getPaddingY()));
-		if (context.isBackground()) {
+		if (context.isBackground())
 			drawBackgroundInternalU(ug, area);
-		} else {
+		else
 			drawInternalU(ug, area);
-		}
+
 	}
 
 	public double getPaddingX() {

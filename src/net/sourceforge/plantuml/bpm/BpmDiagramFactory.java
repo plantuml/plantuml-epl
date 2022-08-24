@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,11 +38,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.AbstractPSystem;
+import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class BpmDiagramFactory extends UmlDiagramFactory {
+public class BpmDiagramFactory extends PSystemCommandFactory {
 
 	public BpmDiagramFactory(DiagramType type) {
 		super(DiagramType.BPM);
@@ -50,7 +53,7 @@ public class BpmDiagramFactory extends UmlDiagramFactory {
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> result = new ArrayList<Command>();
+		final List<Command> result = new ArrayList<>();
 		result.add(new CommandDockedEvent());
 		result.add(new CommandMerge());
 		result.add(new CommandResume());
@@ -62,8 +65,8 @@ public class BpmDiagramFactory extends UmlDiagramFactory {
 	}
 
 	@Override
-	public AbstractPSystem createEmptyDiagram() {
-		return new BpmDiagram();
+	public AbstractPSystem createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new BpmDiagram(style, source);
 	}
 
 }

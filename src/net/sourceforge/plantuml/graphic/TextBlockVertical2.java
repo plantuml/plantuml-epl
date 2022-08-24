@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,29 +34,47 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class TextBlockVertical2 extends AbstractTextBlock implements TextBlock, WithPorts {
 
-	private final List<TextBlock> blocks = new ArrayList<TextBlock>();
+	private final List<TextBlock> blocks = new ArrayList<>();
 	private final HorizontalAlignment horizontalAlignment;
 
 	TextBlockVertical2(TextBlock b1, TextBlock b2, HorizontalAlignment horizontalAlignment) {
 		this.blocks.add(b1);
 		this.blocks.add(b2);
 		this.horizontalAlignment = horizontalAlignment;
+	}
+
+	TextBlockVertical2(TextBlock b1, final UImage image, HorizontalAlignment horizontalAlignment) {
+		this(b1, convertImage(image), horizontalAlignment);
+	}
+
+	static private AbstractTextBlock convertImage(final UImage image) {
+		return new AbstractTextBlock() {
+
+			public void drawU(UGraphic ug) {
+				ug.draw(image);
+			}
+
+			public Dimension2D calculateDimension(StringBounder stringBounder) {
+				return new Dimension2DDouble(image.getWidth(), image.getHeight());
+			}
+		};
 	}
 
 	public TextBlockVertical2(List<TextBlock> all, HorizontalAlignment horizontalAlignment) {
@@ -83,10 +101,10 @@ public class TextBlockVertical2 extends AbstractTextBlock implements TextBlock, 
 			final Dimension2D dimb = block.calculateDimension(ug.getStringBounder());
 			if (block instanceof TextBlockBackcolored) {
 				final HColor back = ((TextBlockBackcolored) block).getBackcolor();
-				if (back != null) {
+				if (back != null)
 					ug.apply(UTranslate.dy(y)).apply(back).apply(back.bg())
 							.draw(new URectangle(dimtotal.getWidth(), dimb.getHeight()));
-				}
+
 			}
 			if (horizontalAlignment == HorizontalAlignment.LEFT) {
 				block.drawU(ug.apply(UTranslate.dy(y)));
@@ -103,6 +121,7 @@ public class TextBlockVertical2 extends AbstractTextBlock implements TextBlock, 
 		}
 	}
 
+	@Override
 	public Ports getPorts(StringBounder stringBounder) {
 		double y = 0;
 		// final Dimension2D dimtotal = calculateDimension(stringBounder);

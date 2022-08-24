@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -43,12 +42,11 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.EntityImageLegend;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.DisplaySection;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -64,14 +62,11 @@ import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.sequencediagram.graphic.FileMaker;
 import net.sourceforge.plantuml.skin.SimpleContext2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.MathUtils;
 
 public class SequenceDiagramFileMakerTeoz implements FileMaker {
@@ -82,17 +77,17 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 	private final AnnotatedWorker annotatedWorker;
 	private final int index;
 
-	public SequenceDiagramFileMakerTeoz(SequenceDiagram sequenceDiagram, Rose skin, FileFormatOption fileFormatOption,
+	public SequenceDiagramFileMakerTeoz(SequenceDiagram diagram, Rose skin, FileFormatOption fileFormatOption,
 			int index) {
 		this.index = index;
-		this.stringBounder = fileFormatOption.getDefaultStringBounder();
-		this.diagram = sequenceDiagram;
+		this.stringBounder = fileFormatOption.getDefaultStringBounder(diagram.getSkinParam());
+		this.diagram = diagram;
 		this.fileFormatOption = fileFormatOption;
 		this.skin = skin;
 		this.body = new PlayingSpaceWithParticipants(createMainTile());
 		this.footer = getFooterOrHeader(FontParam.FOOTER);
 		this.header = getFooterOrHeader(FontParam.HEADER);
-		this.annotatedWorker = new AnnotatedWorker(sequenceDiagram, sequenceDiagram.getSkinParam(), stringBounder);
+		this.annotatedWorker = new AnnotatedWorker(diagram, diagram.getSkinParam(), stringBounder);
 
 		this.min1 = body.getMinX(stringBounder);
 
@@ -100,7 +95,7 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 		this.legend = getLegend();
 		this.caption = annotatedWorker.getCaption();
 
-		this.heightEnglober1 = englobers.getOffsetForEnglobers(stringBounder);
+		this.heightEnglober1 = dolls.getOffsetForEnglobers(stringBounder);
 		this.heightEnglober2 = heightEnglober1 == 0 ? 0 : 10;
 
 		final double totalWidth = MathUtils.max(body.calculateDimension(stringBounder).getWidth(),
@@ -111,11 +106,12 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 				+ heightEnglober2 + title.calculateDimension(stringBounder).getHeight()
 				+ header.calculateDimension(stringBounder).getHeight()
 				+ legend.calculateDimension(stringBounder).getHeight()
+				+ caption.calculateDimension(stringBounder).getHeight()
 				+ footer.calculateDimension(stringBounder).getHeight() + (annotatedWorker.hasMainFrame() ? 10 : 0);
 		this.dimTotal = new Dimension2DDouble(totalWidth, totalHeight);
 	}
 
-	private Englobers englobers;
+	private Dolls dolls;
 	private final StringBounder stringBounder;
 
 	private final TextBlock footer;
@@ -133,37 +129,11 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 	private final double heightEnglober1;
 	private final double heightEnglober2;
 
-	private double oneOf(double a, double b) {
-		if (a == 1) {
-			return b;
-		}
-		return a;
-	}
-
 	public ImageData createOne(OutputStream os, final int index, boolean isWithMetadata) throws IOException {
-		if (this.index != index) {
+		if (this.index != index)
 			throw new IllegalStateException();
-		}
-		final double dpiFactor = diagram.getDpiFactor(fileFormatOption, dimTotal);
 
-		final double scale = 1;
-		final String metadata = fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null;
-
-		final int margin1;
-		final int margin2;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(3);
-			margin2 = SkinParam.zeroMargin(10);
-		} else {
-			margin1 = 3;
-			margin2 = 10;
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildD(diagram.getSkinParam(), ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2), diagram.getAnimation(), metadata,
-		null, oneOf(scale, dpiFactor));
-
-		imageBuilder.setUDrawable(new Foo(index));
-		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, diagram.seed(), os);
-
+		return diagram.createImageBuilder(fileFormatOption).drawable(new Foo(index)).write(os);
 	}
 
 	class Foo implements UDrawable {
@@ -183,9 +153,9 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 	private UGraphic goDownAndCenterForEnglobers(UGraphic ug) {
 		ug = goDown(ug, title);
 		ug = goDown(ug, header);
-		if (diagram.getLegend().getVerticalAlignment() == VerticalAlignment.TOP) {
+		if (diagram.getLegend().getVerticalAlignment() == VerticalAlignment.TOP)
 			ug = goDown(ug, legend);
-		}
+
 		final double dx = (dimTotal.getWidth() - body.calculateDimension(stringBounder).getWidth()) / 2;
 		return ug.apply(UTranslate.dx(dx));
 	}
@@ -196,11 +166,11 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 
 	public void printAligned(UGraphic ug, HorizontalAlignment align, final TextBlock layer) {
 		double dx = 0;
-		if (align == HorizontalAlignment.RIGHT) {
+		if (align == HorizontalAlignment.RIGHT)
 			dx = dimTotal.getWidth() - layer.calculateDimension(stringBounder).getWidth();
-		} else if (align == HorizontalAlignment.CENTER) {
+		else if (align == HorizontalAlignment.CENTER)
 			dx = (dimTotal.getWidth() - layer.calculateDimension(stringBounder).getWidth()) / 2;
-		}
+
 		layer.drawU(ug.apply(UTranslate.dx(dx)));
 	}
 
@@ -217,11 +187,11 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 		final TileArguments tileArguments = new TileArguments(stringBounder, livingSpaces, skin, diagram.getSkinParam(),
 				origin);
 
-		this.englobers = new Englobers(tileArguments);
-		final PlayingSpace mainTile = new PlayingSpace(diagram, englobers, tileArguments);
+		this.dolls = new Dolls(tileArguments);
+		final PlayingSpace mainTile = new PlayingSpace(diagram, dolls, tileArguments);
 		this.livingSpaces.addConstraints(stringBounder);
-		mainTile.addConstraints(stringBounder);
-		this.englobers.addConstraints(stringBounder);
+		mainTile.addConstraints();
+		this.dolls.addConstraints(stringBounder);
 		origin.compileNow();
 		tileArguments.setBordered(mainTile);
 		return mainTile;
@@ -232,48 +202,36 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 	}
 
 	private TextBlock getTitle() {
-		if (diagram.getTitle().isNull()) {
+		if (diagram.getTitle().isNull())
 			return new ComponentAdapter(null);
-		}
-		final TextBlock compTitle;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.title)
-					.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder());
-			compTitle = style.createTextBlockBordered(diagram.getTitle().getDisplay(),
-					diagram.getSkinParam().getIHtmlColorSet(), diagram.getSkinParam());
-			return compTitle;
-		} else {
-			compTitle = TextBlockUtils.title(new FontConfiguration(getSkinParam(), FontParam.TITLE, null),
-					diagram.getTitle().getDisplay(), getSkinParam());
-			return TextBlockUtils.withMargin(compTitle, 7, 7);
-		}
+
+		final Style style = StyleSignatureBasic.of(SName.root, SName.document, SName.title)
+				.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder());
+		final TextBlock compTitle = style.createTextBlockBordered(diagram.getTitle().getDisplay(),
+				diagram.getSkinParam().getIHtmlColorSet(), diagram.getSkinParam(), Style.ID_TITLE);
+		return compTitle;
+
 	}
 
 	private TextBlock getLegend() {
 		final Display legend = diagram.getLegend().getDisplay();
-		if (Display.isNull(legend)) {
+		if (Display.isNull(legend))
 			return TextBlockUtils.empty(0, 0);
-		}
+
 		return EntityImageLegend.create(legend, diagram.getSkinParam());
 	}
 
 	public TextBlock getFooterOrHeader(final FontParam param) {
-		if (diagram.getFooterOrHeaderTeoz(param).isNull()) {
+		if (diagram.getFooterOrHeaderTeoz(param).isNull())
 			return new TeozLayer(null, stringBounder, param);
-		}
+
 		final DisplaySection display = diagram.getFooterOrHeaderTeoz(param).withPage(index + 1, getNbPages());
-		final HColor hyperlinkColor = getSkinParam().getHyperlinkColor();
-		final HColor titleColor = getSkinParam().getFontHtmlColor(null, param);
-		final String fontFamily = getSkinParam().getFont(null, false, param).getFamily(null);
-		final int fontSize = getSkinParam().getFont(null, false, param).getSize();
-		Style style = null;
 		final ISkinParam skinParam = diagram.getSkinParam();
-		if (SkinParam.USE_STYLES()) {
-			final StyleSignature def = param.getStyleDefinition(null);
-			style = def.getMergedStyle(skinParam.getCurrentStyleBuilder());
-		}
-		final PngTitler pngTitler = new PngTitler(titleColor, display, fontSize, fontFamily, hyperlinkColor,
-				getSkinParam().useUnderlineForHyperlink(), style, skinParam.getIHtmlColorSet(), skinParam);
+
+		final StyleSignatureBasic def = param.getStyleDefinition(null);
+		final Style style = def.getMergedStyle(skinParam.getCurrentStyleBuilder());
+
+		final PngTitler pngTitler = new PngTitler(display, style, skinParam.getIHtmlColorSet(), skinParam);
 		return new TeozLayer(pngTitler, stringBounder, param);
 	}
 
@@ -286,19 +244,17 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 		final UTranslate min1translate = UTranslate.dx(-min1.getCurrentValue());
 		ug = ug.apply(min1translate);
 
-		englobers.drawEnglobers(goDownAndCenterForEnglobers(ug),
+		dolls.drawEnglobers(goDownAndCenterForEnglobers(ug),
 				body.calculateDimension(stringBounder).getHeight() + heightEnglober1 + heightEnglober2 / 2,
 				new SimpleContext2D(true));
 
 		printAligned(ug, diagram.getFooterOrHeaderTeoz(FontParam.HEADER).getHorizontalAlignment(), header);
 		ug = goDown(ug, header);
 
-		HorizontalAlignment titleAlignment = HorizontalAlignment.CENTER;
-		if (SkinParam.USE_STYLES()) {
-			final StyleSignature def = FontParam.TITLE.getStyleDefinition(null);
-			titleAlignment = def.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder())
-					.getHorizontalAlignment();
-		}
+		final StyleSignatureBasic def = FontParam.TITLE.getStyleDefinition(null);
+		final HorizontalAlignment titleAlignment = def.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder())
+				.getHorizontalAlignment();
+
 		printAligned(ug, titleAlignment, title);
 		ug = goDown(ug, title);
 
@@ -314,12 +270,12 @@ public class SequenceDiagramFileMakerTeoz implements FileMaker {
 		ug = goDown(ug, bodyFramed);
 		ug = ug.apply(UTranslate.dy(heightEnglober2));
 
-		printAligned(ug, HorizontalAlignment.CENTER, caption);
-
 		if (diagram.getLegend().getVerticalAlignment() == VerticalAlignment.BOTTOM) {
 			printAligned(ug, diagram.getLegend().getHorizontalAlignment(), legend);
 			ug = goDown(ug, legend);
 		}
+		printAligned(ug, HorizontalAlignment.CENTER, caption);
+		ug = goDown(ug, caption);
 
 		printAligned(ug, diagram.getFooterOrHeaderTeoz(FontParam.FOOTER).getHorizontalAlignment(), footer);
 	}

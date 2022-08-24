@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
@@ -43,7 +44,13 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileKilled;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.FtileWithNoteOpale;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileWhile;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.Rainbow;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
@@ -51,7 +58,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class InstructionWhile extends WithNote implements Instruction, InstructionCollection {
 
-	private final InstructionList repeatList = new InstructionList();
+	private final InstructionList repeatList = InstructionList.empty();
 	private final Instruction parent;
 	private final LinkRendering nextLinkRenderer;
 	private final HColor color;
@@ -59,14 +66,21 @@ public class InstructionWhile extends WithNote implements Instruction, Instructi
 
 	private final Display test;
 	private Display yes;
-	private Display out = Display.NULL;
+
 	private boolean testCalled = false;
-	private LinkRendering endInlinkRendering = LinkRendering.none();
-	private LinkRendering afterEndwhile = LinkRendering.none();
+
+	private LinkRendering outColor = LinkRendering.none();
 	private final Swimlane swimlane;
 	private final ISkinParam skinParam;
 
 	private Instruction specialOut;
+
+	private BoxStyle boxStyle;
+	private Swimlane swimlaneOut;
+	private Display backward = Display.NULL;
+	private LinkRendering incoming1 = LinkRendering.none();
+	private LinkRendering incoming2 = LinkRendering.none();
+	private boolean backwardCalled;
 
 	public void overwriteYes(Display yes) {
 		this.yes = yes;
@@ -74,39 +88,40 @@ public class InstructionWhile extends WithNote implements Instruction, Instructi
 
 	public InstructionWhile(Swimlane swimlane, Instruction parent, Display test, LinkRendering nextLinkRenderer,
 			Display yes, HColor color, ISkinParam skinParam) {
-		if (test == null) {
-			throw new IllegalArgumentException();
-		}
-		if (yes == null) {
-			throw new IllegalArgumentException();
-		}
 		this.parent = parent;
-		this.test = test;
-		this.nextLinkRenderer = nextLinkRenderer;
-		if (nextLinkRenderer == null) {
-			throw new IllegalArgumentException();
-		}
-		this.yes = yes;
+		this.test = Objects.requireNonNull(test);
+		this.nextLinkRenderer = Objects.requireNonNull(nextLinkRenderer);
+		this.yes = Objects.requireNonNull(yes);
 		this.swimlane = swimlane;
 		this.color = color;
 		this.skinParam = skinParam;
 	}
 
-	public void add(Instruction ins) {
-		repeatList.add(ins);
+	@Override
+	public CommandExecutionResult add(Instruction ins) {
+		return repeatList.add(ins);
 	}
 
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		final Gtile back = null;
+		Gtile tmp = repeatList.createGtile(skinParam, stringBounder);
+		tmp = GtileWhile.createWhile(swimlane, tmp, test, yes, specialOut, back);
+		return tmp;
+	}
+
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
 		final Ftile back = Display.isNull(backward) ? null
-				: factory.activity(backward, swimlane, boxStyle, Colors.empty());
-		Ftile tmp = factory.decorateOut(repeatList.createFtile(factory), endInlinkRendering);
-		tmp = factory.createWhile(swimlane, tmp, test, yes, out, afterEndwhile, color, specialOut, back);
-		if (getPositionedNotes().size() > 0) {
-			tmp = FtileWithNoteOpale.create(tmp, getPositionedNotes(), skinParam, false);
-		}
-		if (killed || specialOut != null) {
+				: factory.activity(backward, swimlane, boxStyle, Colors.empty(), null);
+		Ftile tmp = repeatList.createFtile(factory);
+		tmp = factory.createWhile(outColor, swimlane, tmp, test, yes, color, specialOut, back, incoming1, incoming2);
+		if (getPositionedNotes().size() > 0)
+			tmp = FtileWithNoteOpale.create(tmp, getPositionedNotes(), skinParam, false, VerticalAlignment.CENTER);
+
+		if (killed || specialOut != null)
 			return new FtileKilled(tmp);
-		}
+
 		return tmp;
 	}
 
@@ -114,6 +129,7 @@ public class InstructionWhile extends WithNote implements Instruction, Instructi
 		return parent;
 	}
 
+	@Override
 	final public boolean kill() {
 		if (testCalled) {
 			this.killed = true;
@@ -122,44 +138,43 @@ public class InstructionWhile extends WithNote implements Instruction, Instructi
 		return repeatList.kill();
 	}
 
+	@Override
 	public LinkRendering getInLinkRendering() {
 		return nextLinkRenderer;
 	}
 
-	public void endwhile(LinkRendering nextLinkRenderer, Display out) {
-		this.endInlinkRendering = nextLinkRenderer;
-		this.out = out;
-		if (out == null) {
-			throw new IllegalArgumentException();
-		}
-		this.testCalled = true;
+	public void outDisplay(Display out) {
+		this.outColor = outColor.withDisplay(Objects.requireNonNull(out));
 	}
 
-	public void afterEndwhile(LinkRendering linkRenderer) {
-		this.afterEndwhile = linkRenderer;
+	public void outColor(Rainbow rainbow) {
+		this.outColor = outColor.withRainbow(rainbow);
 	}
 
 	@Override
 	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
-		if (repeatList.isEmpty()) {
+		if (repeatList.isEmpty())
 			return super.addNote(note, position, type, colors, swimlaneNote);
-		} else {
+		else
 			return repeatList.addNote(note, position, type, colors, swimlaneNote);
-		}
 	}
 
+	@Override
 	public Set<Swimlane> getSwimlanes() {
 		return repeatList.getSwimlanes();
 	}
 
+	@Override
 	public Swimlane getSwimlaneIn() {
 		return parent.getSwimlaneIn();
 	}
 
+	@Override
 	public Swimlane getSwimlaneOut() {
 		return parent.getSwimlaneOut();
 	}
 
+	@Override
 	public Instruction getLast() {
 		return repeatList.getLast();
 	}
@@ -168,18 +183,27 @@ public class InstructionWhile extends WithNote implements Instruction, Instructi
 		this.specialOut = special;
 	}
 
+	@Override
 	public boolean containsBreak() {
 		return repeatList.containsBreak();
 	}
 
-	private BoxStyle boxStyle;
-	private Swimlane swimlaneOut;
-	private Display backward = Display.NULL;
-
-	public void setBackward(Display label, Swimlane swimlaneOut, BoxStyle boxStyle) {
+	public void setBackward(Display label, Swimlane swimlaneOut, BoxStyle boxStyle, LinkRendering incoming1,
+			LinkRendering incoming2) {
 		this.backward = label;
 		this.swimlaneOut = swimlaneOut;
 		this.boxStyle = boxStyle;
+		this.incoming1 = incoming1;
+		this.incoming2 = incoming2;
+		this.backwardCalled = true;
+	}
+
+	public void incoming(LinkRendering incoming) {
+		if (backwardCalled == false) {
+			this.incoming1 = incoming;
+			this.incoming2 = incoming;
+		}
+		this.testCalled = true;
 	}
 
 }

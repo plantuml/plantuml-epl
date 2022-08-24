@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,6 +43,7 @@ import java.util.prefs.Preferences;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.api.NumberAnalyzed;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.stats.api.StatsColumn;
 import net.sourceforge.plantuml.stats.api.StatsLine;
 import net.sourceforge.plantuml.stats.api.StatsTable;
@@ -99,7 +100,7 @@ public class FormatCounter {
 						data.put(format, value);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Logme.error(e);
 				}
 			}
 		}

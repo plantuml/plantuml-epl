@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,14 +35,12 @@
 
 package smetana.core;
 
-import h.ST_refstr_t;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import smetana.core.amiga.Area;
+import h.ST_refstr_t;
 
-public class CString extends UnsupportedC implements __ptr__, Area {
+public class CString extends UnsupportedC implements __ptr__ {
 
 	private static int UID = 100;
 
@@ -60,14 +58,8 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 
 	}
 
-	public void memcopyFrom(Area source) {
-		final CString other = (CString) source;
-		this.data2.clear();
-		this.data2.addAll(other.data2);
-	}
-
 	public CString(String string) {
-		this(new ArrayList<Character>(), 0);
+		this(null, 0);
 		for (int i = 0; i < string.length(); i++) {
 			data2.add(string.charAt(i));
 		}
@@ -77,7 +69,7 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 	public CString duplicate() {
 		// return this;
 
-		return new CString(new ArrayList<Character>(this.data2), currentStart);
+		return new CString(new ArrayList<>(this.data2), currentStart);
 
 		// final CString result = new CString(this.data.size());
 		// for (int i = 0; i < result.data.size(); i++) {
@@ -90,42 +82,31 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 		return duplicate();
 	}
 
+	public static CString gmalloc(int nbytes) {
+		return new CString(nbytes);
+	}
+
 	public CString(int size) {
-		this(new ArrayList<Character>(), 0);
+		this(null, 0);
 		for (int i = 0; i < size; i++) {
 			data2.add('\0');
 		}
 	}
 
 	private CString(List<Character> data2, int currentStart) {
-		this.data2 = data2;
+		if (data2 == null)
+			this.data2 = new ArrayList<>();
+		else
+			this.data2 = data2;
 		this.currentStart = currentStart;
 		this.uid = UID;
 		UID += 2;
 		creation.fillInStackTrace();
 	}
 
-	public __ptr__ addVirtualBytes(int bytes) {
+	public __ptr__ getTheField(OFFSET bytes) {
 		JUtils.LOG("CString::addVirtualBytes " + bytes);
 		JUtils.LOG("AM " + this);
-		// if (bytes < 0) {
-		// OFFSET offset = OFFSET.fromInt(-bytes);
-		// JUtils.LOG("offset=" + offset);
-		// for (__ptr__ f : fathers) {
-		// JUtils.LOG("f=" + f);
-		// if (f instanceof StarStruct && ((StarStruct) f).getRealClass() == offset.getTheClass()) {
-		// JUtils.LOG("FOUND1!!");
-		// if (f.getPtr(offset.getField()).equals(this)) {
-		// JUtils.LOG("FOUND2!!");
-		// return f;
-		// }
-		// }
-		// }
-		// } else {
-		// JUtils.LOG("father=" + fathers);
-		// JUtils.LOG("CString created on the following place:");
-		// creation.printStackTrace();
-		// }
 		throw new UnsupportedOperationException();
 	}
 
@@ -148,9 +129,16 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 		this.parent = struct;
 	}
 
-	@Override
-	public CString plus(int pointerMove) {
+	public CString plus_(int pointerMove) {
 		return new CString(data2, currentStart + pointerMove);
+	}
+
+	public int comparePointer(__ptr__ other) {
+		final CString this2 = (CString) other;
+		if (this.data2 != this2.data2) {
+			throw new IllegalArgumentException();
+		}
+		return this.currentStart - this2.currentStart;
 	}
 
 	@Override
@@ -184,9 +172,12 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 
 	public char charAt(int i) {
 		if (i >= getData().size()) {
-			return '\0';
+			throw new UnsupportedOperationException();
+			// return '\0';
 		}
-		return getData().get(i);
+		return data2.get(currentStart + i);
+		// when i<0
+		// return data2.subList(currentStart, data2.size()).get(i);
 	}
 
 	public char setCharAt(int i, char c) {
@@ -205,7 +196,7 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 		throw new IllegalStateException();
 	}
 
-	public int compareTo(CString other) {
+	public int strcmp(CString other) {
 		for (int i = 0; i < data2.size() - currentStart; i++) {
 			final int diff = this.charAt(i) - other.charAt(i);
 			if (this.charAt(i) == '\0' || diff != 0) {
@@ -215,7 +206,7 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 		throw new IllegalStateException();
 	}
 
-	public int compareTo(CString other, int num) {
+	public int strcmp(CString other, int num) {
 		for (int i = 0; i < data2.size() - currentStart && i < num; i++) {
 			final int diff = this.charAt(i) - other.charAt(i);
 			if (this.charAt(i) == '\0' || diff != 0) {
@@ -233,7 +224,7 @@ public class CString extends UnsupportedC implements __ptr__, Area {
 
 	public CString strchr(char c) {
 		for (int i = currentStart; i < data2.size(); i++) {
-			if (data2.get(i).charValue() == c) {
+			if (data2.get(i) == c) {
 				return new CString(data2, i);
 			}
 		}

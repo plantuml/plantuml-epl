@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,12 +39,14 @@ import java.io.OutputStream;
 
 public interface Graphviz {
 
-	ProcessState createFile3(OutputStream os);
+	public ProcessState createFile3(OutputStream os);
 
-	File getDotExe();
+	public File getDotExe();
 
-	String dotVersion();
+	public String dotVersion();
 
-	ExeState getExeState();
+	public ExeState getExeState();
+
+	public boolean graphviz244onWindows();
 
 }

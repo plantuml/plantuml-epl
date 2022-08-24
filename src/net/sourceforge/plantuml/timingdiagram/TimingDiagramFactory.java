@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,9 +37,13 @@ package net.sourceforge.plantuml.timingdiagram;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.timingdiagram.command.CommandAnalog;
 import net.sourceforge.plantuml.timingdiagram.command.CommandAtPlayer;
 import net.sourceforge.plantuml.timingdiagram.command.CommandAtTime;
@@ -60,20 +64,21 @@ import net.sourceforge.plantuml.timingdiagram.command.CommandRobustConcise;
 import net.sourceforge.plantuml.timingdiagram.command.CommandScalePixel;
 import net.sourceforge.plantuml.timingdiagram.command.CommandTicks;
 import net.sourceforge.plantuml.timingdiagram.command.CommandTimeMessage;
+import net.sourceforge.plantuml.timingdiagram.command.CommandUseDateFormat;
 
-public class TimingDiagramFactory extends UmlDiagramFactory {
+public class TimingDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public TimingDiagram createEmptyDiagram() {
-		return new TimingDiagram();
+	public TimingDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new TimingDiagram(style, source);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
 		cmds.add(new CommandFootboxIgnored());
 		cmds.add(new CommandRobustConcise());
 		cmds.add(new CommandClock());
@@ -95,6 +100,7 @@ public class TimingDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandModeCompact());
 		cmds.add(new CommandTicks());
 		cmds.add(new CommandPixelHeight());
+		cmds.add(new CommandUseDateFormat());
 
 		return cmds;
 	}

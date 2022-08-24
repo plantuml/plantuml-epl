@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,23 +35,25 @@
 package net.sourceforge.plantuml.sprite;
 
 import java.awt.Color;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ColorPalette4096 {
 
 	private static final String colorValue = "!#$%&*+-:;<=>?@^_~GHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	public String getStringFor(Color dest) {
-		return getStringFor(new HColorSimple(dest, false));
+		return getStringFor(HColors.simple(dest));
 	}
 
 	public String getStringFor(HColor dest) {
 		int result = 0;
-		double resultDist = Double.MAX_VALUE;
+		int resultDist = Integer.MAX_VALUE;
 		for (int i = 0; i < 4096; i++) {
-			final double dist = ((HColorSimple) dest).distance(getHtmlColorSimpleFor(i));
+			final int dist = ((HColorSimple) dest).distanceTo((HColorSimple) getHtmlColorSimpleFor(i));
 			if (dist < resultDist) {
 				result = i;
 				resultDist = dist;
@@ -67,26 +69,23 @@ public class ColorPalette4096 {
 		return "" + colorValue.charAt(v1) + colorValue.charAt(v2);
 	}
 
-	private HColorSimple getHtmlColorSimpleFor(int s) {
-		final Color color = getColorFor(s);
-		if (color == null) {
-			throw new IllegalArgumentException();
-		}
-		return new HColorSimple(color, false);
+	private HColor getHtmlColorSimpleFor(int s) {
+		final Color color = Objects.requireNonNull(getColorFor(s));
+		return HColors.simple(color);
 	}
 
 	public Color getColorFor(String s) {
-		if (s.length() != 2) {
+		if (s.length() != 2)
 			throw new IllegalArgumentException();
-		}
+
 		final int v1 = colorValue.indexOf(s.charAt(0));
-		if (v1 == -1) {
+		if (v1 == -1)
 			return null;
-		}
+
 		final int v2 = colorValue.indexOf(s.charAt(1));
-		if (v2 == -1) {
+		if (v2 == -1)
 			return null;
-		}
+
 		final int code = v1 * 64 + v2;
 		return getColorFor(code);
 	}

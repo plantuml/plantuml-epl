@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,43 +36,42 @@ package net.sourceforge.plantuml.eggs;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.OutputStream;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.AffineTransformType;
-import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
+import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 import net.sourceforge.plantuml.version.PSystemVersion;
 
-public class PSystemCharlie extends AbstractPSystem {
+public class PSystemCharlie extends PlainDiagram {
 
 	private BufferedImage image;
 
-	PSystemCharlie() {
+	PSystemCharlie(UmlSource source) {
+		super(source);
 		image = PSystemVersion.getCharlieImage();
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, getMetadata(),
-				null, 1.0, HColorUtils.BLACK);
-		imageBuilder.setUDrawable(new UDrawable() {
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return super.createImageBuilder(fileFormatOption)
+				.blackBackcolor();
+	}
 
+	@Override
+	public UDrawable getRootDrawable(FileFormatOption fileFormatOption) {
+		return new UDrawable() {
 			public void drawU(UGraphic ug) {
 				final UImage im = new UImage(new PixelImage(image, AffineTransformType.TYPE_BILINEAR));
 				ug.draw(im);
 			}
-		});
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
+		};
 	}
 
 	public DiagramDescription getDescription() {

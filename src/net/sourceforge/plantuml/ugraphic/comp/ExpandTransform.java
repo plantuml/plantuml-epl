@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,7 @@ import java.util.TreeSet;
 
 public class ExpandTransform implements PiecewiseAffineTransform {
 
-	private final Set<Expand> all = new TreeSet<Expand>();
+	private final Set<Expand> all = new TreeSet<>();
 
 	@Override
 	public String toString() {

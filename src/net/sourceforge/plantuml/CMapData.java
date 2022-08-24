@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -78,7 +78,7 @@ public class CMapData {
 	public static CMapData cmapString(Set<Url> allUrlEncountered, double scale) {
 		final CMapData cmapdata = new CMapData();
 
-		final List<Url> all = new ArrayList<Url>(allUrlEncountered);
+		final List<Url> all = new ArrayList<>(allUrlEncountered);
 		Collections.sort(all, Url.SURFACE_COMPARATOR);
 
 		int seq = 1;

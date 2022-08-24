@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,7 +43,7 @@ public class FileSystem {
 
 	private final static FileSystem singleton = new FileSystem();
 
-	private final ThreadLocal<SFile> currentDir = new ThreadLocal<SFile>();
+	private ThreadLocal<String> currentDir = new ThreadLocal<>();
 
 	private FileSystem() {
 		reset();
@@ -54,46 +54,46 @@ public class FileSystem {
 	}
 
 	public void setCurrentDir(SFile dir) {
-		// if (dir == null) {
-		// throw new IllegalArgumentException();
-		// }
-		if (dir != null) {
+		if (dir == null) {
+			this.currentDir.set(null);
+		} else {
 			Log.info("Setting current dir: " + dir.getAbsolutePath());
+			this.currentDir.set(dir.getAbsolutePath());
 		}
-		this.currentDir.set(dir);
 	}
 
 	public SFile getCurrentDir() {
-		return this.currentDir.get();
+		final String path = this.currentDir.get();
+		if (path != null) {
+			return new SFile(path);
+		}
+		return null;
 	}
 
 	public SFile getFile(String nameOrPath) throws IOException {
-		if (isAbsolute(nameOrPath)) {
+		if (isAbsolute(nameOrPath))
 			return new SFile(nameOrPath).getCanonicalFile();
-		}
-		final SFile dir = currentDir.get();
+
+		final SFile dir = getCurrentDir();
 		SFile filecurrent = null;
 		if (dir != null) {
 			filecurrent = dir.getAbsoluteFile().file(nameOrPath);
-			if (filecurrent.exists()) {
+			if (filecurrent.exists())
 				return filecurrent.getCanonicalFile();
 
-			}
 		}
-		for (SFile d : SecurityUtils.getPath("plantuml.include.path")) {
+		for (SFile d : SecurityUtils.getPath(SecurityUtils.PATHS_INCLUDES)) {
 			assert d.isDirectory();
 			final SFile file = d.file(nameOrPath);
-			if (file.exists()) {
+			if (file.exists())
+				return file.getCanonicalFile();
+		}
+		for (SFile d : SecurityUtils.getPath(SecurityUtils.PATHS_CLASSES)) {
+			assert d.isDirectory();
+			final SFile file = d.file(nameOrPath);
+			if (file.exists())
 				return file.getCanonicalFile();
 
-			}
-		}
-		for (SFile d : SecurityUtils.getPath("java.class.path")) {
-			assert d.isDirectory();
-			final SFile file = d.file(nameOrPath);
-			if (file.exists()) {
-				return file.getCanonicalFile();
-			}
 		}
 		if (dir == null) {
 			assert filecurrent == null;

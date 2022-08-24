@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,10 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.skin.AbstractTextualComponent;
@@ -57,22 +53,16 @@ public class ComponentRoseEnglober extends AbstractTextualComponent {
 	private final SymbolContext symbolContext;
 	private final double roundCorner;
 
-	public ComponentRoseEnglober(Style style, SymbolContext symbolContext, Display strings, FontConfiguration font,
-			ISkinSimple spriteContainer, double roundCorner) {
-		super(style, LineBreakStrategy.NONE, strings, font, HorizontalAlignment.CENTER, 3, 3, 1, spriteContainer,
-				false, null, null);
-		if (SkinParam.USE_STYLES()) {
-			roundCorner = style.value(PName.RoundCorner).asDouble();
-			symbolContext = style.getSymbolContext(getIHtmlColorSet());
-		}
-		this.roundCorner = roundCorner;
-		this.symbolContext = symbolContext;
+	public ComponentRoseEnglober(Style style, Display strings, ISkinSimple spriteContainer) {
+		super(style, LineBreakStrategy.NONE, 3, 3, 1, spriteContainer, strings, false);
+		this.roundCorner = style.value(PName.RoundCorner).asDouble();
+		this.symbolContext = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
 	}
 
 	@Override
 	protected void drawBackgroundInternalU(UGraphic ug, Area area) {
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
-		ug = symbolContext.transparentBackColorToNull().apply(ug);
+		ug = symbolContext.apply(ug);
 		ug.draw(new URectangle(dimensionToUse.getWidth(), dimensionToUse.getHeight()).rounded(roundCorner));
 		final double xpos = (dimensionToUse.getWidth() - getPureTextWidth(ug.getStringBounder())) / 2;
 		getTextBlock().drawU(ug.apply(UTranslate.dx(xpos)));

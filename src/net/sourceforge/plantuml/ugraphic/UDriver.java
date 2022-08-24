@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,7 +36,7 @@ package net.sourceforge.plantuml.ugraphic;
 
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public interface UDriver<O> {
-	public void draw(UShape shape, double x, double y, ColorMapper mapper, UParam param, O object);
+public interface UDriver<SHAPE extends UShape, O> {
+	public void draw(SHAPE shape, double x, double y, ColorMapper mapper, UParam param, O object);
 
 }

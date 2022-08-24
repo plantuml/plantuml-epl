@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,34 +34,30 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.SkinParam;
-import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotData;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UHidden;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public final class SvekResult extends AbstractTextBlock implements IEntityImage {
-
-	private final Rose rose = new Rose();
 
 	private final DotData dotData;
 	private final DotStringFactory dotStringFactory;
@@ -73,66 +69,56 @@ public final class SvekResult extends AbstractTextBlock implements IEntityImage 
 
 	public void drawU(UGraphic ug) {
 
-		for (Cluster cluster : dotStringFactory.getBibliotekon().allCluster()) {
-			cluster.drawU(ug, new UStroke(1.5), dotData.getUmlDiagramType(), dotData.getSkinParam());
-		}
+		for (Cluster cluster : dotStringFactory.getBibliotekon().allCluster())
+			cluster.drawU(ug, dotData.getUmlDiagramType(), dotData.getSkinParam());
 
-		HColor color = rose.getHtmlColor(dotData.getSkinParam(), null, getArrowColorParam());
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinition()
-					.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
-			color = style.value(PName.LineColor).asColor(dotData.getSkinParam().getIHtmlColorSet());
-		}
-		color = HColorUtils.noGradient(color);
+		final Style style2 = getDefaultStyleDefinition(null)
+				.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
 
-		for (Node node : dotStringFactory.getBibliotekon().allNodes()) {
+		HColor color = style2.value(PName.LineColor).asColor(dotData.getSkinParam().getThemeStyle(),
+				dotData.getSkinParam().getIHtmlColorSet());
+		color = HColors.noGradient(color);
+
+		for (SvekNode node : dotStringFactory.getBibliotekon().allNodes()) {
 			final double minX = node.getMinX();
 			final double minY = node.getMinY();
 			final UGraphic ug2 = node.isHidden() ? ug.apply(UHidden.HIDDEN) : ug;
 			final IEntityImage image = node.getImage();
 			image.drawU(ug2.apply(new UTranslate(minX, minY)));
-			if (image instanceof Untranslated) {
+			if (image instanceof Untranslated)
 				((Untranslated) image).drawUntranslated(ug.apply(color), minX, minY);
-			}
-			// shape.getImage().drawNeighborhood(ug2, minX, minY);
+
 		}
 
-		final Set<String> ids = new HashSet<String>();
+		final Set<String> ids = new HashSet<>();
 
-		for (Line line : dotStringFactory.getBibliotekon().allLines()) {
+		for (SvekLine line : dotStringFactory.getBibliotekon().allLines()) {
 			final UGraphic ug2 = line.isHidden() ? ug.apply(UHidden.HIDDEN) : ug;
-			line.drawU(ug2, color, ids);
+
+			final StyleBuilder currentStyleBuilder = line.getCurrentStyleBuilder();
+			final Style styleLine = getDefaultStyleDefinition(line.getStereotype()).getMergedStyle(currentStyleBuilder);
+			color = styleLine.value(PName.LineColor).asColor(dotData.getSkinParam().getThemeStyle(),
+					dotData.getSkinParam().getIHtmlColorSet());
+			color = HColors.noGradient(color);
+
+			line.drawU(ug2, styleLine.getStroke(), color, ids);
 		}
 
 	}
 
-	private ColorParam getArrowColorParam() {
-		if (dotData.getUmlDiagramType() == UmlDiagramType.CLASS) {
-			return ColorParam.arrow;
-		} else if (dotData.getUmlDiagramType() == UmlDiagramType.OBJECT) {
-			return ColorParam.arrow;
-		} else if (dotData.getUmlDiagramType() == UmlDiagramType.DESCRIPTION) {
-			return ColorParam.arrow;
-		} else if (dotData.getUmlDiagramType() == UmlDiagramType.ACTIVITY) {
-			return ColorParam.arrow;
-		} else if (dotData.getUmlDiagramType() == UmlDiagramType.STATE) {
-			return ColorParam.arrow;
-		}
-		throw new IllegalStateException();
-	}
+	private StyleSignature getDefaultStyleDefinition(Stereotype stereotype) {
+		StyleSignature result = StyleSignatureBasic.of(SName.root, SName.element,
+				dotData.getUmlDiagramType().getStyleName(), SName.arrow);
 
-	private StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, dotData.getUmlDiagramType().getStyleName(), SName.arrow);
+		return result.withTOBECHANGED(stereotype);
 	}
 
 	// Duplicate SvekResult / GeneralImageBuilder
 	public HColor getBackcolor() {
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.document)
-					.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
-			return style.value(PName.BackGroundColor).asColor(dotData.getSkinParam().getIHtmlColorSet());
-		}
-		return dotData.getSkinParam().getBackgroundColor(false);
+		final Style style = StyleSignatureBasic.of(SName.root, SName.document)
+				.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
+		return style.value(PName.BackGroundColor).asColor(dotData.getSkinParam().getThemeStyle(),
+				dotData.getSkinParam().getIHtmlColorSet());
 	}
 
 	private MinMax minMax;

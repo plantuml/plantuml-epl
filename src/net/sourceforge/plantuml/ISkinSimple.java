@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,7 +36,7 @@ package net.sourceforge.plantuml;
 
 import java.util.Map;
 
-import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public interface ISkinSimple extends SpriteContainer {
@@ -57,8 +57,10 @@ public interface ISkinSimple extends SpriteContainer {
 
 	public LineBreakStrategy wrapWidth();
 
-	public ColorMapper getColorMapper();
-
 	public void copyAllFrom(ISkinSimple other);
+
+	public double minClassWidth();
+	
+	public ThemeStyle getThemeStyle();
 
 }

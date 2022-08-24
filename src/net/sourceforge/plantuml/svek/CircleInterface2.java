@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,15 +34,13 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -54,7 +52,6 @@ public class CircleInterface2 extends AbstractTextBlock implements TextBlock {
 
 	private final HColor backgroundColor;
 	private final HColor foregroundColor;
-	private final float thickness = 2;
 
 	private final double deltaShadow;
 
@@ -69,8 +66,7 @@ public class CircleInterface2 extends AbstractTextBlock implements TextBlock {
 		double y = 0;
 		x += margin;
 		y += margin;
-		ug = ug.apply(new UStroke(thickness)).apply(backgroundColor.bg())
-				.apply(foregroundColor);
+		ug = ug.apply(backgroundColor.bg()).apply(foregroundColor);
 		final UEllipse circle = new UEllipse(radius * 2, radius * 2);
 		circle.setDeltaShadow(deltaShadow);
 		ug.apply(new UTranslate(x, y)).draw(circle);

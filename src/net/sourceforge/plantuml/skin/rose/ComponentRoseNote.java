@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,10 +35,8 @@
 package net.sourceforge.plantuml.skin.rose;
 
 import net.sourceforge.plantuml.ISkinSimple;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.creole.Stencil;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
@@ -59,21 +57,18 @@ final public class ComponentRoseNote extends AbstractTextualComponent implements
 	private final double paddingY;
 	private final SymbolContext symbolContext;
 	private final double roundCorner;
+	private final HorizontalAlignment position;
 
-	public ComponentRoseNote(Style style, SymbolContext symbolContext, FontConfiguration font, Display strings,
-			double paddingX, double paddingY, ISkinSimple spriteContainer, double roundCorner,
-			HorizontalAlignment horizontalAlignment) {
-		super(style, spriteContainer.wrapWidth(), strings, font, horizontalAlignment,
-				horizontalAlignment == HorizontalAlignment.CENTER ? 15 : 6, 15, 5, spriteContainer, true, null, null);
+	public ComponentRoseNote(Style style, Display strings, double paddingX, double paddingY,
+			ISkinSimple spriteContainer, HorizontalAlignment textAlignment, HorizontalAlignment position) {
+		super(style, spriteContainer.wrapWidth(), textAlignment == HorizontalAlignment.CENTER ? 15 : 6, 15, 5, spriteContainer,
+				strings, true);
 		this.paddingX = paddingX;
 		this.paddingY = paddingY;
-		if (SkinParam.USE_STYLES()) {
-			this.symbolContext = style.getSymbolContext(getIHtmlColorSet());
-			this.roundCorner = style.value(PName.RoundCorner).asInt();
-		} else {
-			this.symbolContext = symbolContext;
-			this.roundCorner = roundCorner;
-		}
+		this.position = position;
+		this.symbolContext = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
+
 	}
 
 	@Override
@@ -120,7 +115,15 @@ final public class ComponentRoseNote extends AbstractTextualComponent implements
 
 		ug.draw(Opale.getCorner(x2, roundCorner));
 		UGraphic ug2 = UGraphicStencil.create(ug, this, new UStroke());
-		ug2 = ug2.apply(new UTranslate(getMarginX1() + diffX / 2, getMarginY()));
+
+		if (position == HorizontalAlignment.LEFT) {
+			ug2 = ug2.apply(new UTranslate(getMarginX1(), getMarginY()));
+		} else if (position == HorizontalAlignment.RIGHT) {
+			ug2 = ug2.apply(
+					new UTranslate(area.getDimensionToUse().getWidth() - getTextWidth(stringBounder), getMarginY()));
+		} else {
+			ug2 = ug2.apply(new UTranslate(getMarginX1() + diffX / 2, getMarginY()));
+		}
 
 		getTextBlock().drawU(ug2);
 

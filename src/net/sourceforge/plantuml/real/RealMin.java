@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import java.util.List;
 
 class RealMin extends AbstractReal implements Real {
 
-	private final List<Real> all = new ArrayList<Real>();
+	private final List<Real> all = new ArrayList<>();
 
 	RealMin(Collection<Real> reals) {
 		super(RealMax.line(reals));

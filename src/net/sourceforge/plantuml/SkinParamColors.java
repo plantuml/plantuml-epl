@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -54,7 +54,7 @@ public class SkinParamColors extends SkinParamDelegator {
 
 	@Override
 	public String toString() {
-		return super.toString() + colors;
+		return "SkinParamColors::" + colors;
 	}
 
 	@Override

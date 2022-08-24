@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -42,6 +41,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.EmbeddedDiagram;
 import net.sourceforge.plantuml.SpriteContainer;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -71,7 +71,7 @@ public final class TextBlockSimple extends AbstractTextBlock implements TextBloc
 			if (stringBounder == null) {
 				throw new IllegalStateException();
 			}
-			this.lines = new ArrayList<Line>();
+			this.lines = new ArrayList<>();
 			for (CharSequence s : texts) {
 				if (s instanceof EmbeddedDiagram) {
 					lines.add(((EmbeddedDiagram) s).asDraw(null));

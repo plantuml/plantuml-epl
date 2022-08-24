@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,19 +34,19 @@
  */
 package net.sourceforge.plantuml.xmi;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -61,6 +61,7 @@ import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.utils.UniqueSequence;
+import net.sourceforge.plantuml.xml.XmlFactories;
 
 abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 
@@ -71,13 +72,12 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 	protected final Document document;
 	protected Element ownedElement;
 
-	protected final Set<IEntity> done = new HashSet<IEntity>();
+	protected final Set<IEntity> done = new HashSet<>();
 
 	public XmiClassDiagramAbstract(ClassDiagram classDiagram) throws ParserConfigurationException {
 		this.classDiagram = classDiagram;
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-		final DocumentBuilder builder = factory.newDocumentBuilder();
+		final DocumentBuilder builder = XmlFactories.newDocumentBuilder();
 		this.document = builder.newDocument();
 		document.setXmlVersion("1.0");
 		document.setXmlStandalone(true);
@@ -128,11 +128,10 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 
 		final Result resultat = new StreamResult(os);
 
-		final TransformerFactory fabrique = TransformerFactory.newInstance();
-		final Transformer transformer = fabrique.newTransformer();
+		final Transformer transformer = XmlFactories.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		// transformer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		transformer.setOutputProperty(OutputKeys.ENCODING, UTF_8.name());
 		// tf.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		transformer.transform(source, resultat);
 	}
@@ -179,7 +178,8 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 		final Element feature = document.createElement("UML:Classifier.feature");
 		cla.appendChild(feature);
 
-		for (Member m : entity.getBodier().getFieldsToDisplay()) {
+		for (CharSequence cs : entity.getBodier().getFieldsToDisplay()) {
+			final Member m = (Member) cs;
 			// <UML:Attribute xmi.id="UMLAttribute.6" name="Attribute1"
 			// visibility="public" isSpecification="false"
 			// ownerScope="instance" changeability="changeable"
@@ -194,7 +194,8 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 			feature.appendChild(attribute);
 		}
 
-		for (Member m : entity.getBodier().getMethodsToDisplay()) {
+		for (CharSequence cs : entity.getBodier().getMethodsToDisplay()) {
+			final Member m = (Member) cs;
 			// <UML:Operation xmi.id="UMLOperation.7" name="Operation1"
 			// visibility="public" isSpecification="false"
 			// ownerScope="instance" isQuery="false" concurrency="sequential"

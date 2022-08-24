@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,19 +34,28 @@
  */
 package net.sourceforge.plantuml.api;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.CMapData;
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 public class ImageDataComplex extends ImageDataAbstract {
 
 	private final CMapData cmap;
 	private final String warningOrError;
 
+	@SuppressWarnings("unused")  // available publicly so retained for backwards compatibility
+	@HaxeIgnored
 	public ImageDataComplex(Dimension2D info, CMapData cmap, String warningOrError) {
 		super(info);
 		this.cmap = cmap;
 		this.warningOrError = warningOrError;
+	}
+
+	public ImageDataComplex(Dimension2D info, CMapData cmap, String warningOrError, int status) {
+		super(info);
+		this.cmap = cmap;
+		this.warningOrError = warningOrError;
+		setStatus(status);
 	}
 
 	public boolean containsCMapData() {

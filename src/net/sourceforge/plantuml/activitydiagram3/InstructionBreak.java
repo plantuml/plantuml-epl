@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,17 @@
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
+import java.util.Objects;
+
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileBreak;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileBreak;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.graphic.StringBounder;
 
 public class InstructionBreak extends MonoSwimable implements Instruction {
 
@@ -45,20 +52,25 @@ public class InstructionBreak extends MonoSwimable implements Instruction {
 
 	public InstructionBreak(Swimlane swimlane, LinkRendering inlinkRendering) {
 		super(swimlane);
-		this.inlinkRendering = inlinkRendering;
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 	}
 
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
 		return new FtileBreak(factory.skinParam(), getSwimlaneIn());
 	}
 
-	public void add(Instruction other) {
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		return new GtileBreak(stringBounder, skinParam, getSwimlaneIn());
+	}
+
+	@Override
+	public CommandExecutionResult add(Instruction other) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	final public boolean kill() {
 		return false;
 	}

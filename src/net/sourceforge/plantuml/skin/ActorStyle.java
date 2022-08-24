@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,25 +37,32 @@ package net.sourceforge.plantuml.skin;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 
 public enum ActorStyle {
 
-	STICKMAN, AWESOME;
+	STICKMAN, STICKMAN_BUSINESS, AWESOME, HOLLOW;
 
 	public USymbol toUSymbol() {
 		if (this == STICKMAN) {
-			return USymbol.ACTOR_STICKMAN;
+			return USymbols.ACTOR_STICKMAN;
 		} else if (this == AWESOME) {
-			return USymbol.ACTOR_AWESOME;
+			return USymbols.ACTOR_AWESOME;
+		} else if (this == HOLLOW) {
+			return USymbols.ACTOR_HOLLOW;
 		}
 		throw new IllegalStateException();
 	}
 
 	public TextBlock getTextBlock(SymbolContext symbolContext) {
 		if (this == STICKMAN) {
-			return new ActorStickMan(symbolContext);
+			return new ActorStickMan(symbolContext, false);
+		} else if (this == STICKMAN_BUSINESS) {
+			return new ActorStickMan(symbolContext, true);
 		} else if (this == AWESOME) {
 			return new ActorAwesome(symbolContext);
+		} else if (this == HOLLOW) {
+			return new ActorHollow(symbolContext);
 		}
 		throw new IllegalStateException();
 	}

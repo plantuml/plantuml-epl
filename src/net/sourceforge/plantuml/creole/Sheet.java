@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,7 +42,7 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 
 public class Sheet implements Iterable<Stripe> {
 
-	private final List<Stripe> stripes = new ArrayList<Stripe>();
+	private final List<Stripe> stripes = new ArrayList<>();
 	private final HorizontalAlignment horizontalAlignment;
 
 	public Sheet(HorizontalAlignment horizontalAlignment) {

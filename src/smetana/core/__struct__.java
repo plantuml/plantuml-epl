@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,19 +35,10 @@
 
 package smetana.core;
 
-import smetana.core.amiga.Area;
-import smetana.core.amiga.StarStruct;
-
-public interface __struct__<C extends __ptr__> extends __c__fields, Area {
+public interface __struct__<C extends __ptr__> {
 
 	public __struct__<C> copy();
 
 	public void ___(__struct__<C> other);
-
-	public void ____(__ptr__ other);
-
-	public StarStruct amp();
-
-	public StarStruct getInternalData();
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,24 +35,26 @@
 package net.sourceforge.plantuml.sprite;
 
 import java.awt.Color;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ColorPalette {
 
 	private static final String colorValue = "!#$%&*+-:;<=>?@^_~GHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	public char getCharFor(Color dest) {
-		return getCharFor(new HColorSimple(dest, false));
+		return getCharFor(HColors.simple(dest));
 	}
 
 	public char getCharFor(HColor dest) {
 		char result = 0;
-		double resultDist = Double.MAX_VALUE;
+		int resultDist = Integer.MAX_VALUE;
 		for (int i = 0; i < colorValue.length(); i++) {
 			final char c = colorValue.charAt(i);
-			final double dist = ((HColorSimple) dest).distance(getHtmlColorSimpleFor(c));
+			final int dist = ((HColorSimple) dest).distanceTo((HColorSimple) getHtmlColorSimpleFor(c));
 			if (dist < resultDist) {
 				result = c;
 				resultDist = dist;
@@ -62,12 +64,9 @@ public class ColorPalette {
 		return result;
 	}
 
-	private HColorSimple getHtmlColorSimpleFor(char c) {
-		final Color color = getColorFor(c);
-		if (color == null) {
-			throw new IllegalArgumentException();
-		}
-		return new HColorSimple(color, false);
+	private HColor getHtmlColorSimpleFor(char c) {
+		final Color color = Objects.requireNonNull(getColorFor(c));
+		return HColors.simple(color);
 	}
 
 	public Color getColorFor(char c) {

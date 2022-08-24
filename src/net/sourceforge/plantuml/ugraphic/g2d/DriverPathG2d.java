@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,14 +43,12 @@ import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.USegment;
 import net.sourceforge.plantuml.ugraphic.USegmentType;
-import net.sourceforge.plantuml.ugraphic.UShape;
-import net.sourceforge.plantuml.ugraphic.arc.ExtendedGeneralPath;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
-public class DriverPathG2d extends DriverShadowedG2d implements UDriver<Graphics2D> {
+public class DriverPathG2d extends DriverShadowedG2d implements UDriver<UPath, Graphics2D> {
 
 	private final double dpiFactor;
 
@@ -58,8 +56,7 @@ public class DriverPathG2d extends DriverShadowedG2d implements UDriver<Graphics
 		this.dpiFactor = dpiFactor;
 	}
 
-	public void draw(UShape ushape, final double x, final double y, ColorMapper mapper, UParam param, Graphics2D g2d) {
-		final UPath shape = (UPath) ushape;
+	public void draw(UPath shape, final double x, final double y, ColorMapper mapper, UParam param, Graphics2D g2d) {
 		DriverLineG2d.manageStroke(param, g2d);
 
 		final HColor back = param.getBackcolor();
@@ -95,7 +92,7 @@ public class DriverPathG2d extends DriverShadowedG2d implements UDriver<Graphics
 
 		// Shadow
 		if (shape.getDeltaShadow() != 0) {
-			if (back == null || HColorUtils.isTransparent(back)) {
+			if (back == null || HColors.isTransparent(back)) {
 				drawOnlyLineShadowSpecial(g2d, p, shape.getDeltaShadow(), dpiFactor);
 			} else {
 				drawShadow(g2d, p, shape.getDeltaShadow(), dpiFactor);

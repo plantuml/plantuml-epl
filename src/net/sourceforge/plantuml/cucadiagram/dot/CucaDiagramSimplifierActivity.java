@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -58,7 +58,7 @@ public final class CucaDiagramSimplifierActivity {
 		boolean changed;
 		do {
 			changed = false;
-			final Collection<IGroup> groups = new ArrayList<IGroup>(diagram.getGroups(false));
+			final Collection<IGroup> groups = new ArrayList<>(diagram.getGroups(false));
 			for (IGroup g : groups) {
 				if (diagram.isAutarkic(g)) {
 					// final EntityType type;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,7 +45,7 @@ import net.sourceforge.plantuml.StringLocated;
 public class FunctionsSet {
 
 	private final Map<TFunctionSignature, TFunction> functions = new HashMap<TFunctionSignature, TFunction>();
-	private final Set<TFunctionSignature> functionsFinal = new HashSet<TFunctionSignature>();
+	private final Set<TFunctionSignature> functionsFinal = new HashSet<>();
 	private final Trie functions3 = new TrieImpl();
 	private TFunctionImpl pendingFunction;
 

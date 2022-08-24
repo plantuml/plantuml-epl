@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.activitydiagram3.command.CommandActivityLong3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandArrow3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandArrowLong3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandBackward3;
+import net.sourceforge.plantuml.activitydiagram3.command.CommandBackwardLong3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandBreak;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandCase;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandCircleSpot3;
@@ -82,26 +83,23 @@ import net.sourceforge.plantuml.activitydiagram3.command.CommandSwimlane2;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandSwitch;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandWhile3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandWhileEnd3;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandDecoratorMultine;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class ActivityDiagramFactory3 extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public ActivityDiagramFactory3(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class ActivityDiagramFactory3 extends PSystemCommandFactory {
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandFootboxIgnored());
 
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
 		cmds.add(new CommandSwimlane());
 		cmds.add(new CommandSwimlane2());
 		cmds.add(new CommandPartition3());
@@ -114,11 +112,11 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 		cmds.add(new CommandActivity3());
 		cmds.add(new CommandIf4());
 		cmds.add(new CommandIf2());
-		cmds.add(new CommandDecoratorMultine(new CommandIf2(), 50));
+		cmds.add(CommandDecoratorMultine.create(new CommandIf2(), 50));
 		cmds.add(new CommandIfLegacy1());
 		cmds.add(new CommandElseIf2());
 		cmds.add(new CommandElse3());
-		cmds.add(new CommandDecoratorMultine(new CommandElse3(), 50));
+		cmds.add(CommandDecoratorMultine.create(new CommandElse3(), 50));
 		cmds.add(new CommandElseLegacy1());
 		cmds.add(new CommandEndif3());
 
@@ -129,13 +127,14 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 		cmds.add(new CommandRepeatWhile3());
 		cmds.add(new CommandRepeatWhile3Multilines());
 		cmds.add(new CommandBackward3());
+		cmds.add(new CommandBackwardLong3());
 		cmds.add(new CommandWhile3());
 		cmds.add(new CommandWhileEnd3());
-		
+
 		cmds.add(new CommandFork3());
 		cmds.add(new CommandForkAgain3());
 		cmds.add(new CommandForkEnd3());
-		
+
 		cmds.add(new CommandSplit3());
 		cmds.add(new CommandSplitAgain3());
 		cmds.add(new CommandSplitEnd3());
@@ -156,14 +155,14 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 
 		cmds.add(new CommandLabel());
 		cmds.add(new CommandGoto());
-		cmds.add(new CommandDecoratorMultine(new CommandElseIf2(), 50));
+		cmds.add(CommandDecoratorMultine.create(new CommandElseIf2(), 50));
 
 		return cmds;
 	}
 
 	@Override
-	public ActivityDiagram3 createEmptyDiagram() {
-		return new ActivityDiagram3(skinParam);
+	public ActivityDiagram3 createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new ActivityDiagram3(style, source, skinParam);
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,11 +45,12 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.graphic.UDrawable;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class BpmDiagram extends UmlDiagram {
@@ -67,42 +68,33 @@ public class BpmDiagram extends UmlDiagram {
 
 	private final BpmElement start = new BpmElement(null, BpmElementType.START);
 
-	private List<BpmEvent> events = new ArrayList<BpmEvent>();
-	private Deque<BpmBranch> branches = new ArrayDeque<BpmBranch>();
+	private List<BpmEvent> events = new ArrayList<>();
+	private Deque<BpmBranch> branches = new ArrayDeque<>();
 
 	public DiagramDescription getDescription() {
 		return new DiagramDescription("(Bpm Diagram)");
 	}
 
+	public BpmDiagram(ThemeStyle style, UmlSource source) {
+		super(style, source, UmlDiagramType.BPM, null);
+	}
+
 	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.BPM;
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return super.createImageBuilder(fileFormatOption).annotations(false);
 	}
 
 	@Override
 	protected ImageData exportDiagramInternal(OutputStream os, int index, FileFormatOption fileFormatOption)
 			throws IOException {
-		final double dpiFactor = 1;
-		final int margin1;
-		final int margin2;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(10);
-			margin2 = SkinParam.zeroMargin(10);
-		} else {
-			margin1 = 10;
-			margin2 = 10;
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildD(getSkinParam(), ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2), getAnimation(), fileFormatOption.isWithMetadata() ? getMetadata() : null,
-		getWarningOrError(), dpiFactor);
-		imageBuilder.setUDrawable(getUDrawable());
 
-		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
+		return createImageBuilder(fileFormatOption).drawable(getUDrawable()).write(os);
 	}
 
 	private UDrawable getUDrawable() {
 		final Grid grid = createGrid();
 		cleanGrid(grid);
-		final GridArray gridArray = grid.toArray(SkinParam.create(getUmlDiagramType()));
+		final GridArray gridArray = grid.toArray(SkinParam.create(getUmlDiagramType(), ThemeStyle.LIGHT_REGULAR));
 		// gridArray.addEdges(edges);
 		// System.err.println("gridArray=" + gridArray);
 		return gridArray;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,7 +37,7 @@ package net.sourceforge.plantuml.statediagram.command;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
@@ -57,6 +57,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.statediagram.StateDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 
@@ -71,14 +72,14 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 
 				new RegexOr(//
 						new RegexConcat(//
-								new RegexLeaf("CODE1", "([\\p{L}0-9_.]+)"), //
+								new RegexLeaf("CODE1", "([%pLN_.]+)"), //
 								RegexLeaf.spaceOneOrMore(), new RegexLeaf("as"), RegexLeaf.spaceOneOrMore(), //
 								new RegexLeaf("DISPLAY1", "[%g]([^%g]+)[%g]")), //
 						new RegexConcat(//
 								new RegexLeaf("DISPLAY2", "[%g]([^%g]+)[%g]"), //
 								RegexLeaf.spaceOneOrMore(), new RegexLeaf("as"), RegexLeaf.spaceOneOrMore(), //
-								new RegexLeaf("CODE2", "([\\p{L}0-9_.]+)")), //
-						new RegexLeaf("CODE3", "([\\p{L}0-9_.]+)"), //
+								new RegexLeaf("CODE2", "([%pLN_.]+)")), //
+						new RegexLeaf("CODE3", "([%pLN_.]+)"), //
 						new RegexLeaf("CODE4", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
@@ -102,7 +103,8 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String idShort = arg.getLazzy("CODE", 0);
 		final Ident ident = diagram.buildLeafIdent(idShort);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
@@ -120,18 +122,21 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 		ent.setDisplay(Display.getWithNewlines(display));
 
 		if (stereotype != null) {
-			ent.setStereotype(new Stereotype(stereotype));
+			ent.setStereotype(Stereotype.build(stereotype));
 		}
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			ent.addUrl(url);
 		}
 
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
+		final String s = arg.get("LINECOLOR", 1);
 
-		final HColor lineColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR", 1));
+		final HColor lineColor = s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s);
 		if (lineColor != null) {
 			colors = colors.add(ColorType.LINE, lineColor);
 		}
@@ -141,9 +146,11 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 		ent.setColors(colors);
 
 		// ent.setSpecificColorTOBEREMOVED(ColorType.BACK,
-		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
+		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR",
+		// 0)));
 		// ent.setSpecificColorTOBEREMOVED(ColorType.LINE,
-		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR", 1)));
+		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR",
+		// 1)));
 		// ent.applyStroke(arg.get("LINECOLOR", 0));
 
 		final String addFields = arg.get("ADDFIELD", 0);
@@ -162,6 +169,9 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 		}
 		if ("<<join>>".equalsIgnoreCase(stereotype)) {
 			return LeafType.STATE_FORK_JOIN;
+		}
+		if ("<<start>>".equalsIgnoreCase(stereotype)) {
+			return LeafType.CIRCLE_START;
 		}
 		if ("<<end>>".equalsIgnoreCase(stereotype)) {
 			return LeafType.CIRCLE_END;

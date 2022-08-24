@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,122 +34,44 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.real.Real;
+import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.sequencediagram.AbstractMessage;
-import net.sourceforge.plantuml.sequencediagram.Event;
 import net.sourceforge.plantuml.sequencediagram.Note;
 import net.sourceforge.plantuml.skin.Area;
 import net.sourceforge.plantuml.skin.Component;
-import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.Context2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.ULine;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class CommunicationTileNoteTop extends AbstractTile implements TileWithUpdateStairs, TileWithCallbackY {
+public class CommunicationTileNoteTop extends CommunicationTileNoteBottomTopAbstract {
 
-	private final TileWithUpdateStairs tile;
-	private final AbstractMessage message;
-	private final Rose skin;
-	private final ISkinParam skinParam;
-	private final Note noteOnMessage;
-
-	public Event getEvent() {
-		return message;
-	}
-
-	@Override
-	public double getYPoint(StringBounder stringBounder) {
-		return tile.getYPoint(stringBounder);
-	}
-
-	public CommunicationTileNoteTop(TileWithUpdateStairs tile, AbstractMessage message, Rose skin,
-			ISkinParam skinParam, Note noteOnMessage) {
-		this.tile = tile;
-		this.message = message;
-		this.skin = skin;
-		this.skinParam = skinParam;
-		this.noteOnMessage = noteOnMessage;
-	}
-
-	public void updateStairs(StringBounder stringBounder, double y) {
-		tile.updateStairs(stringBounder, y);
-	}
-
-	private Component getComponent(StringBounder stringBounder) {
-		final Component comp = skin.createComponent(noteOnMessage.getUsedStyles(), ComponentType.NOTE, null,
-				noteOnMessage.getSkinParamBackcolored(skinParam), noteOnMessage.getStrings());
-		return comp;
-	}
-
-	private Real getNotePosition(StringBounder stringBounder) {
-		final Real minX = tile.getMinX(stringBounder);
-		return minX;
+	public CommunicationTileNoteTop(Tile tile, AbstractMessage message, Rose skin, ISkinParam skinParam,
+			Note noteOnMessage) {
+		super(tile, message, skin, skinParam, noteOnMessage);
 	}
 
 	public void drawU(UGraphic ug) {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final Component comp = getComponent(stringBounder);
 		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
-		final Area area = new Area(dim.getWidth(), dim.getHeight());
+		final Area area = Area.create(dim.getWidth(), dim.getHeight());
 
-		tile.drawU(ug.apply(UTranslate.dy(dim.getHeight() + spacey)));
+		((UDrawable) tile).drawU(ug.apply(UTranslate.dy(dim.getHeight() + spacey)));
 
-		final double middleMsg = (tile.getMinX(stringBounder).getCurrentValue() + tile.getMaxX(stringBounder)
-				.getCurrentValue()) / 2;
+		final double middleMsg = (tile.getMinX().getCurrentValue() + tile.getMaxX().getCurrentValue()) / 2;
 
 		final double xNote = getNotePosition(stringBounder).getCurrentValue();
 
 		comp.drawU(ug.apply(UTranslate.dx(xNote)), area, (Context2D) ug);
 
-		drawLine(ug, middleMsg, tile.getYPoint(stringBounder) + dim.getHeight() + spacey, xNote + dim.getWidth() / 2,
+		drawLine(ug, middleMsg, tile.getContactPointRelative() + dim.getHeight() + spacey, xNote + dim.getWidth() / 2,
 				dim.getHeight() - 2 * Rose.paddingY);
 
-	}
-
-	private final double spacey = 10;
-
-	private void drawLine(UGraphic ug, double x1, double y1, double x2, double y2) {
-		final HColor color = new Rose().getHtmlColor(skinParam, ColorParam.arrow);
-
-		final double dx = x2 - x1;
-		final double dy = y2 - y1;
-
-		ug.apply(new UTranslate(x1, y1)).apply(color).apply(new UStroke(2, 2, 1))
-				.draw(new ULine(dx, dy));
-
-	}
-
-	public double getPreferredHeight(StringBounder stringBounder) {
-		final Component comp = getComponent(stringBounder);
-		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
-		return tile.getPreferredHeight(stringBounder) + dim.getHeight() + spacey;
-	}
-
-	public void addConstraints(StringBounder stringBounder) {
-		tile.addConstraints(stringBounder);
-	}
-
-	public Real getMinX(StringBounder stringBounder) {
-		return tile.getMinX(stringBounder);
-	}
-
-	public Real getMaxX(StringBounder stringBounder) {
-		return tile.getMaxX(stringBounder);
-	}
-
-	public void callbackY(double y) {
-		if (tile instanceof TileWithCallbackY) {
-			((TileWithCallbackY) tile).callbackY(y);
-		}
 	}
 
 }

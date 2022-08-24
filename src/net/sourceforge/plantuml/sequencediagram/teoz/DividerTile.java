@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -62,6 +62,7 @@ public class DividerTile extends AbstractTile implements Tile {
 	}
 
 	public DividerTile(Divider divider, TileArguments tileArguments) {
+		super(tileArguments.getStringBounder());
 		this.tileArguments = tileArguments;
 		this.divider = divider;
 		this.skin = tileArguments.getSkin();
@@ -79,32 +80,32 @@ public class DividerTile extends AbstractTile implements Tile {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final Component comp = getComponent(stringBounder);
 		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
-		final Area area = new Area(tileArguments.getBorder2() - tileArguments.getBorder1() - origin.getCurrentValue(),
+		final Area area = Area.create(tileArguments.getBorder2() - tileArguments.getBorder1() - origin.getCurrentValue(),
 				dim.getHeight());
 
 		ug = ug.apply(UTranslate.dx(tileArguments.getBorder1()));
 		comp.drawU(ug, area, (Context2D) ug);
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
-		final Component comp = getComponent(stringBounder);
-		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
+	public double getPreferredHeight() {
+		final Component comp = getComponent(getStringBounder());
+		final Dimension2D dim = comp.getPreferredDimension(getStringBounder());
 		return dim.getHeight();
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 		// final Component comp = getComponent(stringBounder);
 		// final Dimension2D dim = comp.getPreferredDimension(stringBounder);
 		// final double width = dim.getWidth();
 	}
 
-	public Real getMinX(StringBounder stringBounder) {
+	public Real getMinX() {
 		return origin;
 	}
 
-	public Real getMaxX(StringBounder stringBounder) {
-		final Component comp = getComponent(stringBounder);
-		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
+	public Real getMaxX() {
+		final Component comp = getComponent(getStringBounder());
+		final Dimension2D dim = comp.getPreferredDimension(getStringBounder());
 		return origin.addFixed(dim.getWidth());
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,9 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Objects;
+
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
 import net.sourceforge.plantuml.command.regex.FoxSignature;
 import net.sourceforge.plantuml.tim.TLineType;
 
@@ -47,8 +50,15 @@ final public class StringLocated {
 	private long fox = -1;
 	private TLineType type;
 
+	@HaxeIgnored
 	public StringLocated(String s, LineLocation location) {
 		this(s, location, null);
+	}
+
+	public StringLocated(String s, LineLocation location, String preprocessorError) {
+		this.s = Objects.requireNonNull(s);
+		this.location = location;
+		this.preprocessorError = preprocessorError;
 	}
 
 	@Override
@@ -65,15 +75,6 @@ final public class StringLocated {
 			throw new IllegalArgumentException();
 		}
 		return new StringLocated(s.substring(0, s.length() - 1) + next.s, location, preprocessorError);
-	}
-
-	public StringLocated(String s, LineLocation location, String preprocessorError) {
-		if (s == null) {
-			throw new IllegalArgumentException();
-		}
-		this.s = s;
-		this.location = location;
-		this.preprocessorError = preprocessorError;
 	}
 
 	public StringLocated withErrorPreprocessor(String preprocessorError) {

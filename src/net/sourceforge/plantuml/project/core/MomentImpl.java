@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,23 +34,23 @@
  */
 package net.sourceforge.plantuml.project.core;
 
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.time.Day;
 
 public class MomentImpl implements Moment {
 
-	private final Wink start;
-	private final Wink end;
+	private final Day start;
+	private final Day end;
 
-	public MomentImpl(Wink start, Wink end) {
+	public MomentImpl(Day start, Day end) {
 		this.start = start;
 		this.end = end;
 	}
 
-	public Wink getStart() {
+	public Day getStart() {
 		return start;
 	}
 
-	public Wink getEnd() {
+	public Day getEnd() {
 		return end;
 	}
 

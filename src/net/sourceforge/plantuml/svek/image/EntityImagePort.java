@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,22 +36,25 @@
 
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.svek.Cluster;
-import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.svek.SvekNode;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
@@ -60,13 +63,21 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class EntityImagePort extends AbstractEntityImageBorder {
-	public EntityImagePort(ILeaf leaf, ISkinParam skinParam, Cluster parent, final Bibliotekon bibliotekon) {
+
+	private final SName sname;
+
+	public EntityImagePort(ILeaf leaf, ISkinParam skinParam, Cluster parent, Bibliotekon bibliotekon, SName sname) {
 		super(leaf, skinParam, parent, bibliotekon, FontParam.BOUNDARY);
+		this.sname = sname;
+	}
+
+	private StyleSignature getSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, sname, SName.port).withTOBECHANGED(getStereo());
 	}
 
 	private boolean upPosition() {
 		final Point2D clusterCenter = parent.getClusterPosition().getPointCenter();
-		final Node node = bibliotekon.getNode(getEntity());
+		final SvekNode node = bibliotekon.getNode(getEntity());
 		return node.getMinY() < clusterCenter.getY();
 	}
 
@@ -90,22 +101,34 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 		final Dimension2D dimDesc = desc.calculateDimension(ug.getStringBounder());
 		final double x = 0 - (dimDesc.getWidth() - 2 * EntityPosition.RADIUS) / 2;
 
-		if (upPosition()) {
+		if (upPosition())
 			y -= 2 * EntityPosition.RADIUS + dimDesc.getHeight();
-		} else {
+		else
 			y += 2 * EntityPosition.RADIUS;
-		}
+
 		desc.drawU(ug.apply(new UTranslate(x, y)));
 
-		ug = ug.apply(new UStroke(1.5))
-				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder).bg());
-		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
-		if (backcolor == null) {
-			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground);
-		}
-		ug = ug.apply(backcolor);
+		final Style style = getSignature().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+
+		HColor backcolor = getEntity().getColors().getColor(ColorType.BACK);
+		HColor borderColor = getEntity().getColors().getColor(ColorType.LINE);
+
+		if (borderColor == null)
+			borderColor = style.value(PName.LineColor).asColor(getSkinParam().getThemeStyle(),
+					getSkinParam().getIHtmlColorSet());
+
+		if (backcolor == null)
+			backcolor = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+					getSkinParam().getIHtmlColorSet());
+
+		ug = ug.apply(borderColor);
+		ug = ug.apply(getUStroke()).apply(backcolor.bg());
 
 		drawSymbol(ug);
+	}
+
+	private UStroke getUStroke() {
+		return new UStroke(1.5);
 	}
 
 	public ShapeType getShapeType() {

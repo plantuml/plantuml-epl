@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,10 +36,7 @@ package net.sourceforge.plantuml.skin.rose;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -48,7 +45,6 @@ import net.sourceforge.plantuml.skin.Area;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
-import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -67,22 +63,15 @@ public class ComponentRoseParticipant extends AbstractTextualComponent {
 	private final boolean collections;
 	private final double padding;
 
-	public ComponentRoseParticipant(Style style, Style stereo, SymbolContext biColor, FontConfiguration font,
-			Display stringsToDisplay, ISkinSimple spriteContainer, double roundCorner, double diagonalCorner,
-			UFont fontForStereotype, HColor htmlColorForStereotype, double minWidth, boolean collections,
-			double padding) {
-		super(style, stereo, LineBreakStrategy.NONE, stringsToDisplay, font, HorizontalAlignment.CENTER, 7, 7, 7,
-				spriteContainer, false, fontForStereotype, htmlColorForStereotype);
-		if (SkinParam.USE_STYLES()) {
-			this.roundCorner = style.value(PName.RoundCorner).asInt();
-			this.diagonalCorner = style.value(PName.DiagonalCorner).asInt();
-			biColor = style.getSymbolContext(getIHtmlColorSet());
-			this.stroke = style.getStroke();
-		} else {
-			this.roundCorner = roundCorner;
-			this.diagonalCorner = diagonalCorner;
-			this.stroke = biColor.getStroke();
-		}
+	public ComponentRoseParticipant(Style style, Style stereo, Display stringsToDisplay, ISkinSimple spriteContainer,
+			double minWidth, boolean collections, double padding) {
+		super(style, stereo, LineBreakStrategy.NONE, 7, 7, 7, spriteContainer, stringsToDisplay, false);
+
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
+		this.diagonalCorner = style.value(PName.DiagonalCorner).asInt();
+		final SymbolContext biColor = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.stroke = style.getStroke();
+
 		this.padding = padding;
 		this.minWidth = minWidth;
 		this.collections = collections;
@@ -95,7 +84,10 @@ public class ComponentRoseParticipant extends AbstractTextualComponent {
 	protected void drawInternalU(UGraphic ug, Area area) {
 		final StringBounder stringBounder = ug.getStringBounder();
 		ug = ug.apply(UTranslate.dx(padding));
-		ug = ug.apply(back.bg()).apply(foregroundColor);
+		if (foregroundColor != null)
+			ug = ug.apply(foregroundColor);
+		if (back != null)
+			ug = ug.apply(back.bg());
 		ug = ug.apply(stroke);
 		final Shadowable rect = new URectangle(getTextWidth(stringBounder), getTextHeight(stringBounder))
 				.rounded(roundCorner).diagonalCorner(diagonalCorner);
@@ -111,9 +103,9 @@ public class ComponentRoseParticipant extends AbstractTextualComponent {
 	}
 
 	private double getDeltaCollection() {
-		if (collections) {
+		if (collections)
 			return 4;
-		}
+
 		return 0;
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,27 +34,25 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolStorage extends USymbol {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.STORAGE;
+	public SName getSName() {
+		return SName.storage;
 	}
 
-	private void drawStorage(UGraphic ug, double width, double height, boolean shadowing) {
+	private void drawStorage(UGraphic ug, double width, double height, double shadowing) {
 		final URectangle shape = new URectangle(width, height).rounded(70);
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
+
 		ug.draw(shape);
 	}
 
@@ -69,9 +67,9 @@ class USymbolStorage extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawStorage(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawStorage(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
 				tb.drawU(ug.apply(new UTranslate(margin.getX1(), margin.getY1())));
@@ -94,7 +92,7 @@ class USymbolStorage extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawStorage(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawStorage(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
@@ -108,11 +106,6 @@ class USymbolStorage extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,20 +34,15 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
-import java.awt.geom.Dimension2D;
-
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.LineParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UEmpty;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -72,8 +67,8 @@ public class LaneDivider extends AbstractTextBlock {
 		this.height = height;
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
+	public StyleSignatureBasic getDefaultStyleDefinition() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
 	}
 
 	private Style getStyle() {
@@ -93,15 +88,10 @@ public class LaneDivider extends AbstractTextBlock {
 		final UShape back = new UEmpty(x1 + x2, 1);
 		ug.draw(back);
 
-		HColor color = skinParam.getHtmlColor(ColorParam.swimlaneBorder, null, false);
-		if (color == null) {
-			color = ColorParam.swimlaneBorder.getDefaultValue();
-		}
-		UStroke thickness = Rose.getStroke(skinParam, LineParam.swimlaneBorder, 2);
-		if (SkinParam.USE_STYLES()) {
-			color = getStyle().value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
-			thickness = getStyle().getStroke();
-		}
+		final HColor color = getStyle().value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final UStroke thickness = getStyle().getStroke();
+
 		ug.apply(UTranslate.dx(x1)).apply(thickness).apply(color).draw(ULine.vline(height));
 
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,7 @@ import java.util.List;
 
 class MagmaList {
 
-	private final List<Magma> all = new ArrayList<Magma>();
+	private final List<Magma> all = new ArrayList<>();
 
 	public void add(Magma magma) {
 		all.add(magma);

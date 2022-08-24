@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,8 +37,7 @@ package net.sourceforge.plantuml.graphic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class SymbolContext {
 
@@ -71,25 +70,20 @@ public class SymbolContext {
 	}
 
 	public UGraphic applyColors(UGraphic ug) {
-		ug = ug.apply(foreColor);
-		if (backColor == null) {
-			ug = ug.apply(new HColorNone().bg());
-		} else {
+		if (foreColor == null)
+			ug = ug.apply(HColors.none());
+		else
+			ug = ug.apply(foreColor);
+		if (backColor == null)
+			ug = ug.apply(HColors.none().bg());
+		else
 			ug = ug.apply(backColor.bg());
-		}
+
 		return ug;
 	}
 
 	public UGraphic applyStroke(UGraphic ug) {
 		return ug.apply(stroke);
-	}
-
-	public SymbolContext transparentBackColorToNull() {
-		if (backColor instanceof HColorBackground) {
-			return new SymbolContext(((HColorBackground) backColor).getNull(), foreColor, stroke, deltaShadow,
-					roundCorner, diagonalCorner);
-		}
-		return this;
 	}
 
 	public SymbolContext(HColor backColor, HColor foreColor) {

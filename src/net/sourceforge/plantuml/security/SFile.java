@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -49,12 +49,17 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+
+import net.sourceforge.plantuml.log.Logme;
 
 /**
  * Secure replacement for java.io.File.
@@ -74,11 +79,17 @@ public class SFile implements Comparable<SFile> {
 
 	public static char separatorChar = File.separatorChar;
 
-	public final File internal;
+	private final File internal;
 
 	@Override
 	public String toString() {
-		return "Image42";
+		if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE)
+			try {
+				return internal.getCanonicalPath();
+			} catch (IOException e) {
+				return internal.getAbsolutePath();
+			}
+		return super.toString();
 	}
 
 	public SFile(String nameOrPath) {
@@ -113,7 +124,7 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean exists() {
-		if (isFileOk())
+		if (internal != null && isFileOk())
 			return internal.exists();
 		return false;
 	}
@@ -123,11 +134,11 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean isAbsolute() {
-		return internal.isAbsolute();
+		return internal != null && internal.isAbsolute();
 	}
 
 	public boolean isDirectory() {
-		return internal.exists() && internal.isDirectory();
+		return internal != null && internal.exists() && internal.isDirectory();
 	}
 
 	public String getName() {
@@ -135,7 +146,7 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean isFile() {
-		return internal.isFile();
+		return internal != null && internal.isFile();
 	}
 
 	public long lastModified() {
@@ -168,7 +179,10 @@ public class SFile implements Comparable<SFile> {
 
 	public Collection<SFile> listFiles() {
 		final File[] tmp = internal.listFiles();
-		final List<SFile> result = new ArrayList<SFile>(tmp.length);
+		if (tmp == null)
+			return Collections.emptyList();
+
+		final List<SFile> result = new ArrayList<>(tmp.length);
 		for (File f : tmp) {
 			result.add(new SFile(f));
 		}
@@ -206,7 +220,7 @@ public class SFile implements Comparable<SFile> {
 			try {
 				return internal.getCanonicalPath();
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 		}
 		return "";
@@ -240,33 +254,41 @@ public class SFile implements Comparable<SFile> {
 	 * Check SecurityProfile to see if this file can be open.
 	 */
 	private boolean isFileOk() {
-		if (SecurityUtils.getSecurityProfile() == SecurityProfile.SANDBOX) {
+		if (SecurityUtils.getSecurityProfile() == SecurityProfile.SANDBOX)
 			// In SANDBOX, we cannot read any files
+			return false;
+
+		// In any case SFile should not access the security folders
+		// (the files must be handled internally)
+		try {
+			if (isDenied())
+				return false;
+		} catch (IOException e) {
 			return false;
 		}
 		// Files in "plantuml.include.path" and "plantuml.allowlist.path" are ok.
-		if (isInAllowList(SecurityUtils.getPath("plantuml.include.path"))) {
+		if (isInAllowList(SecurityUtils.getPath(SecurityUtils.PATHS_INCLUDES)))
 			return true;
-		}
-		if (isInAllowList(SecurityUtils.getPath("plantuml.allowlist.path"))) {
+
+		if (isInAllowList(SecurityUtils.getPath(SecurityUtils.ALLOWLIST_LOCAL_PATHS)))
 			return true;
-		}
-		if (SecurityUtils.getSecurityProfile() == SecurityProfile.INTERNET) {
+
+		if (SecurityUtils.getSecurityProfile() == SecurityProfile.INTERNET)
 			return false;
-		}
-		if (SecurityUtils.getSecurityProfile() == SecurityProfile.ALLOWLIST) {
+
+		if (SecurityUtils.getSecurityProfile() == SecurityProfile.ALLOWLIST)
 			return false;
-		}
+
 		if (SecurityUtils.getSecurityProfile() != SecurityProfile.UNSECURE) {
 			// For UNSECURE, we did not do those checks
 			final String path = getCleanPathSecure();
 			if (path.startsWith("/etc/") || path.startsWith("/dev/") || path.startsWith("/boot/")
-					|| path.startsWith("/proc/") || path.startsWith("/sys/")) {
+					|| path.startsWith("/proc/") || path.startsWith("/sys/"))
 				return false;
-			}
-			if (path.startsWith("//")) {
+
+			if (path.startsWith("//"))
 				return false;
-			}
+
 		}
 		return true;
 	}
@@ -280,6 +302,35 @@ public class SFile implements Comparable<SFile> {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks, if the SFile is inside the folder (-structure) of the security area.
+	 *
+	 * @return true, if the file is not allowed to read/write
+	 * @throws IOException If an I/O error occurs, which is possible because the
+	 *                     check the pathname may require filesystem queries
+	 */
+	private boolean isDenied() throws IOException {
+		SFile securityPath = SecurityUtils.getSecurityPath();
+		if (securityPath == null)
+			return false;
+		return getSanitizedPath().startsWith(securityPath.getSanitizedPath());
+	}
+
+	/**
+	 * Returns a sanitized, canonical and normalized Path to a file.
+	 *
+	 * @return the Path
+	 * @throws IOException If an I/O error occurs, which is possible because the
+	 *                     construction of the canonical pathname may require
+	 *                     filesystem queries
+	 * @see #getCleanPathSecure()
+	 * @see File#getCanonicalPath()
+	 * @see Path#normalize()
+	 */
+	private Path getSanitizedPath() throws IOException {
+		return Paths.get(new File(getCleanPathSecure()).getCanonicalPath()).normalize();
 	}
 
 	private String getCleanPathSecure() {
@@ -298,7 +349,7 @@ public class SFile implements Comparable<SFile> {
 			try {
 				return SecurityUtils.readRasterImage(new ImageIcon(this.getAbsolutePath()));
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 		return null;
 	}
@@ -308,13 +359,13 @@ public class SFile implements Comparable<SFile> {
 			try {
 				return new BufferedReader(new FileReader(internal));
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 		}
 		return null;
 	}
 
-	public File conv() throws FileNotFoundException {
+	public File conv() {
 		return internal;
 	}
 
@@ -323,7 +374,7 @@ public class SFile implements Comparable<SFile> {
 			try {
 				return new BufferedInputStream(new FileInputStream(internal));
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 		return null;
 	}
@@ -355,6 +406,10 @@ public class SFile implements Comparable<SFile> {
 
 	public PrintStream createPrintStream(String charset) throws FileNotFoundException, UnsupportedEncodingException {
 		return new PrintStream(internal, charset);
+	}
+
+	public PrintStream createPrintStream(Charset charset) throws FileNotFoundException, UnsupportedEncodingException {
+		return new PrintStream(internal, charset.name());
 	}
 
 }

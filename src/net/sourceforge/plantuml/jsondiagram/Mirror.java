@@ -1,0 +1,66 @@
+/* ========================================================================
+ * PlantUML : a free UML diagram generator
+ * ========================================================================
+ *
+ * (C) Copyright 2009-2023, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ *
+ * Original Author:  Arnaud Roques
+ */
+package net.sourceforge.plantuml.jsondiagram;
+
+import java.awt.geom.Point2D;
+
+public class Mirror {
+
+	private final double max;
+
+	public Mirror(double max) {
+		this.max = max;
+	}
+
+	public double inv(double v) {
+		if (v < 0 || v > max) {
+			System.err.println("BAD VALUE IN Mirror");
+		}
+		return max - v;
+	}
+
+	public Point2D invAndXYSwitch(Point2D pt) {
+		final double x = inv(pt.getY());
+		final double y = pt.getX();
+		return new Point2D.Double(x, y);
+	}
+
+	public Point2D invGit(Point2D pt) {
+		final double x = pt.getX();
+		final double y = inv(pt.getY());
+		return new Point2D.Double(x, y);
+	}
+
+}

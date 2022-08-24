@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,15 +39,16 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.command.PSystemSingleLineFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
 public class PSystemColorsFactory extends PSystemSingleLineFactory {
 
 	@Override
-	protected AbstractPSystem executeLine(String line) {
+	protected AbstractPSystem executeLine(UmlSource source, String line) {
 		final Pattern pattern = Pattern.compile("^colors?\\s*(#?\\w+)?\\s*$");
 		final Matcher matcher = pattern.matcher(line);
 		if (matcher.matches()) {
-			return new PSystemColors(matcher.group(1));
+			return new PSystemColors(source, matcher.group(1));
 		}
 		return null;
 	}

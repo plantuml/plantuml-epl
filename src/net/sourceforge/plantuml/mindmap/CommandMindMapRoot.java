@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -59,7 +59,7 @@ public class CommandMindMapRoot extends SingleLineCommand2<MindMapDiagram> {
 	@Override
 	protected CommandExecutionResult executeArg(MindMapDiagram diagram, LineLocation location, RegexResult arg) {
 		final String label = arg.get("LABEL", 0);
-		return diagram.addIdea(null, 0, Display.getWithNewlines(label), IdeaShape.BOX, null);
+		return diagram.addIdea(null, 0, Display.getWithNewlines(label), IdeaShape.BOX, true);
 	}
 
 }

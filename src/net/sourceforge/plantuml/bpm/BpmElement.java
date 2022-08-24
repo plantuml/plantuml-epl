@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.bpm;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.ColorParam;
@@ -44,19 +43,23 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.BoxStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileBox;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileCircleStart;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDiamond;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class BpmElement extends AbstractConnectorPuzzle implements ConnectorPuzzle {
 
@@ -96,7 +99,7 @@ public class BpmElement extends AbstractConnectorPuzzle implements ConnectorPuzz
 
 			public void drawU(UGraphic ug) {
 				raw.drawU(ug);
-				ug = ug.apply(HColorUtils.RED);
+				ug = ug.apply(HColors.RED);
 				for (Where w : Where.values()) {
 					if (have(w)) {
 						drawLine(ug, w, raw.calculateDimension(ug.getStringBounder()));
@@ -111,7 +114,7 @@ public class BpmElement extends AbstractConnectorPuzzle implements ConnectorPuzz
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
 				return raw.calculateDimension(stringBounder);
 			}
-			
+
 			public MinMax getMinMax(StringBounder stringBounder) {
 				return raw.getMinMax(stringBounder);
 			}
@@ -135,9 +138,17 @@ public class BpmElement extends AbstractConnectorPuzzle implements ConnectorPuzz
 		}
 	}
 
+	private StyleSignatureBasic getSignatureCircle() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.circle);
+	}
+
+	private Style getStyle(ISkinParam skinParam) {
+		return getSignatureCircle().getMergedStyle(skinParam.getCurrentStyleBuilder());
+	}
+
 	public TextBlock toTextBlockInternal(ISkinParam skinParam) {
 		if (type == BpmElementType.START) {
-			return new FtileCircleStart(skinParam, HColorUtils.BLACK, null, null);
+			return new FtileCircleStart(skinParam, HColors.BLACK, null, getStyle(skinParam));
 		}
 		if (type == BpmElementType.MERGE) {
 			final HColor borderColor = SkinParamUtils.getColor(skinParam, null, ColorParam.activityBorder);
@@ -146,10 +157,10 @@ public class BpmElement extends AbstractConnectorPuzzle implements ConnectorPuzz
 		}
 		if (type == BpmElementType.DOCKED_EVENT) {
 			final UFont font = UFont.serif(14);
-			return FtileBox.create(skinParam, display, null, BoxStyle.PLAIN);
+			return FtileBox.create(skinParam, display, null, BoxStyle.PLAIN, null);
 		}
 		final UFont font = UFont.serif(14);
-		final FontConfiguration fc = new FontConfiguration(font, HColorUtils.RED, HColorUtils.RED, false);
+		final FontConfiguration fc = FontConfiguration.create(font, HColors.RED, HColors.RED, false);
 		if (Display.isNull(display)) {
 			return Display.getWithNewlines(type.toString()).create(fc, HorizontalAlignment.LEFT, skinParam);
 		}

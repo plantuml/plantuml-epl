@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,19 +38,23 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.sequencediagram.AbstractMessage;
 import net.sourceforge.plantuml.sequencediagram.Event;
 
-public abstract class AbstractTile implements Tile {
+public abstract class AbstractTile extends CommonTile implements Tile {
 
-	public double getYPoint(StringBounder stringBounder) {
-		throw new UnsupportedOperationException(getClass().toString());
+	public AbstractTile(StringBounder stringBounder) {
+		super(stringBounder);
 	}
 
-	final public double getZ(StringBounder stringBounder) {
-		final double result = getPreferredHeight(stringBounder) - getYPoint(stringBounder);
+	public double getContactPointRelative() {
+		return -1;
+	}
+
+	final public double getZZZ() {
+		final double result = getPreferredHeight() - getContactPointRelative();
 		assert result >= 0;
 		return result;
 	}
-	
-	public boolean matchAnchorV1(String anchor) {
+
+	public boolean matchAnchor(String anchor) {
 		final Event event = this.getEvent();
 		if (event instanceof AbstractMessage) {
 			final AbstractMessage msg = (AbstractMessage) event;
@@ -60,6 +64,5 @@ public abstract class AbstractTile implements Tile {
 		}
 		return false;
 	}
-
 
 }

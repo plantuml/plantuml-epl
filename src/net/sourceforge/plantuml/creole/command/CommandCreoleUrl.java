@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,9 @@
  */
 package net.sourceforge.plantuml.creole.command;
 
-import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
@@ -45,17 +44,18 @@ import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 
 public class CommandCreoleUrl implements Command {
 
-	private final Pattern2 pattern;
-	private final ISkinSimple skinParam;
-
-	public static Command create(ISkinSimple skinParam) {
-		return new CommandCreoleUrl(skinParam, "^(" + UrlBuilder.getRegexp() + ")");
+	@Override
+	public String startingChars() {
+		return "[";
 	}
 
-	private CommandCreoleUrl(ISkinSimple skinParam, String p) {
-		this.pattern = MyPattern.cmpile(p);
-		this.skinParam = skinParam;
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + UrlBuilder.getRegexp() + ")");
 
+	public static Command create() {
+		return new CommandCreoleUrl();
+	}
+
+	private CommandCreoleUrl() {
 	}
 
 	public int matchingSize(String line) {
@@ -71,7 +71,7 @@ public class CommandCreoleUrl implements Command {
 		if (m.find() == false) {
 			throw new IllegalStateException();
 		}
-		final UrlBuilder urlBuilder = new UrlBuilder(skinParam.getValue("topurl"), ModeUrl.STRICT);
+		final UrlBuilder urlBuilder = new UrlBuilder(stripe.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 		final Url url = urlBuilder.getUrl(m.group(1));
 		stripe.addUrl(url);
 		return line.substring(m.group(1).length());

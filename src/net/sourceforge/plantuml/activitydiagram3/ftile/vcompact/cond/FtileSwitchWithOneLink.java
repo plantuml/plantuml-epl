@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -55,8 +55,8 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 
 	private final Rainbow arrowColor;
 
-	public FtileSwitchWithOneLink(List<Ftile> tiles, List<Branch> branches, Swimlane in, Ftile diamond1,
-			Ftile diamond2, StringBounder stringBounder, Rainbow arrowColor) {
+	public FtileSwitchWithOneLink(List<Ftile> tiles, List<Branch> branches, Swimlane in, Ftile diamond1, Ftile diamond2,
+			StringBounder stringBounder, Rainbow arrowColor) {
 		super(tiles, branches, in, diamond1, diamond2, stringBounder);
 		this.arrowColor = arrowColor;
 	}
@@ -79,8 +79,8 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = new Snake(null, arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
-			snake.setLabel(getLabelPositive(branch));
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown())
+					.withLabel(branch.getTextBlockPositive(), arrowHorizontalAlignment());
 			// snake.addPoint(x1, y1);
 			snake.addPoint(x2, y1);
 			snake.addPoint(x2, y2);
@@ -94,8 +94,8 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 		}
 
 		private Point2D getP2(final StringBounder stringBounder) {
-			return getTranslateOf(getFtile2(), stringBounder).getTranslated(
-					getFtile2().calculateDimension(stringBounder).getPointIn());
+			return getTranslateOf(getFtile2(), stringBounder)
+					.getTranslated(getFtile2().calculateDimension(stringBounder).getPointIn());
 		}
 	}
 
@@ -114,7 +114,7 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = new Snake(null, arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown());
 			// snake.addPoint(x1, y1);
 			snake.addPoint(x2, y1);
 			snake.addPoint(x2, y2);
@@ -123,8 +123,8 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 		}
 
 		private Point2D getP1(StringBounder stringBounder) {
-			return getTranslateOf(getFtile1(), stringBounder).getTranslated(
-					getFtile1().calculateDimension(stringBounder).getPointOut());
+			return getTranslateOf(getFtile1(), stringBounder)
+					.getTranslated(getFtile1().calculateDimension(stringBounder).getPointOut());
 		}
 
 		private Point2D getP2(StringBounder stringBounder) {
@@ -133,10 +133,13 @@ public class FtileSwitchWithOneLink extends FtileSwitchWithDiamonds {
 		}
 	}
 
-	public Ftile addLinks() {
-		final List<Connection> conns = new ArrayList<Connection>();
-		conns.add(new ConnectionVerticalTop(tiles.get(0), branches.get(0)));
-		conns.add(new ConnectionVerticalBottom(tiles.get(0)));
+	public Ftile addLinks(StringBounder stringBounder) {
+		final List<Connection> conns = new ArrayList<>();
+		final Ftile single = tiles.get(0);
+		conns.add(new ConnectionVerticalTop(single, branches.get(0)));
+
+		if (single.calculateDimension(stringBounder).hasPointOut())
+			conns.add(new ConnectionVerticalBottom(single));
 
 		return FtileUtils.addConnection(this, conns);
 	}

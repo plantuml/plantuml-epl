@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,16 +43,17 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SURL;
 
 public class Img implements HtmlCommand {
 
-	final static private Pattern2 srcPattern = MyPattern.cmpile("(?i)src[%s]*=[%s]*[\"%q]?([^%s\">]+)[\"%q]?");
-	final static private Pattern2 vspacePattern = MyPattern.cmpile("(?i)vspace[%s]*=[%s]*[\"%q]?(\\d+)[\"%q]?");
+	final static private Pattern2 srcPattern = MyPattern.cmpile("src[%s]*=[%s]*[\"%q]?([^%s\">]+)[\"%q]?");
+	final static private Pattern2 vspacePattern = MyPattern.cmpile("vspace[%s]*=[%s]*[\"%q]?(\\d+)[\"%q]?");
 	final static private Pattern2 valignPattern = MyPattern
-			.cmpile("(?i)valign[%s]*=[%s]*[\"%q]?(top|bottom|middle)[\"%q]?");
-	final static private Pattern2 noSrcColonPattern = MyPattern.cmpile("(?i)" + Splitter.imgPatternNoSrcColon);
+			.cmpile("valign[%s]*=[%s]*[\"%q]?(top|bottom|middle)[\"%q]?");
+	final static private Pattern2 noSrcColonPattern = MyPattern.cmpile(Splitter.imgPatternNoSrcColon);
 
 	private final TextBlock tileImage;
 
@@ -62,17 +63,17 @@ public class Img implements HtmlCommand {
 
 	static int getVspace(String html) {
 		final Matcher2 m = vspacePattern.matcher(html);
-		if (m.find() == false) {
+		if (m.find() == false)
 			return 0;
-		}
+
 		return Integer.parseInt(m.group(1));
 	}
 
 	static ImgValign getValign(String html) {
 		final Matcher2 m = valignPattern.matcher(html);
-		if (m.find() == false) {
+		if (m.find() == false)
 			return ImgValign.TOP;
-		}
+
 		return ImgValign.valueOf(StringUtils.goUpperCase(m.group(1)));
 	}
 
@@ -98,31 +99,31 @@ public class Img implements HtmlCommand {
 				// Check if valid URL
 				if (src.startsWith("http:") || src.startsWith("https:")) {
 					final SURL tmp = SURL.create(src);
-					if (tmp == null) {
+					if (tmp == null)
 						return new Text("(Cannot decode: " + src + ")");
-					}
+
 					final BufferedImage read = tmp.readRasterImageFromURL();
-					if (read == null) {
+					if (read == null)
 						return new Text("(Cannot decode: " + src + ")");
-					}
+
 					return new Img(new TileImage(read, valign, vspace));
 				}
 				return new Text("(Cannot decode: " + f + ")");
 			}
 			if (f.getName().endsWith(".svg")) {
 				final String tmp = FileUtils.readSvg(f);
-				if (tmp == null) {
+				if (tmp == null)
 					return new Text("(Cannot decode: " + f + ")");
-				}
-				return new Img(new TileImageSvg(tmp));
+
+				return new Img(new TileImageSvg(tmp, 1));
 			}
 			final BufferedImage read = f.readRasterImageFromFile();
-			if (read == null) {
+			if (read == null)
 				return new Text("(Cannot decode: " + f + ")");
-			}
+
 			return new Img(new TileImage(f.readRasterImageFromFile(), valign, vspace));
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			return new Text("ERROR " + e.toString());
 		}
 	}

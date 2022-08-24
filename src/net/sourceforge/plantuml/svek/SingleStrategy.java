@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,14 +37,14 @@ package net.sourceforge.plantuml.svek;
 
 public enum SingleStrategy {
 
-	SQUARRE, HLINE, VLINE;
+	SQUARE, HLINE, VLINE;
 
 //	private Collection<Link> generateLinks(List<ILeaf> standalones) {
 //		return putInSquare(standalones);
 //	}
 
 //	private Collection<Link> putInSquare(List<ILeaf> standalones) {
-//		final List<Link> result = new ArrayList<Link>();
+//		final List<Link> result = new ArrayList<>();
 //		final LinkType linkType = new LinkType(LinkDecor.NONE, LinkDecor.NONE).getInvisible();
 //		final int branch = computeBranch(standalones.size());
 //		int headBranch = 0;

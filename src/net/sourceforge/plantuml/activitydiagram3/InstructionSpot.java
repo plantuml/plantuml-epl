@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,20 @@
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
+import java.util.Objects;
+
+import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileKilled;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileCircleSpot;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class InstructionSpot extends MonoSwimable implements Instruction {
@@ -47,6 +57,7 @@ public class InstructionSpot extends MonoSwimable implements Instruction {
 	private final String spot;
 	private final HColor color;
 
+	@Override
 	public boolean containsBreak() {
 		return false;
 	}
@@ -54,31 +65,39 @@ public class InstructionSpot extends MonoSwimable implements Instruction {
 	public InstructionSpot(String spot, HColor color, LinkRendering inlinkRendering, Swimlane swimlane) {
 		super(swimlane);
 		this.spot = spot;
-		this.inlinkRendering = inlinkRendering;
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 		this.color = color;
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
 	}
 
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
 		Ftile result = factory.spot(getSwimlaneIn(), spot, color);
-		result = eventuallyAddNote(factory, result, result.getSwimlaneIn());
-		if (killed) {
+		result = eventuallyAddNote(factory, result, result.getSwimlaneIn(), VerticalAlignment.CENTER);
+		if (killed)
 			return new FtileKilled(result);
-		}
+
 		return result;
 	}
 
-	public void add(Instruction other) {
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		final UFont font = skinParam.getFont(null, false, FontParam.ACTIVITY);
+		return new GtileCircleSpot(stringBounder, skinParam, color, getSwimlaneIn(), spot, font);
+
+	}
+
+	@Override
+	public CommandExecutionResult add(Instruction other) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	final public boolean kill() {
 		this.killed = true;
 		return true;
 	}
 
+	@Override
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
 	}

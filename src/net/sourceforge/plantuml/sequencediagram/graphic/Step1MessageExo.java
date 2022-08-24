@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -67,8 +67,8 @@ class Step1MessageExo extends Step1Abstract {
 		final List<Note> noteOnMessages = message.getNoteOnMessages();
 		for (Note noteOnMessage : noteOnMessages) {
 			final ISkinParam skinParam = noteOnMessage.getSkinParamBackcolored(drawingSet.getSkinParam());
-			addNote(drawingSet.getSkin().createComponent(noteOnMessage.getUsedStyles(),
-					ComponentType.NOTE, null, skinParam, noteOnMessage.getStrings()));
+			addNote(drawingSet.getSkin().createComponentNote(noteOnMessage.getUsedStyles(), ComponentType.NOTE, skinParam,
+					noteOnMessage.getStrings()));
 		}
 
 	}
@@ -118,7 +118,7 @@ class Step1MessageExo extends Step1Abstract {
 		if (getMessage().getNoteOnMessages().size() == 0) {
 			return messageArrow;
 		}
-		final List<NoteBox> noteBoxes = new ArrayList<NoteBox>();
+		final List<NoteBox> noteBoxes = new ArrayList<>();
 		for (int i = 0; i < getNotes().size(); i++) {
 			final Component note = getNotes().get(i);
 			final Note noteOnMessage = getMessage().getNoteOnMessages().get(i);

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import net.sourceforge.plantuml.command.regex.Pattern2;
 
 class FontFamilyChange implements FontChange {
 
-	static private final Pattern2 colorPattern = MyPattern.cmpile("(?i)" + Splitter.fontFamilyPattern);
+	static private final Pattern2 colorPattern = MyPattern.cmpile(Splitter.fontFamilyPattern);
 
 	private final String family;
 

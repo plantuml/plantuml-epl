@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,6 +36,8 @@ package net.sourceforge.plantuml.pdf;
 
 import java.io.File;
 import java.lang.reflect.Method;
+
+import net.sourceforge.plantuml.log.Logme;
 
 public class PdfConverter {
 
@@ -71,7 +73,7 @@ public class PdfConverter {
 			final Method execute = clSVGConverter.getMethod("execute");
 			execute.invoke(converter);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw new UnsupportedOperationException();
 		}
 		if (pdfFile.exists() == false) {

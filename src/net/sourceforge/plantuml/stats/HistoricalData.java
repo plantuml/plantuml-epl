@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,20 +41,21 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.version.Version;
 
 public class HistoricalData {
 
 	final private Preferences prefs;
 	private ParsedGenerated current;
-	final private List<ParsedGenerated> historical = new ArrayList<ParsedGenerated>();
+	final private List<ParsedGenerated> historical = new ArrayList<>();
 
 	HistoricalData(Preferences prefs) {
 		this.prefs = prefs;
 		try {
 			historical.addAll(reload());
 		} catch (BackingStoreException e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 		Collections.sort(historical, getIdComparator());
 	}
@@ -97,7 +98,7 @@ public class HistoricalData {
 	}
 
 	private List<ParsedGenerated> reload() throws BackingStoreException {
-		final List<ParsedGenerated> result = new ArrayList<ParsedGenerated>();
+		final List<ParsedGenerated> result = new ArrayList<>();
 		final int length = "histo.".length();
 		for (String key : prefs.keys()) {
 			if (key.startsWith("histo.") && key.endsWith(".p.saved")) {

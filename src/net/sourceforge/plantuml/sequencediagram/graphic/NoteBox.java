@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,8 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Url;
@@ -62,13 +63,10 @@ final class NoteBox extends GraphicalElement implements InGroupable {
 	public NoteBox(double startingY, Component comp, LivingParticipantBox p1, LivingParticipantBox p2,
 			NotePosition position, Url url) {
 		super(startingY);
-		if (p1 == null) {
-			throw new IllegalArgumentException();
-		}
 		if (p2 != null ^ position == NotePosition.OVER_SEVERAL) {
 			throw new IllegalArgumentException();
 		}
-		this.p1 = p1;
+		this.p1 = Objects.requireNonNull(p1);
 		this.p2 = p2;
 		this.position = position;
 		this.url = url;

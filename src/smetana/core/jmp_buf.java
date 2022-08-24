@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,11 +35,14 @@
 
 package smetana.core;
 
+import static smetana.core.Macro.UNSUPPORTED;
+
 public class jmp_buf {
 
 	private boolean hasBeenCalled;
 
-	public boolean hasBeenCalled() {
+	private boolean hasBeenCalled() {
+		UNSUPPORTED("hasBeenCalled");
 		return hasBeenCalled;
 	}
 

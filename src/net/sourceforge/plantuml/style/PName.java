@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,6 +45,7 @@ public enum PName {
 	LineThickness, //
 	DiagonalCorner, //
 	HyperLinkColor, //
+	HeadColor, //
 	LineColor, //
 	LineStyle, //
 	Padding, //
@@ -57,12 +58,11 @@ public enum PName {
 	ShowStereotype, //
 	ImagePosition;
 
-	public static PName getFromName(String name) {
-		for (PName prop : values()) {
-			if (prop.name().equalsIgnoreCase(name)) {
+	public static PName getFromName(String name, StyleScheme scheme) {
+		for (PName prop : values())
+			if (prop.name().equalsIgnoreCase(name))
 				return prop;
-			}
-		}
+
 		return null;
 	}
 

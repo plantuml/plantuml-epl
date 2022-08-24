@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,6 +39,6 @@ import java.util.Set;
 
 public class FootPrint {
 
-	private final Set<Coord> cells = new HashSet<Coord>();
+	private final Set<Coord> cells = new HashSet<>();
 
 }

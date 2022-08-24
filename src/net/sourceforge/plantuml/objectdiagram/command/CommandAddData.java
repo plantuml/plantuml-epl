@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandAddData extends SingleLineCommand2<AbstractClassOrObjectDiagram> {
 
@@ -53,7 +54,7 @@ public class CommandAddData extends SingleLineCommand2<AbstractClassOrObjectDiag
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandAddData.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("NAME", "([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf(":"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -62,7 +63,7 @@ public class CommandAddData extends SingleLineCommand2<AbstractClassOrObjectDiag
 
 	@Override
 	protected CommandExecutionResult executeArg(AbstractClassOrObjectDiagram diagram, LineLocation location,
-			RegexResult arg) {
+			RegexResult arg) throws NoSuchColorException {
 		final String name = arg.get("NAME", 0);
 		final IEntity entity = diagram.getOrCreateLeaf(diagram.buildLeafIdent(name),
 				diagram.buildCode(name), null, null);

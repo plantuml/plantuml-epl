@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
+import java.util.Objects;
+
 public class Stereotag {
 
 	private static final String SINGLE = "(\\$[^%s{}%g<>$]+)";
@@ -45,10 +47,7 @@ public class Stereotag {
 	private String name;
 
 	public Stereotag(String name) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
-		if (name.startsWith("$")) {
+		if (Objects.requireNonNull(name).startsWith("$")) {
 			throw new IllegalArgumentException(name);
 		}
 		this.name = name;

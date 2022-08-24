@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -48,6 +48,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandNote3 extends SingleLineCommand2<ActivityDiagram3> {
 
@@ -74,8 +75,10 @@ public class CommandNote3 extends SingleLineCommand2<ActivityDiagram3> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) {
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		final Display note = Display.getWithNewlines(arg.get("NOTE", 0));
 		final NotePosition position = NotePosition.defaultLeft(arg.get("POSITION", 0));
 		final NoteType type = NoteType.defaultType(arg.get("TYPE", 0));

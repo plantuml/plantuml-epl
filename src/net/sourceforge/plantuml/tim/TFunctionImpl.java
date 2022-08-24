@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ public class TFunctionImpl implements TFunction {
 
 	private final TFunctionSignature signature;
 	private final List<TFunctionArgument> args;
-	private final List<StringLocated> body = new ArrayList<StringLocated>();
+	private final List<StringLocated> body = new ArrayList<>();
 	private final boolean unquoted;
 	private /* final */ TFunctionType functionType;// = TFunctionType.VOID;
 	private String legacyDefinition;
@@ -58,7 +58,7 @@ public class TFunctionImpl implements TFunction {
 
 	public TFunctionImpl(String functionName, List<TFunctionArgument> args, boolean unquoted,
 			TFunctionType functionType) {
-		final Set<String> names = new HashSet<String>();
+		final Set<String> names = new HashSet<>();
 		for (TFunctionArgument tmp : args) {
 			names.add(tmp.getName());
 		}

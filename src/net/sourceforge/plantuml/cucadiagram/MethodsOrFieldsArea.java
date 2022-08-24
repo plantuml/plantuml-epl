@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,18 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.EmbeddedDiagram;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -54,76 +55,75 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockLineBefore;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.TextBlockWithUrl;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
-import net.sourceforge.plantuml.skin.rose.Rose;
-import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategy;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyVisibility;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Center;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Left;
+import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Right;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULayoutGroup;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.CharHidder;
 
-public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockWidth, TextBlock, WithPorts {
+public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlock, WithPorts {
 
 	public TextBlock asBlockMemberImpl() {
-		return new TextBlockLineBefore(TextBlockUtils.withMargin(this, 6, 4));
+		return new TextBlockLineBefore(style.value(PName.LineThickness).asDouble(),
+				TextBlockUtils.withMargin(this, 6, 4));
 	}
 
-	private final FontParam fontParam;
 	private final ISkinParam skinParam;
-	private final Rose rose = new Rose();
-	private final List<Member> members = new ArrayList<Member>();
-	private final HorizontalAlignment align;
-	private final Stereotype stereotype;
-	private final ILeaf leaf;
-	private final SName diagramType;
 
-	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam, Stereotype stereotype,
-			ILeaf leaf, SName diagramType) {
-		this(members, fontParam, skinParam, HorizontalAlignment.LEFT, stereotype, leaf, diagramType);
+	private final Display members;
+	private final HorizontalAlignment align;
+
+	private final ILeaf leaf;
+	private final Style style;
+
+	public MethodsOrFieldsArea(Display members, ISkinParam skinParam, ILeaf leaf, Style style) {
+		this(members, skinParam, HorizontalAlignment.LEFT, leaf, style);
 	}
 
-	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam,
-			HorizontalAlignment align, Stereotype stereotype, ILeaf leaf, SName diagramType) {
-		this.diagramType = diagramType;
+	public MethodsOrFieldsArea(Display members, ISkinParam skinParam, HorizontalAlignment align, ILeaf leaf,
+			Style style) {
+		this.style = style;
 		this.leaf = leaf;
-		this.stereotype = stereotype;
+
 		this.align = align;
 		this.skinParam = skinParam;
-		this.fontParam = fontParam;
-		this.members.addAll(members);
+		this.members = members;
 	}
 
 	private boolean hasSmallIcon() {
-		if (skinParam.classAttributeIconSize() == 0) {
+		if (skinParam.classAttributeIconSize() == 0)
 			return false;
-		}
-		for (Member m : members) {
-			if (m.getVisibilityModifier() != null) {
+
+		for (CharSequence cs : members) {
+			if (cs instanceof Member == false)
+				continue;
+			final Member m = (Member) cs;
+			if (m.getVisibilityModifier() != null)
 				return true;
-			}
+
 		}
 		return false;
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		double smallIcon = 0;
-		if (hasSmallIcon()) {
+		if (hasSmallIcon())
 			smallIcon = skinParam.getCircledCharacterRadius() + 3;
-		}
+
 		double x = 0;
 		double y = 0;
-		for (Member m : members) {
-			final TextBlock bloc = createTextBlock(m);
+		for (CharSequence cs : members) {
+			final TextBlock bloc = createTextBlock(cs);
 			final Dimension2D dim = bloc.calculateDimension(stringBounder);
 			x = Math.max(dim.getWidth(), x);
 			y += dim.getHeight();
@@ -132,53 +132,93 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		return new Dimension2DDouble(x, y);
 	}
 
-	public Ports getPorts(StringBounder stringBounder) {
-		final Ports result = new Ports();
-		double y = 0;
-		final Election election = new Election();
-		for (Member m : members) {
-			election.addCandidate(m.getDisplay(false), m);
-		}
-		final Map<Member, String> memberWithPort = election.getAllElected(leaf.getPortShortNames());
-		for (Member m : members) {
-			final TextBlock bloc = createTextBlock(m);
-			final Dimension2D dim = bloc.calculateDimension(stringBounder);
-			final String port = memberWithPort.get(m);
-			if (port != null) {
-				result.add(port, y, dim.getHeight());
+	private Collection<String> sortBySize(Collection<String> all) {
+		final List<String> result = new ArrayList<String>(all);
+		Collections.sort(result, new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
+				final int diff = s2.length() - s1.length();
+				if (diff != 0)
+					return diff;
+				return s1.compareTo(s2);
 			}
-			y += dim.getHeight();
-		}
+		});
 		return result;
 	}
 
-	private TextBlock createTextBlock(Member m) {
-		final boolean withVisibilityChar = skinParam.classAttributeIconSize() == 0;
-		String s = m.getDisplay(withVisibilityChar);
-		if (withVisibilityChar && s.startsWith("#")) {
-			s = CharHidder.addTileAtBegin(s);
+	@Override
+	public Ports getPorts(StringBounder stringBounder) {
+		final Ports ports = new Ports();
+		double y = 0;
+
+		final Collection<String> shortNames = sortBySize(leaf.getPortShortNames());
+
+		for (CharSequence cs : members) {
+			final TextBlock bloc = createTextBlock(cs);
+			final Dimension2D dim = bloc.calculateDimension(stringBounder);
+			final Elected elected = getElected(convert(cs), shortNames);
+			if (elected != null)
+				ports.add(elected.getShortName(), elected.getScore(), y, dim.getHeight());
+
+			y += dim.getHeight();
 		}
-		FontConfiguration config;
-		if (SkinParam.USE_STYLES()) {
-//			final Style style = StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component)
-//			.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			final Style style = fontParam.getStyleDefinition(diagramType)
-					.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			config = new FontConfiguration(style, skinParam, stereotype, fontParam);
-		} else {
-			config = new FontConfiguration(skinParam, fontParam, stereotype);
+		return ports;
+	}
+
+	private String convert(CharSequence cs) {
+		if (cs instanceof Member)
+			return ((Member) cs).getDisplay(false);
+		return cs.toString();
+	}
+
+	public Elected getElected(String cs, Collection<String> shortNames) {
+		for (String shortName : shortNames) {
+			final int score = getScore(cs, shortName);
+			if (score > 0)
+				return new Elected(shortName, score);
 		}
-		if (m.isAbstract()) {
-			config = config.italic();
-		}
-		if (m.isStatic()) {
-			config = config.underline();
+		return null;
+	}
+
+	private int getScore(String cs, String shortName) {
+		if (cs.matches(".*\\b" + shortName + "\\b.*"))
+			return 100;
+
+		if (cs.contains(shortName))
+			return 50;
+
+		return 0;
+	}
+
+	private TextBlock createTextBlock(CharSequence cs) {
+
+		FontConfiguration config = FontConfiguration.create(skinParam, style, leaf.getColors());
+
+		if (cs instanceof Member) {
+			final Member m = (Member) cs;
+			final boolean withVisibilityChar = skinParam.classAttributeIconSize() == 0;
+			String s = m.getDisplay(withVisibilityChar);
+			if (withVisibilityChar && s.startsWith("#"))
+				s = CharHidder.addTileAtBegin(s);
+
+			if (m.isAbstract())
+				config = config.italic();
+
+			if (m.isStatic())
+				config = config.underline();
+
+			TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
+					skinParam.wrapWidth());
+			bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
+			return new TextBlockTracer(m, bloc);
 		}
 
-		TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
+		if (cs instanceof EmbeddedDiagram)
+			return ((EmbeddedDiagram) cs).asDraw(skinParam);
+
+		return Display.getWithNewlines(cs.toString()).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
 				skinParam.wrapWidth());
-		bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
-		return new TextBlockTracer(m, bloc);
+
 	}
 
 	static class TextBlockTracer extends AbstractTextBlock implements TextBlock {
@@ -192,13 +232,13 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		}
 
 		public void drawU(UGraphic ug) {
-			if (url != null) {
+			if (url != null)
 				ug.startUrl(url);
-			}
+
 			bloc.drawU(ug);
-			if (url != null) {
+			if (url != null)
 				ug.closeUrl();
-			}
+
 		}
 
 		public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -231,23 +271,24 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 				}
 			};
 		}
-		final HColor back = modifier.getBackground() == null ? null
-				: rose.getHtmlColor(skinParam, modifier.getBackground());
-		final HColor fore = rose.getHtmlColor(skinParam, modifier.getForeground());
+		final Style style = modifier.getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder());
+		final HColor borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final boolean isField = modifier.isField();
+		final HColor backColor = isField ? null
+				: style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 
-		final TextBlock uBlock = modifier.getUBlock(skinParam.classAttributeIconSize(), fore, back, url != null);
+		final TextBlock uBlock = modifier.getUBlock(skinParam.classAttributeIconSize(), borderColor, backColor,
+				url != null);
 		return TextBlockWithUrl.withUrl(uBlock, url);
 	}
 
-	public TextBlock asTextBlock(final double widthToUse) {
-		return this;
-	}
-
 	public boolean contains(String member) {
-		for (Member att : members) {
-			if (att.getDisplay(false).startsWith(member)) {
+		for (CharSequence cs : members) {
+			final Member att = (Member) cs;
+			if (att.getDisplay(false).startsWith(member))
 				return true;
-			}
+
 		}
 		return false;
 	}
@@ -264,24 +305,29 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		if (hasSmallIcon()) {
 			group = new ULayoutGroup(
 					new PlacementStrategyVisibility(stringBounder, skinParam.getCircledCharacterRadius() + 3));
-			for (Member att : members) {
-				final TextBlock bloc = createTextBlock(att);
-				final VisibilityModifier modifier = att.getVisibilityModifier();
-				group.add(getUBlock(modifier, att.getUrl()));
+			for (CharSequence cs : members) {
+				final TextBlock bloc = createTextBlock(cs);
+				if (cs instanceof EmbeddedDiagram) {
+					group.add(getUBlock(null, null));
+				} else {
+					final Member att = (Member) cs;
+					final VisibilityModifier modifier = att.getVisibilityModifier();
+					group.add(getUBlock(modifier, att.getUrl()));
+				}
 				group.add(bloc);
 			}
 		} else {
 			final PlacementStrategy placementStrategy;
-			if (align == HorizontalAlignment.LEFT) {
+			if (align == HorizontalAlignment.LEFT)
 				placementStrategy = new PlacementStrategyY1Y2Left(stringBounder);
-			} else if (align == HorizontalAlignment.CENTER) {
+			else if (align == HorizontalAlignment.CENTER)
 				placementStrategy = new PlacementStrategyY1Y2Center(stringBounder);
-			} else {
-				placementStrategy = new PlacementStrategyY1Y2Left(stringBounder);
-			}
+			else
+				placementStrategy = new PlacementStrategyY1Y2Right(stringBounder);
+
 			group = new ULayoutGroup(placementStrategy);
-			for (Member att : members) {
-				final TextBlock bloc = createTextBlock(att);
+			for (CharSequence cs : members) {
+				final TextBlock bloc = createTextBlock(cs);
 				group.add(bloc);
 			}
 		}

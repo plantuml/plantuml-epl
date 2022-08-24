@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,13 @@
  */
 package net.sourceforge.plantuml.creole.atom;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.salt.element.Skeleton2;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -50,7 +50,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 public class AtomTree extends AbstractAtom implements Atom {
 
 	private final HColor lineColor;
-	private final List<Atom> cells = new ArrayList<Atom>();
+	private final List<Atom> cells = new ArrayList<>();
 	private final Map<Atom, Integer> levels = new HashMap<Atom, Integer>();
 	private final double margin = 2;
 

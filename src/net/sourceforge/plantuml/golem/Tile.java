@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.golem;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
@@ -52,7 +52,7 @@ import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class Tile extends AbstractTextBlock implements TextBlock {
 
@@ -77,7 +77,7 @@ public class Tile extends AbstractTextBlock implements TextBlock {
 	}
 
 	public void drawU(UGraphic ug) {
-		ug = ug.apply(HColorUtils.BLACK);
+		ug = ug.apply(HColors.BLACK);
 		final TextBlock n = Display.create("" + num).create(fc, HorizontalAlignment.LEFT, new SpriteContainerEmpty());
 		final Dimension2D dimNum = n.calculateDimension(ug.getStringBounder());
 		final Dimension2D dimTotal = calculateDimension(ug.getStringBounder());

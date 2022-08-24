@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,6 +40,7 @@ import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexOr;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.project.GanttDiagram;
@@ -58,9 +59,23 @@ public class CommandPrintScale extends SingleLineCommand2<GanttDiagram> {
 						new RegexLeaf("printscale")), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexOr("SCALE", //
+						new RegexLeaf("yearly"), //
+						new RegexLeaf("quarterly"), //
 						new RegexLeaf("monthly"), //
 						new RegexLeaf("daily"), //
 						new RegexLeaf("weekly")), //
+				new RegexOptional(new RegexConcat( //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexLeaf("DATE", "(with)"), //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexLeaf("calendar"), //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexLeaf("date"))), //
+				new RegexOptional(new RegexConcat( //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexLeaf("zoom"), //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexLeaf("ZOOM", "([.\\d]+)"))), //
 				RegexLeaf.end()); //
 	}
 
@@ -69,6 +84,15 @@ public class CommandPrintScale extends SingleLineCommand2<GanttDiagram> {
 		final String scaleString = arg.get("SCALE", 0);
 		final PrintScale scale = PrintScale.fromString(scaleString);
 		diagram.setPrintScale(scale);
+
+		final String zoom = arg.get("ZOOM", 0);
+		if (zoom != null)
+			diagram.setFactorScale(Double.parseDouble(zoom));
+
+		final String withCalendarDate = arg.get("DATE", 0);
+		if (withCalendarDate != null)
+			diagram.setWithCalendarDate(true);
+
 		return CommandExecutionResult.ok();
 	}
 

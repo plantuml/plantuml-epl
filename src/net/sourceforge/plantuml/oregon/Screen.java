@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Screen {
-	private final List<String> lines = new ArrayList<String>();
+	private final List<String> lines = new ArrayList<>();
 
 	public void clear() {
 		lines.clear();

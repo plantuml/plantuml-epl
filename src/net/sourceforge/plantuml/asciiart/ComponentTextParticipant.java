@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.asciiart;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.StringUtils;
@@ -52,8 +52,7 @@ public class ComponentTextParticipant extends AbstractComponentText {
 	private final Display stringsToDisplay;
 	private final FileFormat fileFormat;
 
-	public ComponentTextParticipant(ComponentType type, Display stringsToDisplay,
-			FileFormat fileFormat) {
+	public ComponentTextParticipant(ComponentType type, Display stringsToDisplay, FileFormat fileFormat) {
 		this.type = type;
 		this.stringsToDisplay = stringsToDisplay;
 		this.fileFormat = fileFormat;
@@ -82,7 +81,11 @@ public class ComponentTextParticipant extends AbstractComponentText {
 				charArea.drawChar('+', (width - 1) / 2, height - 1);
 			}
 		}
-		charArea.drawStringsLR(stringsToDisplay.as(), 1, 1);
+		if (fileFormat == FileFormat.UTXT) {
+			charArea.drawStringsLRUnicode(stringsToDisplay.asList(), 1, 1);
+		} else {
+			charArea.drawStringsLRSimple(stringsToDisplay.asList(), 1, 1);
+		}
 	}
 
 	public double getPreferredHeight(StringBounder stringBounder) {

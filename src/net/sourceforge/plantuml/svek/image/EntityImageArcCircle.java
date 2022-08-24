@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,12 +34,11 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -64,14 +63,14 @@ public class EntityImageArcCircle extends AbstractEntityImage {
 
 		final Stereotype stereotype = entity.getStereotype();
 
-		this.name = entity.getDisplay().create(new FontConfiguration(getSkinParam(), FontParam.COMPONENT, stereotype),
+		this.name = entity.getDisplay().create(FontConfiguration.create(getSkinParam(), FontParam.COMPONENT, stereotype),
 				HorizontalAlignment.CENTER, skinParam);
 
 		if (stereotype == null || stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR) == null) {
 			this.stereo = null;
 		} else {
 			this.stereo = Display.getWithNewlines(stereotype.getLabel(getSkinParam().guillemet())).create(
-					new FontConfiguration(getSkinParam(), FontParam.COMPONENT_STEREOTYPE, stereotype),
+					FontConfiguration.create(getSkinParam(), FontParam.COMPONENT_STEREOTYPE, stereotype),
 					HorizontalAlignment.CENTER, skinParam);
 		}
 

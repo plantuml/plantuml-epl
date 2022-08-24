@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -55,6 +55,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandPartition extends SingleLineCommand2<ActivityDiagram> {
 
@@ -83,7 +84,8 @@ public class CommandPartition extends SingleLineCommand2<ActivityDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ActivityDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ActivityDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String idShort = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg.get("NAME", 0));
 		final Ident ident = diagram.buildLeafIdent(idShort);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
@@ -92,12 +94,13 @@ public class CommandPartition extends SingleLineCommand2<ActivityDiagram> {
 				NamespaceStrategy.SINGLE);
 		final IEntity p = diagram.getCurrentGroup();
 
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		if (colors.isEmpty() == false) {
 			p.setColors(colors);
 		}
 		if (arg.get("STEREOTYPE", 0) != null) {
-			p.setStereotype(new Stereotype(arg.get("STEREOTYPE", 0)));
+			p.setStereotype(Stereotype.build(arg.get("STEREOTYPE", 0)));
 		}
 
 		return CommandExecutionResult.ok();

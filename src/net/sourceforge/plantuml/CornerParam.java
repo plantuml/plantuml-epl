@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,7 +35,7 @@
 package net.sourceforge.plantuml;
 
 public enum CornerParam {
-	DEFAULT, diagramBorder, titleBorder, rectangle, archimate, component, card, agent;
+	DEFAULT, diagramBorder, titleBorder, rectangle, person, hexagon, archimate, component, card, agent;
 
 	public String getRoundKey() {
 		if (this == DEFAULT) {

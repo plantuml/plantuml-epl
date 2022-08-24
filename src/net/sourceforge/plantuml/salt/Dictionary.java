@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,11 +36,13 @@ package net.sourceforge.plantuml.salt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.SpriteContainer;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.creole.Parser;
 import net.sourceforge.plantuml.salt.element.Element;
 import net.sourceforge.plantuml.salt.element.WrappedElement;
@@ -58,10 +60,7 @@ public class Dictionary implements SpriteContainer, ISkinSimple {
 	}
 
 	public Element get(String name) {
-		final Element result = data.get(name);
-		if (result == null) {
-			throw new IllegalArgumentException();
-		}
+		final Element result = Objects.requireNonNull(data.get(Objects.requireNonNull(name)));
 		return new WrappedElement(result);
 	}
 
@@ -118,6 +117,18 @@ public class Dictionary implements SpriteContainer, ISkinSimple {
 
 	public Map<String, String> values() {
 		throw new UnsupportedOperationException();
+	}
+
+	public double minClassWidth() {
+		return 0;
+	}
+
+	public String transformStringForSizeHack(String s) {
+		return s;
+	}
+
+	public ThemeStyle getThemeStyle() {
+		return ThemeStyle.LIGHT_REGULAR;
 	}
 
 }

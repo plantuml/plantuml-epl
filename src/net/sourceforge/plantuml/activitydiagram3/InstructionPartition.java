@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,20 +39,21 @@ import java.util.Set;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
 
-public class InstructionPartition implements Instruction {
+public class InstructionPartition extends AbstractInstruction implements Instruction {
 
-	private final InstructionList list = new InstructionList();
+	private final InstructionList list = InstructionList.empty();
 	private final Instruction parent;
 
 	public InstructionPartition(Instruction parent, String partitionTitle) {
 		this.parent = parent;
 	}
-	
+
 	public Instruction getParent() {
 		return parent;
 	}
@@ -73,8 +74,8 @@ public class InstructionPartition implements Instruction {
 		return list.createFtile(factory);
 	}
 
-	public void add(Instruction other) {
-		list.add(other);
+	public CommandExecutionResult add(Instruction other) {
+		return list.add(other);
 	}
 
 	public boolean kill() {

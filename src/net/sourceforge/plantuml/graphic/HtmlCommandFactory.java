@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,11 +35,11 @@
 package net.sourceforge.plantuml.graphic;
 
 import java.util.EnumSet;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 
@@ -61,13 +61,13 @@ class HtmlCommandFactory {
 			sbRemoveStyle.append(style.getDeactivationPattern());
 		}
 
-		addStyle = MyPattern.cmpile(sbAddStyle.toString(), Pattern.CASE_INSENSITIVE);
-		removeStyle = MyPattern.cmpile(sbRemoveStyle.toString(), Pattern.CASE_INSENSITIVE);
+		addStyle = MyPattern.cmpile(sbAddStyle.toString());
+		removeStyle = MyPattern.cmpile(sbRemoveStyle.toString());
 	}
 
-	private Pattern2 htmlTag = MyPattern.cmpile(Splitter.htmlTag, Pattern.CASE_INSENSITIVE);
+	private Pattern2 htmlTag = MyPattern.cmpile(Splitter.htmlTag);
 
-	HtmlCommand getHtmlCommand(String s) {
+	HtmlCommand getHtmlCommand(ThemeStyle themeStyle, String s) {
 		if (htmlTag.matcher(s).matches() == false) {
 			return new Text(s);
 		}
@@ -80,18 +80,18 @@ class HtmlCommandFactory {
 		}
 
 		if (addStyle.matcher(s).matches()) {
-			return new AddStyle(s);
+			return AddStyle.fromString(s);
 		}
 		if (removeStyle.matcher(s).matches()) {
 			return new RemoveStyle(FontStyle.getStyle(s));
 		}
 
 		if (MyPattern.mtches(s, Splitter.fontPattern)) {
-			return new ColorAndSizeChange(s);
+			return new ColorAndSizeChange(themeStyle, s);
 		}
 
 		if (MyPattern.mtches(s, Splitter.fontColorPattern2)) {
-			return new ColorChange(s);
+			return new ColorChange(themeStyle, s);
 		}
 
 		if (MyPattern.mtches(s, Splitter.fontSizePattern2)) {
@@ -123,7 +123,7 @@ class HtmlCommandFactory {
 		}
 
 		if (MyPattern.mtches(s, Splitter.linkPattern)) {
-			final UrlBuilder urlBuilder = new UrlBuilder(null, ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(null, UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(s);
 			url.setMember(true);
 			return new TextLink(url);

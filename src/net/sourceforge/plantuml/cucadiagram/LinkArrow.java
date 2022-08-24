@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -59,6 +59,10 @@ public enum LinkArrow {
 			return new GuideLine() {
 				public Direction getArrowDirection() {
 					return guide.getArrowDirection().getInv();
+				}
+
+				public double getArrowDirection2() {
+					return Math.PI + guide.getArrowDirection2();
 				}
 			};
 

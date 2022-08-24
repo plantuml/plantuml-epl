@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,14 @@
  */
 package net.sourceforge.plantuml.braille;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class BrailleDrawer implements UDrawable {
 
@@ -53,16 +54,16 @@ public class BrailleDrawer implements UDrawable {
 	}
 
 	public void drawU(UGraphic ug) {
-		ug = ug.apply(HColorSet.instance().getColorIfValid("#F0F0F0"));
+		ug = ug.apply(HColorSet.instance().getColorOrWhite(ThemeStyle.LIGHT_REGULAR, "#F0F0F0"));
 		for (int x = grid.getMinX(); x <= grid.getMaxX(); x++) {
-			ug.apply(UTranslate.dx(x * step + spotSize + 1)).draw(
-					ULine.vline((grid.getMaxY() - grid.getMinY()) * step));
+			ug.apply(UTranslate.dx(x * step + spotSize + 1))
+					.draw(ULine.vline((grid.getMaxY() - grid.getMinY()) * step));
 		}
 		for (int y = grid.getMinY(); y <= grid.getMaxY(); y++) {
-			ug.apply(UTranslate.dy(y * step + spotSize + 1)).draw(
-					ULine.hline((grid.getMaxX() - grid.getMinX()) * step));
+			ug.apply(UTranslate.dy(y * step + spotSize + 1))
+					.draw(ULine.hline((grid.getMaxX() - grid.getMinX()) * step));
 		}
-		ug = ug.apply(HColorUtils.BLACK).apply(HColorUtils.BLACK.bg());
+		ug = ug.apply(HColors.BLACK).apply(HColors.BLACK.bg());
 		for (int x = grid.getMinX(); x <= grid.getMaxX(); x++) {
 			for (int y = grid.getMinY(); y <= grid.getMaxY(); y++) {
 				if (grid.getState(x, y)) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -70,8 +70,8 @@ public class CommandPrintBetween extends SingleLineCommand2<GanttDiagram> {
 
 	@Override
 	protected CommandExecutionResult executeArg(GanttDiagram diagram, LineLocation location, RegexResult arg) {
-		final Day start = (Day) pattern.getComplement(diagram, arg, "START").get();
-		final Day end = (Day) pattern.getComplement(diagram, arg, "END").get();
+		final Day start = (Day) pattern.getMe(diagram, arg, "START").get();
+		final Day end = (Day) pattern.getMe(diagram, arg, "END").get();
 		diagram.setPrintInterval(start, end);
 		return CommandExecutionResult.ok();
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,11 +40,14 @@ public enum SName {
 	activityDiagram, //
 	actor, //
 	agent, //
+	analog, //
 	archimate, //
 	arrow, //
 	artifact, //
+	binary, //
 	boundary, //
 	box, //
+	boxless, //
 	caption, //
 	card, //
 	circle, //
@@ -52,53 +55,101 @@ public enum SName {
 	class_, //
 	clickable, //
 	cloud, //
+	closed, //
 	collection, //
 	collections, //
 	component, //
+	robust, //
+	concise, //
+	clock, //
 	componentDiagram, //
+	constraintArrow, //
 	control, //
 	database, //
-	databse, //
 	delay, //
 	destroy, //
 	diamond, //
 	document, //
 	element, //
 	entity, //
+	end, //
+	start, //
+	stop, //
 	file, //
 	folder, //
 	footer, //
 	frame, //
+	ganttDiagram, //
 	group, //
 	groupHeader, //
 	header, //
+	hexagon, //
+	highlight, //
 	interface_, //
+	jsonDiagram, //
+	gitDiagram, //
+	label, //
 	leafNode, //
 	legend, //
 	lifeLine, //
+	map, //
+	milestone, //
 	mindmapDiagram, //
+	network, //
 	node, //
 	note, //
+	nwdiagDiagram, //
 	objectDiagram, //
+	object, //
 	package_, //
 	participant, //
 	partition, //
+	person, //
+	port, //
 	queue, //
 	rectangle, //
 	reference, //
 	referenceHeader, //
+	requirement, //
 	root, //
 	rootNode, //
+	saltDiagram, //
 	separator, //
 	sequenceDiagram, //
+	server, //
 	stack, //
 	stateDiagram, //
+	state, //
+	stateBody, //
 	stereotype, //
 	storage, //
 	swimlane, //
+	task, //
+	timeline, //
+	timingDiagram, //
 	title, //
+	undone, //
+	unstarted, //
 	usecase, //
-	wbsDiagram; //
+
+	visibilityIcon, //
+	private_, //
+	protected_, //
+	public_, //
+	IEMandatory, //
+	spot, //
+	spotAnnotation, //
+	spotInterface, //
+	spotEnum, //
+	spotProtocol, //
+	spotStruct, //
+	spotEntity, //
+	spotException, //
+	spotClass, //
+	spotAbstractClass, //
+
+	wbsDiagram, //
+	yamlDiagram; //
 
 	public static String depth(int level) {
 		return "depth(" + level + ")";

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,25 +53,21 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.UIManager;
 
-import net.sourceforge.plantuml.activitydiagram.ActivityDiagramFactory;
-import net.sourceforge.plantuml.classdiagram.ClassDiagramFactory;
 import net.sourceforge.plantuml.code.NoPlantumlCompressionException;
 import net.sourceforge.plantuml.code.Transcoder;
 import net.sourceforge.plantuml.code.TranscoderUtil;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
-import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.ftp.FtpServer;
+import net.sourceforge.plantuml.log.Logme;
+import net.sourceforge.plantuml.picoweb.PicoWebServer;
 import net.sourceforge.plantuml.png.MetadataTag;
 import net.sourceforge.plantuml.preproc.Stdlib;
-import net.sourceforge.plantuml.security.ImageIO;
 import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SecurityUtils;
-import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
 import net.sourceforge.plantuml.sprite.SpriteGrayLevel;
 import net.sourceforge.plantuml.sprite.SpriteUtils;
-import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtils;
-import net.sourceforge.plantuml.swing.MainWindow2;
+import net.sourceforge.plantuml.swing.MainWindow;
 import net.sourceforge.plantuml.syntax.LanguageDescriptor;
 import net.sourceforge.plantuml.utils.Cypher;
 import net.sourceforge.plantuml.version.Version;
@@ -87,6 +83,10 @@ public class Run {
 		if (argsArray.length > 0 && argsArray[0].equalsIgnoreCase("-headless")) {
 			System.setProperty("java.awt.headless", "true");
 		}
+//		if (argsArray.length > 0 && argsArray[0].equalsIgnoreCase("--de")) {
+//			debugGantt();
+//			return;
+//		}
 		saveCommandLine(argsArray);
 		final Option option = new Option(argsArray);
 		ProgressBar.setEnable(option.isTextProgressBar());
@@ -143,15 +143,18 @@ public class Run {
 			return;
 		}
 
+		if (option.getPicowebPort() != -1) {
+			goPicoweb(option);
+			return;
+		}
+
 		forceOpenJdkResourceLoad();
 		if (option.getPreprocessorOutputMode() == OptionPreprocOutputMode.CYPHER) {
 			cypher = new LanguageDescriptor().getCypher();
 		}
 		final ErrorStatus error = ErrorStatus.init();
 		boolean forceQuit = false;
-		if (option.isPattern()) {
-			managePattern();
-		} else if (OptionFlags.getInstance().isGui()) {
+		if (OptionFlags.getInstance().isGui()) {
 			try {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			} catch (Exception e) {
@@ -164,7 +167,15 @@ public class Run {
 					dir = f;
 				}
 			}
-			new MainWindow2(option, dir);
+			try {
+				new MainWindow(option, dir);
+			} catch (java.awt.HeadlessException e) {
+				System.err.println("There is an issue with your server. You will find some tips here:");
+				System.err.println("https://forum.plantuml.net/3399/problem-with-x11-and-headless-exception");
+				System.err.println("https://plantuml.com/en/faq#239d64f675c3e515");
+				throw e;
+			}
+
 		} else if (option.isPipe() || option.isPipeMap() || option.isSyntax()) {
 			managePipe(option, error);
 			forceQuit = true;
@@ -198,12 +209,10 @@ public class Run {
 		}
 
 		if (OptionFlags.getInstance().isGui() == false) {
-			if (error.hasError()) {
-				Log.error("Some diagram description contains errors");
-				System.exit(error.getExitCode());
+			if (error.hasError() || error.isNoData()) {
+				option.getStdrpt().finalMessage(error);
 			}
-			if (error.isNoData()) {
-				Log.error("No diagram found");
+			if (error.hasError()) {
 				System.exit(error.getExitCode());
 			}
 
@@ -286,17 +295,10 @@ public class Run {
 			return;
 		}
 
-		InputStream stream = null;
 		final BufferedImage im;
-		try {
-			stream = source.openStream();
-			im = ImageIO.read(stream);
-		} finally {
-			if (stream != null) {
-				stream.close();
-			}
+		try (InputStream stream = source.openStream()) {
+			im = SImageIO.read(stream);
 		}
-
 		final String name = getSpriteName(fileName);
 		final String s = compressed ? SpriteUtils.encodeCompressed(im, name, level)
 				: SpriteUtils.encode(im, name, level);
@@ -330,6 +332,10 @@ public class Run {
 		ftpServer.go();
 	}
 
+	private static void goPicoweb(Option option) throws IOException {
+		PicoWebServer.startServer(option.getPicowebPort(), option.getPicowebBindAddress());
+	}
+
 	public static void printFonts() {
 		final Font fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 		for (Font f : fonts) {
@@ -339,25 +345,6 @@ public class Run {
 		final String name[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 		for (String n : name) {
 			System.out.println("n=" + n);
-		}
-	}
-
-	private static void managePattern() {
-		printPattern(new SequenceDiagramFactory(null));
-		printPattern(new ClassDiagramFactory(null));
-		printPattern(new ActivityDiagramFactory(null));
-		printPattern(new DescriptionDiagramFactory(null));
-		// printPattern(new ComponentDiagramFactory());
-		printPattern(new StateDiagramFactory(null));
-		// printPattern(new ObjectDiagramFactory(null));
-	}
-
-	private static void printPattern(UmlDiagramFactory factory) {
-		System.out.println();
-		System.out.println(factory.getClass().getSimpleName().replaceAll("Factory", ""));
-		final List<String> descriptions = factory.getDescription();
-		for (String s : descriptions) {
-			System.out.println(s);
 		}
 	}
 
@@ -393,7 +380,7 @@ public class Run {
 			multithread(option, error);
 			return;
 		}
-		final List<File> files = new ArrayList<File>();
+		final List<File> files = new ArrayList<>();
 		for (String s : option.getResult()) {
 			if (option.isDecodeurl()) {
 				error.goOk();
@@ -416,7 +403,7 @@ public class Run {
 					return;
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 		}
 	}
@@ -439,9 +426,9 @@ public class Run {
 						try {
 							manageFileInternal(f, option, error);
 						} catch (IOException e) {
-							e.printStackTrace();
+							Logme.error(e);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							Logme.error(e);
 						}
 						incDone(error.hasError());
 					}
@@ -503,6 +490,7 @@ public class Run {
 					option.getConfig(), option.getCharset(), option.getFileFormatOption());
 		}
 		sourceFileReader.setCheckMetadata(option.isCheckMetadata());
+		((SourceFileReaderAbstract) sourceFileReader).setNoerror(option.isNoerror());
 
 		if (option.isComputeurl()) {
 			error.goOk();
@@ -538,7 +526,7 @@ public class Run {
 			rpt.printInfo(System.err, s.getDiagram());
 		}
 
-		hasErrors(f, result, error);
+		hasErrors(f, result, error, rpt);
 	}
 
 	private static void extractPreproc(Option option, final ISourceFileReader sourceFileReader) throws IOException {
@@ -548,41 +536,54 @@ public class Run {
 					.withPreprocFormat();
 			final SFile file = suggested.getFile(0);
 			Log.info("Export preprocessing source to " + file.getPrintablePath());
-			final PrintWriter pw = charset == null ? file.createPrintWriter() : file.createPrintWriter(charset);
-			int level = 0;
-			for (CharSequence cs : blockUml.getDefinition(true)) {
-				String s = cs.toString();
-				if (cypher != null) {
-					if (s.contains("skinparam") && s.contains("{")) {
-						level++;
+			try (final PrintWriter pw = charset == null ? file.createPrintWriter() : file.createPrintWriter(charset)) {
+				int level = 0;
+				for (CharSequence cs : blockUml.getDefinition(true)) {
+					String s = cs.toString();
+					if (cypher != null) {
+						if (s.contains("skinparam") && s.contains("{")) {
+							level++;
+						}
+						if (level == 0 && s.contains("skinparam") == false) {
+							s = cypher.cypher(s);
+						}
+						if (level > 0 && s.contains("}")) {
+							level--;
+						}
 					}
-					if (level == 0 && s.contains("skinparam") == false) {
-						s = cypher.cypher(s);
-					}
-					if (level > 0 && s.contains("}")) {
-						level--;
-					}
+					pw.println(s);
 				}
-				pw.println(s);
 			}
-			pw.close();
 		}
 	}
 
-	private static void hasErrors(File f, final List<GeneratedImage> list, ErrorStatus error) throws IOException {
+	private static void hasErrors(File file, final List<GeneratedImage> list, ErrorStatus error, Stdrpt stdrpt)
+			throws IOException {
 		if (list.size() == 0) {
 			// error.goNoData();
 			return;
 		}
-		for (GeneratedImage i : list) {
-			final int lineError = i.lineErrorRaw();
+		for (GeneratedImage image : list) {
+			final int lineError = image.lineErrorRaw();
 			if (lineError != -1) {
-				Log.error("Error line " + lineError + " in file: " + f.getPath());
+				stdrpt.errorLine(lineError, file);
 				error.goWithError();
 				return;
 			}
 		}
 		error.goOk();
 	}
+
+//	public static void debugGantt() {
+//		final Locale locale = Locale.GERMAN;
+//		for (java.time.Month month : java.time.Month.values()) {
+//			System.err.println("Testing locale " + locale + " " + month);
+//			for (TextStyle style : TextStyle.values()) {
+//				final String s = month.getDisplayName(style, locale);
+//				System.err.println(style + " --> '" + s + "'");
+//
+//			}
+//		}
+//	}
 
 }

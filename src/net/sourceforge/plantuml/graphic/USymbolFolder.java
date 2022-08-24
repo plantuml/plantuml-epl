@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,18 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class USymbolFolder extends USymbol {
@@ -56,25 +57,25 @@ public class USymbolFolder extends USymbol {
 	private final static int marginTitleY1 = 3;
 	private final static int marginTitleY2 = 3;
 
-	private final SkinParameter skinParameter;
+	private final SName sname;
 	private final boolean showTitle;
 
-	public USymbolFolder(SkinParameter skinParameter, boolean showTitle) {
-		this.skinParameter = skinParameter;
+	public USymbolFolder(SName sname, boolean showTitle) {
 		this.showTitle = showTitle;
+		this.sname = sname;
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + skinParameter + " " + showTitle;
+		return super.toString() + " " + showTitle;
 	}
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return skinParameter;
+	public SName getSName() {
+		return sname;
 	}
 
-	private void drawFolder(UGraphic ug, double width, double height, Dimension2D dimTitle, boolean shadowing,
+	private void drawFolder(UGraphic ug, double width, double height, Dimension2D dimTitle, double shadowing,
 			double roundCorner) {
 
 		final double wtitle;
@@ -115,9 +116,8 @@ public class USymbolFolder extends USymbol {
 			path.closePath();
 			shape = path;
 		}
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
+
 		ug.draw(shape);
 		ug.apply(UTranslate.dy(htitle)).draw(ULine.hline(wtitle + marginTitleX3));
 	}
@@ -139,18 +139,15 @@ public class USymbolFolder extends USymbol {
 	@Override
 	public TextBlock asSmall(final TextBlock name, final TextBlock label, final TextBlock stereotype,
 			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(name);
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				final Dimension2D dimName = showTitle ? name.calculateDimension(ug.getStringBounder())
-						: new Dimension2DDouble(40, 15);
-				drawFolder(ug, dim.getWidth(), dim.getHeight(), dimName, symbolContext.isShadowing(),
+				final Dimension2D dimName = getDimName(ug.getStringBounder());
+				drawFolder(ug, dim.getWidth(), dim.getHeight(), dimName, symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
@@ -160,8 +157,12 @@ public class USymbolFolder extends USymbol {
 				tb.drawU(ug.apply(new UTranslate(margin.getX1(), margin.getY1() + dimName.getHeight())));
 			}
 
+			private Dimension2D getDimName(StringBounder stringBounder) {
+				return showTitle ? name.calculateDimension(stringBounder) : new Dimension2DDouble(40, 15);
+			}
+
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
-				final Dimension2D dimName = name.calculateDimension(stringBounder);
+				final Dimension2D dimName = getDimName(stringBounder);
 				final Dimension2D dimLabel = label.calculateDimension(stringBounder);
 				final Dimension2D dimStereo = stereotype.calculateDimension(stringBounder);
 				return getMargin().addDimension(Dimension2DDouble.mergeTB(dimName, dimStereo, dimLabel));
@@ -180,7 +181,7 @@ public class USymbolFolder extends USymbol {
 				final Dimension2D dim = calculateDimension(stringBounder);
 				ug = symbolContext.apply(ug);
 				final Dimension2D dimTitle = title.calculateDimension(stringBounder);
-				drawFolder(ug, dim.getWidth(), dim.getHeight(), dimTitle, symbolContext.isShadowing(),
+				drawFolder(ug, dim.getWidth(), dim.getHeight(), dimTitle, symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				title.drawU(ug.apply(new UTranslate(4, 2)));
 				final Dimension2D dimStereo = stereotype.calculateDimension(stringBounder);
@@ -194,11 +195,6 @@ public class USymbolFolder extends USymbol {
 			}
 
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

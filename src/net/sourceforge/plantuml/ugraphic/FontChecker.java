@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,15 @@
  */
 package net.sourceforge.plantuml.ugraphic;
 
+import static net.sourceforge.plantuml.graphic.TextBlockUtils.createTextLayout;
+import static net.sourceforge.plantuml.ugraphic.ImageBuilder.plainPngBuilder;
+
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Shape;
 import java.awt.font.TextLayout;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -51,29 +53,27 @@ import java.util.Set;
 import javax.xml.transform.TransformerException;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.UDrawable;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.svg.DarkStrategy;
+import net.sourceforge.plantuml.svg.LengthAdjust;
 import net.sourceforge.plantuml.svg.SvgGraphics;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class FontChecker {
 
 	final private UFont font;
-	private static final Set<String> SQUARRE = new HashSet<String>(Arrays.asList("MI=I=XM=I=IX",
-			"MI=I=XM=I=IXMI=I=XM=I=IX"));
+	private static final Set<String> SQUARE = new HashSet<>(
+			Arrays.asList("MI=I=XM=I=IX", "MI=I=XM=I=IXMI=I=XM=I=IX"));
 
 	public FontChecker(UFont font) {
 		this.font = font;
 	}
 
 	public boolean isCharOk(char c) {
-		return SQUARRE.contains(getCharDesc(c)) == false;
+		return SQUARE.contains(getCharDesc(c)) == false;
 	}
 
 	static private String getType(int type, double oldX, double oldY, double x, double y) {
@@ -102,7 +102,7 @@ public class FontChecker {
 	}
 
 	public String getCharDesc(char c) {
-		final TextLayout t = new TextLayout("" + c, font.getFont(), TextBlockUtils.getFontRenderContext());
+		final TextLayout t = createTextLayout(font, "" + c);
 		final Shape sh = t.getOutline(null);
 		final double current[] = new double[6];
 		final PathIterator it = sh.getPathIterator(null);
@@ -120,7 +120,7 @@ public class FontChecker {
 	}
 
 	public String getCharDescVerbose(char c) {
-		final TextLayout t = new TextLayout("" + c, font.getFont(), TextBlockUtils.getFontRenderContext());
+		final TextLayout t = createTextLayout(font, "" + c);
 		final Shape sh = t.getOutline(null);
 		final double current[] = new double[6];
 		final PathIterator it = sh.getPathIterator(null);
@@ -157,7 +157,8 @@ public class FontChecker {
 	}
 
 	private String getSvgImage(char c) throws IOException, TransformerException {
-		final SvgGraphics svg = new SvgGraphics(true, new Dimension2DDouble(0, 0), 1.0, null, 42, "none");
+		final SvgGraphics svg = new SvgGraphics(null, true, new Dimension2DDouble(0, 0), 1.0, null, 42, "none",
+				LengthAdjust.defaultValue(), DarkStrategy.IGNORE_DARK_COLOR, false);
 		svg.setStrokeColor("black");
 		svg.svgImage(getBufferedImage(c), 0, 0);
 		final ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -168,33 +169,32 @@ public class FontChecker {
 
 	public BufferedImage getBufferedImage(final char c) throws IOException {
 		assert c != '\t';
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, null, null, 1,
-				null);
+
 		final double dim = 20;
-		imageBuilder.setUDrawable(new UDrawable() {
+		final UDrawable drawable = new UDrawable() {
 			public void drawU(UGraphic ug) {
-				ug = ug.apply(HColorUtils.BLACK);
+				ug = ug.apply(HColors.BLACK);
 				ug.draw(new URectangle(dim - 1, dim - 1));
-				if (ug instanceof UGraphic2) {
-					ug = (UGraphic2) ug.apply(new UTranslate(dim / 3, 2 * dim / 3));
+				if (!(ug instanceof LimitFinder)) {
+					ug = ug.apply(new UTranslate(dim / 3, 2 * dim / 3));
 					final UText text = new UText("" + c, FontConfiguration.blackBlueTrue(font));
 					ug.draw(text);
 				}
 			}
-		});
-		final ByteArrayOutputStream os = new ByteArrayOutputStream();
-		imageBuilder.writeImageTOBEMOVED(new FileFormatOption(FileFormat.PNG), 42, os);
-		os.close();
-		return ImageIO.read(new ByteArrayInputStream(os.toByteArray()));
+		};
+		final byte[] bytes = plainPngBuilder(drawable).writeByteArray();
+		return SImageIO.read(bytes);
 	}
 
 	// public BufferedImage getBufferedImageOld(char c) throws IOException {
 	// final double dim = 20;
-	// UGraphic2 ug = new FileFormatOption(FileFormat.PNG).createUGraphic(new Dimension2DDouble(dim, dim));
+	// UGraphic2 ug = new FileFormatOption(FileFormat.PNG).createUGraphic(new
+	// Dimension2DDouble(dim, dim));
 	// ug = (UGraphic2) ug.apply(UChangeColor.nnn(HtmlColorUtils.BLACK));
 	// ug.draw(new URectangle(dim - 1, dim - 1));
 	// ug = (UGraphic2) ug.apply(new UTranslate(dim / 3, 2 * dim / 3));
-	// final UText text = new UText("" + c, new FontConfiguration(font, HtmlColorUtils.BLACK));
+	// final UText text = new UText("" + c, FontConfiguration.create(font,
+	// HtmlColorUtils.BLACK));
 	// ug.draw(text);
 	// final ByteArrayOutputStream os = new ByteArrayOutputStream();
 	// ug.writeImageTOBEMOVED(os, null, 96);

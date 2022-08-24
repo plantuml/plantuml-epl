@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,27 +36,28 @@ package net.sourceforge.plantuml.command;
 
 import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositioned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandMultilinesCaption extends CommandMultilines<TitledDiagram> {
 
 	public CommandMultilinesCaption() {
-		super("(?i)^caption$");
+		super("^caption$");
 	}
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?caption$";
+		return "^end[%s]?caption$";
 	}
 
-	public CommandExecutionResult execute(final TitledDiagram diagram, BlocLines lines) {
+	public CommandExecutionResult execute(final TitledDiagram diagram, BlocLines lines) throws NoSuchColorException {
 		lines = lines.subExtract(1, 1);
 		lines = lines.removeEmptyColumns();
 		final Display strings = lines.toDisplay();
 		if (strings.size() > 0) {
-			diagram.setCaption(DisplayPositionned.single(strings.replaceBackslashT(), HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM));
+			diagram.setCaption(DisplayPositioned.single(strings.replaceBackslashT(), HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM));
 			return CommandExecutionResult.ok();
 		}
 		return CommandExecutionResult.error("No caption defined");

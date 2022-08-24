@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -49,8 +49,9 @@ import java.util.prefs.Preferences;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SignatureUtils;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SImageIO;
 
 public class LicenseInfo {
 
@@ -121,7 +122,7 @@ public class LicenseInfo {
 				}
 			} catch (IOException e) {
 				Log.info("Error " + e);
-				// e.printStackTrace();
+				// Logme.error(e);
 			}
 		}
 		return cache;
@@ -133,7 +134,7 @@ public class LicenseInfo {
 				final String sig = SignatureUtils.toHexString(PLSSignature.signature());
 				return PLSSignature.retrieveNamed(sig, key, true);
 			} catch (Exception e) {
-				// e.printStackTrace();
+				// Logme.error(e);
 				Log.info("Error retrieving license info" + e);
 			}
 		}
@@ -154,13 +155,13 @@ public class LicenseInfo {
 				return null;
 			}
 			try {
-				final BufferedImage result = ImageIO.read(dis);
+				final BufferedImage result = SImageIO.read(dis);
 				return result;
 			} finally {
 				dis.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 		return null;
 	}
@@ -184,16 +185,18 @@ public class LicenseInfo {
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 			return null;
 		}
 	}
 
 	public static Collection<SFile> fileCandidates() {
-		final Set<SFile> result = new TreeSet<SFile>();
+		final Set<SFile> result = new TreeSet<>();
 		final String classpath = System.getProperty("java.class.path");
 		String[] classpathEntries = classpath.split(SFile.pathSeparator);
 		for (String s : classpathEntries) {
+			if (s == null)
+				continue;
 			SFile dir = new SFile(s);
 			if (dir.isFile()) {
 				dir = dir.getParentFile();
@@ -217,13 +220,16 @@ public class LicenseInfo {
 		if (br == null) {
 			return null;
 		}
-		final String s = br.readLine();
-		br.close();
-		final LicenseInfo result = retrieveNamed(s);
-		if (result != null) {
-			Log.info("Reading license from " + f.getAbsolutePath());
+		try {
+			final String s = br.readLine();
+			final LicenseInfo result = retrieveNamed(s);
+			if (result != null) {
+				Log.info("Reading license from " + f.getAbsolutePath());
+			}
+			return result;
+		} finally {
+			br.close();
 		}
-		return result;
 	}
 
 	public static void main(String[] args) {

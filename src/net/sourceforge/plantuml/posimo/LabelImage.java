@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,8 @@
  */
 package net.sourceforge.plantuml.posimo;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.cucadiagram.Link;
@@ -52,14 +53,12 @@ public class LabelImage {
 	final private TextBlock name;
 
 	public LabelImage(Link link, Rose rose, ISkinParam param) {
-		if (link == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(link);
 		// this.entity = entity;
 		this.param = param;
 		this.rose = rose;
 //		this.name = link.getLabel().create(
-//				new FontConfiguration(param.getFont(FontParam.CLASS, null, false), HtmlColorUtils.BLACK,
+//				FontConfiguration.create(param.getFont(FontParam.CLASS, null, false), HtmlColorUtils.BLACK,
 //						param.getHyperlinkColor(), param.useUnderlineForHyperlink()), HorizontalAlignment.CENTER,
 //				new SpriteContainerEmpty());
 		throw new UnsupportedOperationException();

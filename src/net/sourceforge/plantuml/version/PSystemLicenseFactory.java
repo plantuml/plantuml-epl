@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,14 +39,15 @@ import java.io.IOException;
 import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.command.PSystemSingleLineFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
 public class PSystemLicenseFactory extends PSystemSingleLineFactory {
 
 	@Override
-	protected AbstractPSystem executeLine(String line) {
+	protected AbstractPSystem executeLine(UmlSource source, String line) {
 		try {
 			if (line.matches("(?i)^li[sc][ea]n[sc]e\\s*$")) {
-				return PSystemLicense.create();
+				return PSystemLicense.create(source);
 			}
 		} catch (IOException e) {
 			Log.error("Error " + e);

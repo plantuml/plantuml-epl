@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,9 +35,13 @@
  */
 package net.sourceforge.plantuml.statediagram;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
@@ -56,8 +60,8 @@ public class StateDiagram extends AbstractEntityDiagram {
 
 	private static final String CONCURRENT_PREFIX = "CONC";
 
-	public StateDiagram(ISkinSimple skinParam) {
-		super(skinParam);
+	public StateDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		super(style, source, UmlDiagramType.STATE, skinParam);
 		// setNamespaceSeparator(null);
 	}
 
@@ -105,8 +109,7 @@ public class StateDiagram extends AbstractEntityDiagram {
 
 	@Override
 	public IEntity getOrCreateLeaf(Ident ident, Code code, LeafType type, USymbol symbol) {
-		checkNotNull(ident);
-		if (checkConcurrentStateOk(ident, code) == false) {
+		if (checkConcurrentStateOk(Objects.requireNonNull(ident), code) == false) {
 			throw new IllegalStateException("Concurrent State " + code);
 		}
 		if (!this.V1972() && type == null) {
@@ -258,11 +261,6 @@ public class StateDiagram extends AbstractEntityDiagram {
 			super.endGroup();
 		}
 		super.endGroup();
-	}
-
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.STATE;
 	}
 
 	private boolean hideEmptyDescription = false;

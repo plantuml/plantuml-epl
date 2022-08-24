@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,30 +34,28 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphicHorizontalLine;
 import net.sourceforge.plantuml.ugraphic.UEmpty;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UHorizontalLine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 class USymbolDatabase extends USymbol {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.DATABASE;
+	public SName getSName() {
+		return SName.database;
 	}
 
-	private void drawDatabase(UGraphic ug, double width, double height, boolean shadowing) {
+	private void drawDatabase(UGraphic ug, double width, double height, double shadowing) {
 		final UPath shape = new UPath();
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
+
 		shape.moveTo(0, 10);
 		shape.cubicTo(0, 0, width / 2, 0, width / 2, 0);
 		shape.cubicTo(width / 2, 0, width, 0, width, 10);
@@ -69,12 +67,8 @@ class USymbolDatabase extends USymbol {
 		ug.draw(shape);
 
 		final UPath closing = getClosingPath(width);
-		ug.apply(new HColorNone().bg()).draw(closing);
-
-		if (SkinParam.USE_STYLES()) {
-			ug.apply(new UTranslate(width, height)).draw(new UEmpty(10, 10));
-			// ug.apply(HColorUtils.BLACK).apply(new UTranslate(width, height)).draw(new URectangle(10, 10));
-		}
+		ug.apply(HColors.none().bg()).draw(closing);
+		ug.apply(new UTranslate(width, height)).draw(new UEmpty(10, 10));
 
 	}
 
@@ -104,9 +98,9 @@ class USymbolDatabase extends USymbol {
 		protected void drawHline(UGraphic ug, UHorizontalLine line, UTranslate translate) {
 			final UPath closing = getClosingPath(endingX);
 			ug = ug.apply(translate);
-			ug.apply(line.getStroke()).apply(new HColorNone().bg()).apply(UTranslate.dy(-15)).draw(closing);
+			ug.apply(line.getStroke()).apply(HColors.none().bg()).apply(UTranslate.dy(-15)).draw(closing);
 			if (line.isDouble()) {
-				ug.apply(line.getStroke()).apply(new HColorNone().bg()).apply(UTranslate.dy(-15 + 2)).draw(closing);
+				ug.apply(line.getStroke()).apply(HColors.none().bg()).apply(UTranslate.dy(-15 + 2)).draw(closing);
 			}
 			line.drawTitleInternal(ug, 0, endingX, 0, true);
 		}
@@ -125,7 +119,7 @@ class USymbolDatabase extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawDatabase(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawDatabase(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
 				final UGraphic ug2 = new MyUGraphicDatabase(ug, dim.getWidth());
@@ -149,7 +143,7 @@ class USymbolDatabase extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawDatabase(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawDatabase(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
 				stereotype.drawU(ug.apply(new UTranslate(posStereo, 2 + 20)));
@@ -163,10 +157,6 @@ class USymbolDatabase extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 	@Override

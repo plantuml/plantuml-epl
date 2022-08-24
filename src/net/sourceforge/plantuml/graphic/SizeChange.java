@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.command.regex.Pattern2;
 
 class SizeChange implements FontChange {
 
-	static private final Pattern2 sizePattern = MyPattern.cmpile("(?i)" + Splitter.fontSizePattern2);
+	static private final Pattern2 sizePattern = MyPattern.cmpile(Splitter.fontSizePattern2);
 
 	private final Integer size;
 
@@ -49,7 +49,7 @@ class SizeChange implements FontChange {
 		if (matcherSize.find() == false) {
 			throw new IllegalArgumentException();
 		}
-		size = new Integer(matcherSize.group(1));
+		size = Integer.valueOf(matcherSize.group(1));
 	}
 
 	Integer getSize() {

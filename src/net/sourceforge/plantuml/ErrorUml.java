@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,20 +34,24 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Objects;
 
 public class ErrorUml {
 
 	private final String error;
 	private final ErrorUmlType type;
 	private final LineLocation lineLocation;
+	private final int score;
 
-	public ErrorUml(ErrorUmlType type, String error, LineLocation lineLocation) {
-		if (error == null || type == null) {
-			throw new IllegalArgumentException();
-		}
-		this.error = error;
-		this.type = type;
+	public ErrorUml(ErrorUmlType type, String error, int score, LineLocation lineLocation) {
+		this.score = score;
+		this.error = Objects.requireNonNull(error);
+		this.type = Objects.requireNonNull(type);
 		this.lineLocation = lineLocation;
+	}
+
+	public int score() {
+		return score;
 	}
 
 	@Override

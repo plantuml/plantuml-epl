@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,11 +38,13 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 
 abstract class AbstractGraphviz implements Graphviz {
@@ -69,17 +71,18 @@ abstract class AbstractGraphviz implements Graphviz {
 	}
 
 	AbstractGraphviz(ISkinParam skinParam, String dotString, String... type) {
-		if (type == null) {
-			throw new IllegalArgumentException();
-		}
 		this.dotExe = searchDotExe();
 		this.dotString = dotString;
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
+	}
+	
+	protected boolean findExecutableOnPath() {
+		return true;
 	}
 
-	private File searchDotExe() {
+	final protected File searchDotExe() {
 		String getenv = GraphvizUtils.getenvGraphvizDot();
-		if (getenv == null) {
+		if (findExecutableOnPath() && getenv == null) {
 			getenv = findExecutableOnPath(getExeName());
 		}
 		if (getenv == null) {
@@ -93,9 +96,7 @@ abstract class AbstractGraphviz implements Graphviz {
 	abstract protected String getExeName();
 
 	final public ProcessState createFile3(OutputStream os) {
-		if (dotString == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(dotString);
 
 		if (getExeState() != ExeState.OK) {
 			// createPngNoGraphviz(os, new
@@ -115,7 +116,7 @@ abstract class AbstractGraphviz implements Graphviz {
 			// }
 			Log.info("Ending process ok");
 		} catch (Throwable e) {
-			e.printStackTrace();
+			Logme.error(e);
 			Log.error("Error: " + e);
 			Log.error("The command was " + cmd);
 			Log.error("");

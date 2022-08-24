@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,9 +37,11 @@ package net.sourceforge.plantuml;
 import java.util.EnumMap;
 import java.util.Map;
 
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
+@HaxeIgnored
 public class SkinParamBackcolored extends SkinParamDelegator {
 
 	final private HColor backColorElement;
@@ -72,11 +74,11 @@ public class SkinParamBackcolored extends SkinParamDelegator {
 	}
 
 	@Override
-	public HColor getBackgroundColor(boolean replaceTransparentByWhite) {
+	public HColor getBackgroundColor() {
 		if (backColorGeneral != null) {
 			return backColorGeneral;
 		}
-		return super.getBackgroundColor(replaceTransparentByWhite);
+		return super.getBackgroundColor();
 	}
 
 	@Override

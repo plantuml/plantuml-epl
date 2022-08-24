@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,16 +42,19 @@ import net.sourceforge.plantuml.graphic.FontConfiguration;
 
 public class CommandCreoleMonospaced implements Command {
 
-	private final Pattern2 pattern;
-	private final String monospacedFamily;
-
-	public static Command create(String monospacedFamily) {
-		return new CommandCreoleMonospaced("^(?i)([%g][%g](.*?)[%g][%g])", monospacedFamily);
+	@Override
+	public String startingChars() {
+		return "\"";
 	}
 
-	private CommandCreoleMonospaced(String p, String monospacedFamily) {
+	private final Pattern2 pattern;
+
+	public static Command create() {
+		return new CommandCreoleMonospaced("^(\"\"(.*?)\"\")");
+	}
+
+	private CommandCreoleMonospaced(String p) {
 		this.pattern = MyPattern.cmpile(p);
-		this.monospacedFamily = monospacedFamily;
 	}
 
 	public int matchingSize(String line) {
@@ -64,11 +67,11 @@ public class CommandCreoleMonospaced implements Command {
 
 	public String executeAndGetRemaining(String line, StripeSimple stripe) {
 		final Matcher2 m = pattern.matcher(line);
-		if (m.find() == false) {
+		if (m.find() == false)
 			throw new IllegalStateException();
-		}
+
 		final FontConfiguration fc1 = stripe.getActualFontConfiguration();
-		final FontConfiguration fc2 = fc1.changeFamily(monospacedFamily);
+		final FontConfiguration fc2 = fc1.changeFamily(stripe.getSkinParam().getMonospacedFamily());
 		stripe.setActualFontConfiguration(fc2);
 		stripe.analyzeAndAdd(m.group(2));
 		stripe.setActualFontConfiguration(fc1);

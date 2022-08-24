@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -47,13 +47,13 @@ import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UFontContext;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
-public class DriverTextSvg implements UDriver<SvgGraphics> {
+public class DriverTextSvg implements UDriver<UText, SvgGraphics> {
 
 	private final StringBounder stringBounder;
 	private final ClipContainer clipContainer;
@@ -63,15 +63,16 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
-
+	public void draw(UText shape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
 		final UClip clip = clipContainer.getClip();
 		if (clip != null && clip.isInside(x, y) == false) {
 			return;
 		}
 
-		final UText shape = (UText) ushape;
 		final FontConfiguration fontConfiguration = shape.getFontConfiguration();
+		if (HColors.isTransparent(fontConfiguration.getColor())) {
+			return;
+		}
 		final UFont font = fontConfiguration.getFont();
 		String fontWeight = null;
 		if (fontConfiguration.containsStyle(FontStyle.BOLD) || font.isBold()) {
@@ -86,9 +87,17 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 			textDecoration = "underline";
 		} else if (fontConfiguration.containsStyle(FontStyle.STRIKE)) {
 			textDecoration = "line-through";
+		} else if (fontConfiguration.containsStyle(FontStyle.WAVE)) {
+			// Beware that some current SVG implementations do not render the wave properly
+			// (e.g. Chrome just draws a straight line)
+			// Works ok on Firefox 85.
+			textDecoration = "wavy underline";
 		}
 
 		String text = shape.getText();
+		if (text.matches("^\\s*$"))
+			text = text.replace(' ', (char)160);
+		
 		if (text.startsWith(" ")) {
 			final double space = stringBounder.calculateDimension(font, " ").getWidth();
 			while (text.startsWith(" ")) {
@@ -106,19 +115,25 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 			final HColor back = fontConfiguration.getExtendedColor();
 			if (back instanceof HColorGradient) {
 				final HColorGradient gr = (HColorGradient) back;
-				final String id = svg.createSvgGradient(mapper.toRGB(gr.getColor1()),
-						mapper.toRGB(gr.getColor2()), gr.getPolicy());
+				final String id = svg.createSvgGradient(mapper.toRGB(gr.getColor1()), mapper.toRGB(gr.getColor2()),
+						gr.getPolicy());
 				svg.setFillColor("url(#" + id + ")");
 				svg.setStrokeColor(null);
 				final double deltaPatch = 2;
-				svg.svgRectangle(x, y - height + deltaPatch, width, height, 0, 0, 0, null);
+				svg.svgRectangle(x, y - height + deltaPatch, width, height, 0, 0, 0, null, null);
 
 			} else {
 				backColor = mapper.toRGB(back);
 			}
 		}
 
-		svg.setFillColor(mapper.toRGB(fontConfiguration.getColor()));
+		final HColor textColor = fontConfiguration.getColor();
+		final HColor dark = textColor == null ? null : textColor.darkSchemeTheme();
+		if (dark == textColor)
+			svg.setFillColor(mapper.toSvg(textColor));
+		else
+			svg.setFillColor(mapper.toSvg(textColor), mapper.toSvg(dark));
+
 		svg.text(text, x, y, font.getFamily(UFontContext.SVG), font.getSize(), fontWeight, fontStyle, textDecoration,
 				width, fontConfiguration.getAttributes(), backColor);
 	}

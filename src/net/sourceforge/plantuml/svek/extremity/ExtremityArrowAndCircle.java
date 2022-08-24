@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,8 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 class ExtremityArrowAndCircle extends Extremity {
 
@@ -49,15 +50,17 @@ class ExtremityArrowAndCircle extends Extremity {
 	private final Point2D contact;
 	private final Point2D dest;
 	private final double radius = 5;
+	private final HColor backgroundColor;
 
 	@Override
 	public Point2D somePoint() {
 		return contact;
 	}
 
-	public ExtremityArrowAndCircle(Point2D p1, double angle, Point2D center) {
+	public ExtremityArrowAndCircle(Point2D p1, double angle, Point2D center, HColor backgroundColor) {
 		angle = manageround(angle);
 		polygon.addPoint(0, 0);
+		this.backgroundColor = backgroundColor;
 		this.dest = new Point2D.Double(p1.getX(), p1.getY());
 		final int xWing = 9;
 		final int yAperture = 4;
@@ -73,8 +76,8 @@ class ExtremityArrowAndCircle extends Extremity {
 	}
 
 	public void drawU(UGraphic ug) {
-		ug.apply(HColorUtils.changeBack(ug)).draw(polygon);
-		ug.apply(new UStroke(1.5)).apply(HColorUtils.WHITE.bg())
+		ug.apply(HColors.changeBack(ug)).draw(polygon);
+		ug.apply(new UStroke(1.5)).apply(backgroundColor.bg())
 				.apply(new UTranslate(dest.getX() - radius, dest.getY() - radius))
 				.draw(new UEllipse(radius * 2, radius * 2));
 	}

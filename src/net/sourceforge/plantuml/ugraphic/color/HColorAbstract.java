@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,12 +38,57 @@ import net.sourceforge.plantuml.ugraphic.UBackground;
 
 abstract class HColorAbstract implements HColor {
 
-	final public UBackground bg() {
+	public UBackground bg() {
 		return new UBackground() {
 			public HColor getBackColor() {
 				return HColorAbstract.this;
 			}
 		};
+	}
+
+	@Override
+	public HColor lighten(int ratio) {
+		return this;
+	}
+
+	@Override
+	public HColor darken(int ratio) {
+		return this;
+	}
+
+	@Override
+	public HColor reverseHsluv() {
+		return this;
+	}
+
+	@Override
+	public HColor reverse() {
+		return this;
+	}
+
+	@Override
+	public boolean isDark() {
+		return true;
+	}
+
+	@Override
+	public String asString() {
+		return "?" + getClass().getSimpleName();
+	}
+
+	@Override
+	public HColor darkSchemeTheme() {
+		return this;
+	}
+
+	@Override
+	public HColor withDark(HColor dark) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public HColor opposite() {
+		throw new UnsupportedOperationException();
 	}
 
 }

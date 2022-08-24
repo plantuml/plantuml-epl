@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,7 @@
  */
 package net.sourceforge.plantuml.project;
 
-import net.sourceforge.plantuml.project.lang.Complement;
-
-public class Completion implements Complement {
+public class Completion {
 
 	private final int completion;
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.entity.EntityFactory;
 
@@ -42,10 +44,7 @@ public class CodeImpl implements Code {
 	private final String name;
 
 	private CodeImpl(String name) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
-		this.name = name;
+		this.name = Objects.requireNonNull(name);
 	}
 
 	public static Code of(String code) {
@@ -74,7 +73,6 @@ public class CodeImpl implements Code {
 		final CodeImpl other = (CodeImpl) obj;
 		return this.name.equals(other.name);
 	}
-
 
 	public Code eventuallyRemoveStartingAndEndingDoubleQuote(String format) {
 		return CodeImpl.of(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(getName(), format));

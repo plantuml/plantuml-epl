@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,10 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.skin.AbstractTextualComponent;
@@ -61,27 +57,22 @@ public class ComponentRoseDivider extends AbstractTextualComponent {
 	private final HColor borderColor;
 	private final HColor background;
 	private final boolean empty;
-	private final boolean withShadow;
+
+	private final double shadow;
 	private final UStroke stroke;
 	private final double roundCorner;
 
-	public ComponentRoseDivider(Style style, FontConfiguration font, HColor background, Display stringsToDisplay,
-			ISkinSimple spriteContainer, boolean withShadow, UStroke stroke, HColor borderColor) {
-		super(style, LineBreakStrategy.NONE, stringsToDisplay, font, HorizontalAlignment.CENTER, 4, 4, 4,
-				spriteContainer, false, null, null);
-		if (SkinParam.USE_STYLES()) {
-			this.background = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
-			this.borderColor = style.value(PName.LineColor).asColor(getIHtmlColorSet());
-			this.stroke = style.getStroke();
-			this.roundCorner = style.value(PName.RoundCorner).asInt();
-		} else {
-			this.background = background;
-			this.borderColor = borderColor;
-			this.stroke = stroke;
-			this.roundCorner = 0;
-		}
+	public ComponentRoseDivider(Style style, Display stringsToDisplay, ISkinSimple spriteContainer) {
+		super(style, LineBreakStrategy.NONE, 4, 4, 4, spriteContainer, stringsToDisplay, false);
+
+		this.background = style.value(PName.BackGroundColor).asColor(spriteContainer.getThemeStyle(),
+				getIHtmlColorSet());
+		this.borderColor = style.value(PName.LineColor).asColor(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.stroke = style.getStroke();
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
+		this.shadow = style.value(PName.Shadowing).asDouble();
+
 		this.empty = stringsToDisplay.get(0).length() == 0;
-		this.withShadow = withShadow;
 	}
 
 	@Override
@@ -105,14 +96,10 @@ public class ComponentRoseDivider extends AbstractTextualComponent {
 			ug = ug.apply(borderColor);
 			ug = ug.apply(stroke);
 			final URectangle rect = new URectangle(textWidth + deltaX, textHeight).rounded(roundCorner);
-			if (withShadow) {
-				rect.setDeltaShadow(4);
-			}
+			rect.setDeltaShadow(shadow);
+
 			ug.apply(new UTranslate(xpos, ypos)).draw(rect);
 			textBlock.drawU(ug.apply(new UTranslate(xpos + deltaX, ypos + getMarginY())));
-
-			// drawSep(ug.apply(new UTranslate(xpos + deltaX + textWidth + stroke.getThickness() + , dimensionToUse
-			// .getHeight() / 2)), 10);
 		}
 	}
 
@@ -124,9 +111,8 @@ public class ComponentRoseDivider extends AbstractTextualComponent {
 
 	private void drawRectLong(UGraphic ug, double width) {
 		final URectangle rectLong = new URectangle(width, 3).rounded(roundCorner);
-		if (withShadow) {
-			rectLong.setDeltaShadow(2);
-		}
+		rectLong.setDeltaShadow(shadow);
+
 		ug = ug.apply(new UStroke());
 		ug.draw(rectLong);
 	}

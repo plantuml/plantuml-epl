@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.Rainbow;
 
@@ -42,20 +44,21 @@ public class LinkRendering {
 	private final Rainbow rainbow;
 	private final Display display;
 
-	public LinkRendering(Rainbow rainbow) {
-		this(rainbow, Display.NULL);
-	}
-
-	private LinkRendering(Rainbow rainbow, Display display) {
-		if (rainbow == null) {
-			throw new IllegalArgumentException();
-		}
-		this.rainbow = rainbow;
-		this.display = display;
+	public static LinkRendering create(Rainbow rainbow) {
+		return new LinkRendering(rainbow, Display.NULL);
 	}
 
 	public static LinkRendering none() {
-		return new LinkRendering(Rainbow.none());
+		return LinkRendering.create(Rainbow.none());
+	}
+
+	private LinkRendering(Rainbow rainbow, Display display) {
+		this.rainbow = Objects.requireNonNull(rainbow);
+		this.display = display;
+	}
+
+	public LinkRendering withRainbow(Rainbow rainbow) {
+		return new LinkRendering(rainbow, display);
 	}
 
 	public LinkRendering withDisplay(Display display) {
@@ -85,4 +88,5 @@ public class LinkRendering {
 	public String toString() {
 		return super.toString() + " " + display + " " + rainbow;
 	}
+
 }

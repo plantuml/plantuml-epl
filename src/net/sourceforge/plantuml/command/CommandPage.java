@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,14 @@
  */
 package net.sourceforge.plantuml.command;
 
+import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 
-public class CommandPage extends SingleLineCommand2<AbstractEntityDiagram> {
+public class CommandPage extends SingleLineCommand2<AbstractPSystem> {
 
 	public CommandPage() {
 		super(getRegexConcat());
@@ -59,7 +59,7 @@ public class CommandPage extends SingleLineCommand2<AbstractEntityDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(AbstractEntityDiagram classDiagram, LineLocation location,
+	protected CommandExecutionResult executeArg(AbstractPSystem system, LineLocation location,
 			RegexResult arg) {
 
 		final int horizontal = Integer.parseInt(arg.get("NB1", 0));
@@ -67,8 +67,8 @@ public class CommandPage extends SingleLineCommand2<AbstractEntityDiagram> {
 		if (horizontal <= 0 || vertical <= 0) {
 			return CommandExecutionResult.error("Argument must be positive");
 		}
-		classDiagram.setHorizontalPages(horizontal);
-		classDiagram.setVerticalPages(vertical);
+		system.setSplitPagesHorizontal(horizontal);
+		system.setSplitPagesVertical(vertical);
 		return CommandExecutionResult.ok();
 	}
 

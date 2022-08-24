@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,11 +40,11 @@ import java.util.List;
 
 import net.sourceforge.plantuml.AlignmentParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -85,12 +85,8 @@ public abstract class AbstractFtile extends AbstractTextBlock implements Ftile {
 		throw new UnsupportedOperationException("" + getClass());
 	}
 
-	public final UStroke getThickness() {
-		UStroke thickness = skinParam.getThickness(LineParam.activityBorder, null);
-		if (thickness == null) {
-			thickness = new UStroke(1.5);
-		}
-		return thickness;
+	public final UStroke getThickness(Style style) {
+		return style.getStroke();
 	}
 
 	public List<WeldingPoint> getWeldingPoints() {
@@ -102,7 +98,7 @@ public abstract class AbstractFtile extends AbstractTextBlock implements Ftile {
 	}
 
 	public HorizontalAlignment arrowHorizontalAlignment() {
-		return skinParam.getHorizontalAlignment(AlignmentParam.arrowMessageAlignment, null, false);
+		return skinParam.getHorizontalAlignment(AlignmentParam.arrowMessageAlignment, null, false, null);
 	}
 
 	private FtileGeometry cachedGeometry;

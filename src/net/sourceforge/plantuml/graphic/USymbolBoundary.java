@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,20 +34,18 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.Boundary;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 
 class USymbolBoundary extends USymbolSimpleAbstract {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.BOUNDARY;
+	public SName getSName() {
+		return SName.boundary;
 	}
 
-
 	@Override
-	protected TextBlock getDrawing(final SymbolContext symbolContext) {
-		return new Boundary(symbolContext.withDeltaShadow(symbolContext.isShadowing() ? 4.0 : 0.0).withStroke(
-				new UStroke(2)));
+	protected TextBlock getDrawing(SymbolContext symbolContext) {
+		return new Boundary(symbolContext.withDeltaShadow(symbolContext.isShadowing() ? 4.0 : 0.0));
 	}
 }

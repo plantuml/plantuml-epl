@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -31,6 +31,7 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution:  Miguel Esteves
  */
 package net.sourceforge.plantuml.cucadiagram;
 
@@ -39,6 +40,7 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.Hideable;
 import net.sourceforge.plantuml.LineConfigurable;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Removeable;
 import net.sourceforge.plantuml.SpecificBackcolorable;
 import net.sourceforge.plantuml.Url;
@@ -80,10 +82,6 @@ public interface IEntity extends SpecificBackcolorable, Hideable, Removeable, Li
 
 	public boolean hasUrl();
 
-	public int getHectorLayer();
-
-	public void setHectorLayer(int layer);
-
 	public int getRawLayout();
 
 	public void putTip(String member, Display display);
@@ -93,10 +91,17 @@ public interface IEntity extends SpecificBackcolorable, Hideable, Removeable, Li
 	public void addStereotag(Stereotag tag);
 
 	public Set<Stereotag> stereotags();
-	
+
 	public boolean isAloneAndUnlinked();
 
 	public void setThisIsTogether();
 
+	public String getCodeLine();
+
+	public void setCodeLine(LineLocation codeLine);
+
+	public void setStereostyle(String stereo);
+
+	public Stereostyles getStereostyles();
 
 }

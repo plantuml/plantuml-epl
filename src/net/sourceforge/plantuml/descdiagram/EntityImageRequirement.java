@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,6 @@
  */
 package net.sourceforge.plantuml.descdiagram;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.Guillemet;
@@ -43,19 +41,21 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.Stencil;
-import net.sourceforge.plantuml.cucadiagram.BodyEnhanced;
+import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphicHorizontalLine;
@@ -77,27 +77,32 @@ public class EntityImageRequirement extends AbstractEntityImage {
 		super(entity, skinParam);
 		final Stereotype stereotype = entity.getStereotype();
 
-		final TextBlock tmp = new BodyEnhanced(entity.getDisplay(), FontParam.REQUIREMENT, skinParam,
-				HorizontalAlignment.CENTER, stereotype, true, false, entity, SName.componentDiagram);
+		final TextBlock tmp = BodyFactory.create2(skinParam.getDefaultTextAlignment(HorizontalAlignment.CENTER),
+				entity.getDisplay(), skinParam, stereotype, entity, getStyle());
 
 		if (stereotype == null || stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR) == null) {
 			this.desc = tmp;
 		} else {
-			final TextBlock stereo = Display.getWithNewlines(stereotype.getLabel(getSkinParam().guillemet()))
-					.create(new FontConfiguration(getSkinParam(), FontParam.REQUIREMENT_STEREOTYPE, stereotype),
-							HorizontalAlignment.CENTER, skinParam);
+			final TextBlock stereo = Display.getWithNewlines(stereotype.getLabel(getSkinParam().guillemet())).create(
+					FontConfiguration.create(getSkinParam(), FontParam.REQUIREMENT_STEREOTYPE, stereotype),
+					HorizontalAlignment.CENTER, skinParam);
 			this.desc = TextBlockUtils.mergeTB(stereo, tmp, HorizontalAlignment.CENTER);
 		}
 		this.url = entity.getUrl99();
 
 	}
+	
+	private Style getStyle() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.componentDiagram, SName.requirement)
+				.withTOBECHANGED(getEntity().getStereotype()).getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+	}
+
 
 	private UStroke getStroke() {
 		UStroke stroke = getSkinParam().getThickness(LineParam.requirementBorder, getStereo());
-		if (stroke == null) {
+		if (stroke == null)
 			stroke = new UStroke(7, 7, 1.5);
-//			stroke = new UStroke(1.5);
-		}
+
 		return stroke;
 	}
 
@@ -108,32 +113,28 @@ public class EntityImageRequirement extends AbstractEntityImage {
 	final public void drawU(UGraphic ug) {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final TextBlockInEllipse ellipse = new TextBlockInEllipse(desc, stringBounder);
-		if (getSkinParam().shadowing2(getStereo(), SkinParameter.USECASE)) {
-			ellipse.setDeltaShadow(3);
-		}
 
-		if (url != null) {
+		if (url != null)
 			ug.startUrl(url);
-		}
 
 		ug = ug.apply(getStroke());
-		HColor linecolor = getEntity().getColors(getSkinParam()).getColor(ColorType.LINE);
-		if (linecolor == null) {
+		HColor linecolor = getEntity().getColors().getColor(ColorType.LINE);
+		if (linecolor == null)
 			linecolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.requirementBorder);
-		}
+
 		ug = ug.apply(linecolor);
-		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
-		if (backcolor == null) {
+		HColor backcolor = getEntity().getColors().getColor(ColorType.BACK);
+		if (backcolor == null)
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.requirementBackground);
-		}
+
 		ug = ug.apply(backcolor.bg());
 		final UGraphic ug2 = new MyUGraphicEllipse(ug, 0, 0, ellipse.getUEllipse());
 
 		ellipse.drawU(ug2);
 
-		if (url != null) {
+		if (url != null)
 			ug.closeUrl();
-		}
+
 	}
 
 	public ShapeType getShapeType() {
@@ -159,13 +160,13 @@ public class EntityImageRequirement extends AbstractEntityImage {
 		}
 
 		private double getNormalized(double y) {
-			if (y < yTheoricalPosition) {
+			if (y < yTheoricalPosition)
 				throw new IllegalArgumentException();
-			}
+
 			y = y - yTheoricalPosition;
-			if (y > ellipse.getHeight()) {
+			if (y > ellipse.getHeight())
 				throw new IllegalArgumentException();
-			}
+
 			return y;
 		}
 

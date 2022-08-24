@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityProfile;
 import net.sourceforge.plantuml.security.SecurityUtils;
@@ -69,17 +70,36 @@ public class GraphvizUtils {
 		dotExecutable = value == null ? null : value.trim();
 	}
 
+	public static Graphviz createForSystemDot(ISkinParam skinParam, String dotString, String... type) {
+		if (useVizJs(skinParam)) {
+			Log.info("Using " + VIZJS);
+			return new GraphvizJs(dotString);
+		}
+		final AbstractGraphviz result;
+		if (isWindows())
+			result = new GraphvizWindowsOld(skinParam, dotString, type);
+		else
+			result = new GraphvizLinux(skinParam, dotString, type);
+
+		if (result.getExeState() != ExeState.OK && VizJsEngine.isOk()) {
+			Log.info("Error with file " + result.getDotExe() + ": " + result.getExeState().getTextMessage());
+			Log.info("Using " + VIZJS);
+			return new GraphvizJs(dotString);
+		}
+		return result;
+	}
+
 	public static Graphviz create(ISkinParam skinParam, String dotString, String... type) {
 		if (useVizJs(skinParam)) {
 			Log.info("Using " + VIZJS);
 			return new GraphvizJs(dotString);
 		}
 		final AbstractGraphviz result;
-		if (isWindows()) {
-			result = new GraphvizWindows(skinParam, dotString, type);
-		} else {
+		if (isWindows())
+			result = new GraphvizWindowsLite(skinParam, dotString, type);
+		else
 			result = new GraphvizLinux(skinParam, dotString, type);
-		}
+
 		if (result.getExeState() != ExeState.OK && VizJsEngine.isOk()) {
 			Log.info("Error with file " + result.getDotExe() + ": " + result.getExeState().getTextMessage());
 			Log.info("Using " + VIZJS);
@@ -89,12 +109,12 @@ public class GraphvizUtils {
 	}
 
 	private static boolean useVizJs(ISkinParam skinParam) {
-		if (skinParam != null && skinParam.isUseVizJs() && VizJsEngine.isOk()) {
+		if (skinParam != null && skinParam.isUseVizJs() && VizJsEngine.isOk())
 			return true;
-		}
-		if (VIZJS.equalsIgnoreCase(getenvGraphvizDot()) && VizJsEngine.isOk()) {
+
+		if (VIZJS.equalsIgnoreCase(getenvGraphvizDot()) && VizJsEngine.isOk())
 			return true;
-		}
+
 		return false;
 	}
 
@@ -103,21 +123,21 @@ public class GraphvizUtils {
 	}
 
 	public static String getenvGraphvizDot() {
-		if (StringUtils.isNotEmpty(dotExecutable)) {
+		if (StringUtils.isNotEmpty(dotExecutable))
 			return StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(dotExecutable);
-		}
+
 		final String env = System.getProperty("GRAPHVIZ_DOT");
-		if (StringUtils.isNotEmpty(env)) {
+		if (StringUtils.isNotEmpty(env))
 			return StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(env);
-		}
+
 		final String getenv = System.getenv("GRAPHVIZ_DOT");
-		if (StringUtils.isNotEmpty(getenv)) {
+		if (StringUtils.isNotEmpty(getenv))
 			return StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(getenv);
-		}
+
 		return null;
 	}
 
-	private static final ThreadLocal<Integer> limitSize = new ThreadLocal<Integer>();
+	private static final ThreadLocal<Integer> limitSize = new ThreadLocal<>();
 
 	public static void removeLocalLimitSize() {
 		limitSize.remove();
@@ -129,13 +149,13 @@ public class GraphvizUtils {
 
 	public static int getenvImageLimit() {
 		final Integer local = limitSize.get();
-		if (local != null) {
+		if (local != null)
 			return local;
-		}
+
 		final String env = SecurityUtils.getenv("PLANTUML_LIMIT_SIZE");
-		if (StringUtils.isNotEmpty(env) && env.matches("\\d+")) {
+		if (StringUtils.isNotEmpty(env) && env.matches("\\d+"))
 			return Integer.parseInt(env);
-		}
+
 		return 4096;
 	}
 
@@ -153,25 +173,34 @@ public class GraphvizUtils {
 		if (dotVersion == null) {
 			final File dotExe = GraphvizUtils.getDotExe();
 			final ExeState exeState = ExeState.checkFile(dotExe);
-			if (exeState == ExeState.OK) {
+			if (exeState == ExeState.OK)
 				dotVersion = create(null, "png").dotVersion();
-			} else {
+			else
 				dotVersion = "Error:" + exeState.getTextMessage(dotExe);
-			}
+
 		}
 		return dotVersion;
 	}
 
+	public static boolean graphviz244onWindows() {
+		try {
+			return create(null, "png").graphviz244onWindows();
+		} catch (Exception e) {
+			Logme.error(e);
+			return false;
+		}
+	}
+
 	public static int retrieveVersion(String s) {
-		if (s == null) {
+		if (s == null)
 			return -1;
-		}
-		final Pattern p = Pattern.compile("\\s([12].\\d\\d)\\D");
+
+		final Pattern p = Pattern.compile("\\s([23456])\\.(\\d\\d?)\\D");
 		final Matcher m = p.matcher(s);
-		if (m.find() == false) {
+		if (m.find() == false)
 			return -1;
-		}
-		return Integer.parseInt(m.group(1).replaceAll("\\.", ""));
+
+		return 100 * Integer.parseInt(m.group(1)) + Integer.parseInt(m.group(2));
 	}
 
 	public static int getDotVersion() throws IOException, InterruptedException {
@@ -192,14 +221,14 @@ public class GraphvizUtils {
 			result.add("VizJs library is used!");
 			try {
 				final String err = getTestCreateSimpleFile();
-				if (err == null) {
+				if (err == null)
 					result.add(bold + "Installation seems OK. File generation OK");
-				} else {
+				else
 					result.add(red + err);
-				}
+
 			} catch (Exception e) {
 				result.add(red + e.toString());
-				e.printStackTrace();
+				Logme.error(e);
 				error = -1;
 			}
 			return error;
@@ -208,11 +237,11 @@ public class GraphvizUtils {
 		final File dotExe = GraphvizUtils.getDotExe();
 		if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
 			final String ent = GraphvizUtils.getenvGraphvizDot();
-			if (ent == null) {
+			if (ent == null)
 				result.add("The environment variable GRAPHVIZ_DOT has not been set");
-			} else {
+			else
 				result.add("The environment variable GRAPHVIZ_DOT has been set to " + ent);
-			}
+
 			result.add("Dot executable is " + dotExe);
 		}
 		final ExeState exeState = ExeState.checkFile(dotExe);
@@ -240,7 +269,7 @@ public class GraphvizUtils {
 				}
 			} catch (Exception e) {
 				result.add(red + e.toString());
-				e.printStackTrace();
+				Logme.error(e);
 				error = -5;
 			}
 		} else {
@@ -256,19 +285,18 @@ public class GraphvizUtils {
 		final Graphviz graphviz2 = GraphvizUtils.create(null, "digraph foo { test; }", "svg");
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final ProcessState state = graphviz2.createFile3(baos);
-		if (state.differs(ProcessState.TERMINATED_OK())) {
+		if (state.differs(ProcessState.TERMINATED_OK()))
 			return "Error: timeout " + state;
-		}
 
 		final byte data[] = baos.toByteArray();
 
-		if (data.length == 0) {
+		if (data.length == 0)
 			return "Error: dot generates empty file. Check you dot installation.";
-		}
+
 		final String s = new String(data);
-		if (s.indexOf("<svg") == -1) {
+		if (s.indexOf("<svg") == -1)
 			return "Error: dot generates unreadable SVG file. Check you dot installation.";
-		}
+
 		return null;
 	}
 

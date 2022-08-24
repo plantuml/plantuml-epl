@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,22 +34,21 @@
  */
 package net.sourceforge.plantuml.ugraphic.tikz;
 
+import static net.sourceforge.plantuml.graphic.TextBlockUtils.createTextLayout;
+
 import java.awt.font.TextLayout;
 
-import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.UnusedSpace;
 import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.UCenteredCharacter;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverCenteredCharacterTikz implements UDriver<TikzGraphics> {
+public class DriverCenteredCharacterTikz implements UDriver<UCenteredCharacter, TikzGraphics> {
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
-		final UCenteredCharacter centeredCharacter = (UCenteredCharacter) ushape;
+	public void draw(UCenteredCharacter centeredCharacter, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
 		final char c = centeredCharacter.getChar();
 		final UFont font = centeredCharacter.getFont();
 		final UnusedSpace unusedSpace = UnusedSpace.getUnusedSpace(font, c);
@@ -57,10 +56,9 @@ public class DriverCenteredCharacterTikz implements UDriver<TikzGraphics> {
 		final double xpos = x - unusedSpace.getCenterX() - 0.5;
 		final double ypos = y - unusedSpace.getCenterY() - 0.5;
 
-		final TextLayout t = new TextLayout("" + c, font.getFont(), TextBlockUtils.getFontRenderContext());
-		tikz.setStrokeColor(mapper.toColor(param.getColor()));
+		final TextLayout t = createTextLayout(font, "" + c);
+		tikz.setStrokeColor(param.getColor());
 		tikz.drawPathIterator(xpos, ypos, t.getOutline(null).getPathIterator(null));
-
 	}
 
 }

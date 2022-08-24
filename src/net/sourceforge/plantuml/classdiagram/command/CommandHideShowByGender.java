@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -67,7 +67,7 @@ public class CommandHideShowByGender extends SingleLineCommand2<UmlDiagram> {
 				new RegexLeaf("COMMAND", "(hide|show)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("GENDER",
-						"(?:(class|object|interface|enum|annotation|abstract|[\\p{L}0-9_.]+|[%g][^%g]+[%g]|\\<\\<.*\\>\\>)[%s]+)*?"), //
+						"(?:(class|object|interface|enum|annotation|abstract|[%pLN_.]+|[%g][^%g]+[%g]|\\<\\<.*\\>\\>)[%s]+)*?"), //
 				new RegexOptional( //
 						new RegexConcat( //
 								new RegexLeaf("EMPTY", "(empty)"), //
@@ -130,6 +130,12 @@ public class CommandHideShowByGender extends SingleLineCommand2<UmlDiagram> {
 			gender = EntityGenderUtils.byEntityType(LeafType.ABSTRACT_CLASS);
 		} else if (arg1.equalsIgnoreCase("annotation")) {
 			gender = EntityGenderUtils.byEntityType(LeafType.ANNOTATION);
+		} else if (arg1.equalsIgnoreCase("protocol")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.PROTOCOL);
+		} else if (arg1.equalsIgnoreCase("struct")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.STRUCT);
+		} else if (arg1.equalsIgnoreCase("exception")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.EXCEPTION);
 		} else if (arg1.startsWith("<<")) {
 			gender = EntityGenderUtils.byStereotype(arg1);
 		} else {
@@ -162,6 +168,12 @@ public class CommandHideShowByGender extends SingleLineCommand2<UmlDiagram> {
 			gender = EntityGenderUtils.byEntityType(LeafType.ABSTRACT_CLASS);
 		} else if (arg1.equalsIgnoreCase("annotation")) {
 			gender = EntityGenderUtils.byEntityType(LeafType.ANNOTATION);
+		} else if (arg1.equalsIgnoreCase("protocol")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.PROTOCOL);
+		} else if (arg1.equalsIgnoreCase("struct")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.STRUCT);
+		} else if (arg1.equalsIgnoreCase("exception")) {
+			gender = EntityGenderUtils.byEntityType(LeafType.EXCEPTION);
 		} else if (arg1.startsWith("<<")) {
 			gender = EntityGenderUtils.byStereotype(arg1);
 		} else {

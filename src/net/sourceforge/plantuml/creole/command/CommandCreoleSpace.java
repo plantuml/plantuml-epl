@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,15 +40,19 @@ import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 
 public class CommandCreoleSpace implements Command {
+	
+	@Override
+	public String startingChars() {
+		return "<";
+	}
 
-	private final Pattern2 pattern;
+	private static final Pattern2 pattern = MyPattern.cmpile("^(\\<space:(\\d+)/?\\>)");
 
-	private CommandCreoleSpace(String p) {
-		this.pattern = MyPattern.cmpile(p);
+	private CommandCreoleSpace() {
 	}
 
 	public static Command create() {
-		return new CommandCreoleSpace("^(?i)(\\<space:(\\d+)/?\\>)");
+		return new CommandCreoleSpace();
 	}
 
 	public int matchingSize(String line) {

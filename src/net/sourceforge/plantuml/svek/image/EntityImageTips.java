@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,19 +34,18 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
+import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.command.Position;
-import net.sourceforge.plantuml.cucadiagram.BodyEnhanced2;
+import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -57,11 +56,16 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Bibliotekon;
-import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.svek.SvekNode;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -74,26 +78,35 @@ public class EntityImageTips extends AbstractEntityImage {
 	private final HColor borderColor;
 
 	private final Bibliotekon bibliotekon;
+	private final Style style;
 
 	private final double ySpacing = 10;
 
-	public EntityImageTips(ILeaf entity, ISkinParam skinParam, Bibliotekon bibliotekon) {
+	public EntityImageTips(ILeaf entity, ISkinParam skinParam, Bibliotekon bibliotekon, UmlDiagramType type) {
 		super(entity, EntityImageNote.getSkin(skinParam, entity));
 		this.skinParam = skinParam;
 		this.bibliotekon = bibliotekon;
 
-		if (entity.getColors(skinParam).getColor(ColorType.BACK) == null) {
-			noteBackgroundColor = rose.getHtmlColor(skinParam, ColorParam.noteBackground);
-		} else {
-			noteBackgroundColor = entity.getColors(skinParam).getColor(ColorType.BACK);
-		}
-		this.borderColor = rose.getHtmlColor(skinParam, ColorParam.noteBorder);
+		style = getDefaultStyleDefinition(type.getStyleName()).getMergedStyle(skinParam.getCurrentStyleBuilder());
+		if (entity.getColors().getColor(ColorType.BACK) == null)
+			this.noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
+					skinParam.getIHtmlColorSet());
+		else
+			this.noteBackgroundColor = entity.getColors().getColor(ColorType.BACK);
+
+		this.borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+
+	}
+
+	private StyleSignatureBasic getDefaultStyleDefinition(SName sname) {
+		return StyleSignatureBasic.of(SName.root, SName.element, sname, SName.note);
 	}
 
 	private Position getPosition() {
-		if (getEntity().getCodeGetName().endsWith(Position.RIGHT.name())) {
+		if (getEntity().getCodeGetName().endsWith(Position.RIGHT.name()))
 			return Position.RIGHT;
-		}
+
 		return Position.LEFT;
 	}
 
@@ -119,9 +132,13 @@ public class EntityImageTips extends AbstractEntityImage {
 
 		final IEntity other = bibliotekon.getOnlyOther(getEntity());
 
-		final Node nodeMe = bibliotekon.getNode(getEntity());
-		final Node nodeOther = bibliotekon.getNode(other);
+		final SvekNode nodeMe = bibliotekon.getNode(getEntity());
+		final SvekNode nodeOther = bibliotekon.getNode(other);
 		final Point2D positionMe = nodeMe.getPosition();
+		if (nodeOther == null) {
+			System.err.println("Error in EntityImageTips");
+			return;
+		}
 		final Point2D positionOther = nodeOther.getPosition();
 		bibliotekon.getNode(getEntity());
 		final Position position = getPosition();
@@ -131,21 +148,21 @@ public class EntityImageTips extends AbstractEntityImage {
 			final Display display = ent.getValue();
 			final Rectangle2D memberPosition = nodeOther.getImage().getInnerPosition(ent.getKey(), stringBounder,
 					InnerStrategy.STRICT);
-			if (memberPosition == null) {
+			if (memberPosition == null)
 				return;
-			}
+
 			final Opale opale = getOpale(display);
 			final Dimension2D dim = opale.calculateDimension(stringBounder);
 			final Point2D pp1 = new Point2D.Double(0, dim.getHeight() / 2);
 			double x = positionOther.getX() - positionMe.getX();
-			if (direction == Direction.RIGHT && x < 0) {
+			if (direction == Direction.RIGHT && x < 0)
 				direction = direction.getInv();
-			}
-			if (direction == Direction.LEFT) {
+
+			if (direction == Direction.LEFT)
 				x += memberPosition.getMaxX();
-			} else {
+			else
 				x += 4;
-			}
+
 			final double y = positionOther.getY() - positionMe.getY() - height + memberPosition.getCenterY();
 			final Point2D pp2 = new Point2D.Double(x, y);
 			opale.setOpale(direction, pp1, pp2);
@@ -158,13 +175,15 @@ public class EntityImageTips extends AbstractEntityImage {
 	}
 
 	private Opale getOpale(final Display display) {
-		// final HtmlColor fontColor = rose.getFontColor(skinParam, FontParam.NOTE);
-		// final UFont fontNote = skinParam.getFont(FontParam.NOTE, null, false);
-		final TextBlock textBlock = new BodyEnhanced2(display, FontParam.NOTE, skinParam, HorizontalAlignment.LEFT,
-				new FontConfiguration(skinParam, FontParam.NOTE, null), LineBreakStrategy.NONE);
-		final double shadowing = skinParam.shadowing(getEntity().getStereotype())?4:0;
-		final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true);
-		return opale;
+
+		final double shadowing = style.value(PName.Shadowing).asDouble();
+		final FontConfiguration fc = style.getFontConfiguration(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final UStroke stroke = style.getStroke();
+
+		final TextBlock textBlock = BodyFactory.create3(display, skinParam, HorizontalAlignment.LEFT, fc,
+				LineBreakStrategy.NONE, style);
+		return new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true, stroke);
 	}
 
 }

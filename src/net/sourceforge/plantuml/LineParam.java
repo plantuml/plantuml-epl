@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -54,6 +54,8 @@ public enum LineParam {
 	titleBorder,
 	diagramBorder,
 	rectangleBorder,
+	hexagonBorder,
+	personBorder,
 	archimateBorder,
 	componentBorder,
 	cardBorder,

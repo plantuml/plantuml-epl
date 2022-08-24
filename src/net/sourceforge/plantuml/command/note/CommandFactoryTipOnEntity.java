@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,7 +37,7 @@ package net.sourceforge.plantuml.command.note;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
@@ -58,6 +58,7 @@ import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class CommandFactoryTipOnEntity implements SingleMultiFactoryCommand<AbstractEntityDiagram> {
 
@@ -115,12 +116,12 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 			@Override
 			public String getPatternEnd() {
 				if (withBracket) {
-					return "(?i)^(\\})$";
+					return "^(\\})$";
 				}
-				return "(?i)^[%s]*(end[%s]?note)$";
+				return "^[%s]*(end[%s]?note)$";
 			}
 
-			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) throws NoSuchColorException {
 				// StringUtils.trim(lines, false);
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
@@ -129,7 +130,7 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 				Url url = null;
 				if (line0.get("URL", 0) != null) {
 					final UrlBuilder urlBuilder = new UrlBuilder(system.getSkinParam().getValue("topurl"),
-							ModeUrl.STRICT);
+							UrlMode.STRICT);
 					url = urlBuilder.getUrl(line0.get("URL", 0));
 				}
 
@@ -139,7 +140,7 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 	}
 
 	private CommandExecutionResult executeInternal(RegexResult line0, AbstractEntityDiagram diagram, Url url,
-			BlocLines lines) {
+			BlocLines lines) throws NoSuchColorException {
 
 		final String pos = line0.get("POSITION", 0);
 
@@ -162,11 +163,11 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 			final LinkType type = new LinkType(LinkDecor.NONE, LinkDecor.NONE).getInvisible();
 			final Link link;
 			if (position == Position.RIGHT) {
-				link = new Link(cl1, (IEntity) tips, type, Display.NULL, 1, diagram.getSkinParam()
-						.getCurrentStyleBuilder());
+				link = new Link(diagram.getSkinParam()
+						.getCurrentStyleBuilder(), cl1, (IEntity) tips, type, Display.NULL, 1);
 			} else {
-				link = new Link((IEntity) tips, cl1, type, Display.NULL, 1, diagram.getSkinParam()
-						.getCurrentStyleBuilder());
+				link = new Link(diagram.getSkinParam()
+						.getCurrentStyleBuilder(), (IEntity) tips, cl1, type, Display.NULL, 1);
 			}
 			diagram.addLink(link);
 		}

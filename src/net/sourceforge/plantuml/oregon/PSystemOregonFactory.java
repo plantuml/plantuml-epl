@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,29 +34,25 @@
  */
 package net.sourceforge.plantuml.oregon;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.PSystemBasicFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
 public class PSystemOregonFactory extends PSystemBasicFactory<PSystemOregon> {
 
-	// public PSystemOregon getSystem() {
-	// final Keyboard keyboard;
-	// if (inputs == null) {
-	// keyboard = new KeyboardList("");
-	// } else {
-	// keyboard = new KeyboardList(inputs);
-	// }
-	// system = new PSystemOregon(keyboard);
-	// return system;
-	// }
+	@Override
+	public PSystemOregon initDiagram(ThemeStyle style, UmlSource source, String startLine) {
+		return null;
+	}
 
 	@Override
-	public PSystemOregon executeLine(PSystemOregon system, String line) {
-		if (system == null && line.equalsIgnoreCase("run oregon trail")) {
-			return new PSystemOregon();
-		}
-		if (system == null) {
+	public PSystemOregon executeLine(ThemeStyle style, UmlSource source, PSystemOregon system, String line) {
+		if (system == null && line.equalsIgnoreCase("run oregon trail"))
+			return new PSystemOregon(source);
+
+		if (system == null)
 			return null;
-		}
+
 		system.add(line);
 		return system;
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,44 +34,20 @@
  */
 package net.sourceforge.plantuml.eggs;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainStringsDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class PSystemEgg extends AbstractPSystem {
+public class PSystemEgg extends PlainStringsDiagram {
 
-	private final List<String> strings = new ArrayList<String>();
-
-	PSystemEgg(String sentence) {
+	PSystemEgg(UmlSource source, String sentence) {
+		super(source);
 		final StringTokenizer st = new StringTokenizer(sentence, "|");
 		while (st.hasMoreTokens()) {
 			strings.add(st.nextToken());
 		}
-	}
-
-	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final TextBlockBackcolored result = getGraphicStrings();
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-				false, null, getMetadata(), null, 1.0, result.getBackcolor());
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
-	}
-
-	private TextBlockBackcolored getGraphicStrings() throws IOException {
-		return GraphicStrings.createBlackOnWhite(strings);
 	}
 
 	public DiagramDescription getDescription() {

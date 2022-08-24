@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,7 +38,7 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
@@ -54,6 +54,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateEntityObject extends SingleLineCommand2<AbstractClassOrObjectDiagram> {
 
@@ -65,7 +66,7 @@ public class CommandCreateEntityObject extends SingleLineCommand2<AbstractClassO
 		return RegexConcat.build(CommandCreateEntityObject.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("TYPE", "object"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("NAME", "(?:[%g]([^%g]+)[%g][%s]+as[%s]+)?([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("NAME", "(?:[%g]([^%g]+)[%g][%s]+as[%s]+)?([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -76,7 +77,7 @@ public class CommandCreateEntityObject extends SingleLineCommand2<AbstractClassO
 
 	@Override
 	protected CommandExecutionResult executeArg(AbstractClassOrObjectDiagram diagram, LineLocation location,
-			RegexResult arg) {
+			RegexResult arg) throws NoSuchColorException {
 		final String idShort = arg.get("NAME", 1);
 		final Ident ident = diagram.buildLeafIdent(idShort);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
@@ -88,18 +89,19 @@ public class CommandCreateEntityObject extends SingleLineCommand2<AbstractClassO
 		}
 		final IEntity entity = diagram.createLeaf(ident, code, Display.getWithNewlines(display), LeafType.OBJECT, null);
 		if (stereotype != null) {
-			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
-					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
-					.getIHtmlColorSet()));
+			entity.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+					diagram.getSkinParam().getIHtmlColorSet()));
 		}
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			entity.addUrl(url);
 		}
-		entity.setSpecificColorTOBEREMOVED(ColorType.BACK,
-				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
+		final String s = arg.get("COLOR", 0);
+		entity.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		return CommandExecutionResult.ok();
 	}
 }

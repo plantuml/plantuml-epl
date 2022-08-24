@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,6 +39,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.classdiagram.command.CommandAddMethod;
 import net.sourceforge.plantuml.classdiagram.command.CommandAllowMixing;
 import net.sourceforge.plantuml.classdiagram.command.CommandCreateClass;
@@ -62,54 +63,50 @@ import net.sourceforge.plantuml.command.CommandNamespace2;
 import net.sourceforge.plantuml.command.CommandNamespaceEmpty;
 import net.sourceforge.plantuml.command.CommandPackage;
 import net.sourceforge.plantuml.command.CommandPackageEmpty;
-import net.sourceforge.plantuml.command.CommandPage;
 import net.sourceforge.plantuml.command.CommandRankDir;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.CommandConstraintOnLinks;
 import net.sourceforge.plantuml.command.note.CommandFactoryNote;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnLink;
 import net.sourceforge.plantuml.command.note.CommandFactoryTipOnEntity;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementMultilines;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementParenthesis;
 import net.sourceforge.plantuml.descdiagram.command.CommandNewpage;
 import net.sourceforge.plantuml.descdiagram.command.CommandPackageWithUSymbol;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObjectMultilines;
+import net.sourceforge.plantuml.objectdiagram.command.CommandCreateJson;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateMap;
 
-public class ClassDiagramFactory extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public ClassDiagramFactory(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class ClassDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public ClassDiagram createEmptyDiagram() {
-		return new ClassDiagram(skinParam);
+	public ClassDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new ClassDiagram(style, source, skinParam);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandFootboxIgnored());
 
 		cmds.add(new CommandRankDir());
 		cmds.add(new CommandNewpage(this));
 
-		cmds.add(new CommandPage());
 		cmds.add(new CommandAddMethod());
 
-		addCommonHides(cmds);
+		CommonCommands.addCommonHides(cmds);
 		cmds.add(new CommandHideShow2());
 
 		cmds.add(new CommandRemoveRestore());
 		cmds.add(new CommandCreateClassMultilines());
 		cmds.add(new CommandCreateEntityObjectMultilines());
 		cmds.add(new CommandCreateMap());
+		cmds.add(new CommandCreateJson());
 		cmds.add(new CommandCreateClass());
 		cmds.add(new CommandCreateEntityObject());
 
@@ -160,8 +157,8 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandCreateElementMultilines(0));
 		cmds.add(new CommandCreateElementMultilines(1));
-		addTitleCommands(cmds);
-		addCommonCommands2(cmds);
+		CommonCommands.addTitleCommands(cmds);
+		CommonCommands.addCommonCommands2(cmds);
 
 		return cmds;
 	}

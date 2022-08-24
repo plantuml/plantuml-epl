@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,6 +43,8 @@ public class TranscoderSmart implements Transcoder {
 			new CompressionHuffman());
 	private final Transcoder zlib = TranscoderImpl.utf8(new AsciiEncoder(), new ArobaseStringCompressor(),
 			new CompressionZlib());
+	private final Transcoder hexOnly = TranscoderImpl.utf8(new AsciiEncoderHex(), new ArobaseStringCompressor(),
+			new CompressionNone());
 
 	public String decode(String code) throws NoPlantumlCompressionException {
 		// Work in progress
@@ -53,6 +55,9 @@ public class TranscoderSmart implements Transcoder {
 		}
 		if (code.startsWith("~1")) {
 			return oldOne.decode(code.substring(2));
+		}
+		if (code.startsWith("~h")) {
+			return hexOnly.decode(code.substring(2));
 		}
 
 		try {

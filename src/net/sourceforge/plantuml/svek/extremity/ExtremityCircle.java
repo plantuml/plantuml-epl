@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,26 +41,29 @@ import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 class ExtremityCircle extends Extremity {
 
 	private static final double radius = 6;
 	private final Point2D dest;
 	private final boolean fill;
+	private final HColor backgroundColor;
 
 	@Override
 	public Point2D somePoint() {
 		return dest;
 	}
 
-	public static UDrawable create(Point2D center, boolean fill, double angle) {
-		return new ExtremityCircle(center.getX(), center.getY(), fill, angle);
+	public static UDrawable create(Point2D center, boolean fill, double angle, HColor backgroundColor) {
+		return new ExtremityCircle(center.getX(), center.getY(), fill, angle, backgroundColor);
 	}
 
-	private ExtremityCircle(double x, double y, boolean fill, double angle) {
+	private ExtremityCircle(double x, double y, boolean fill, double angle, HColor backgroundColor) {
 		this.dest = new Point2D.Double(x - radius * Math.cos(angle + Math.PI / 2), y - radius
 				* Math.sin(angle + Math.PI / 2));
+		this.backgroundColor = backgroundColor;
 		this.fill = fill;
 		// contact = new Point2D.Double(p1.getX() - xContact * Math.cos(angle + Math.PI / 2), p1.getY() - xContact
 		// * Math.sin(angle + Math.PI / 2));
@@ -70,9 +73,9 @@ class ExtremityCircle extends Extremity {
 
 		ug = ug.apply(new UStroke(1.5));
 		if (fill) {
-			ug = ug.apply(HColorUtils.changeBack(ug));
+			ug = ug.apply(HColors.changeBack(ug));
 		} else {
-			ug = ug.apply(HColorUtils.WHITE.bg());
+			ug = ug.apply(backgroundColor.bg());
 		}
 
 		ug = ug.apply(new UTranslate(dest.getX() - radius, dest.getY() - radius));

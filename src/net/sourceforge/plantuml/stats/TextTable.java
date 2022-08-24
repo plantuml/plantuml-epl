@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -137,7 +137,7 @@ public class TextTable {
 		}
 	}
 
-	private final List<TextLine> lines = new ArrayList<TextLine>();
+	private final List<TextLine> lines = new ArrayList<>();
 
 	public void addLine(Object... cells) {
 		this.lines.add(new DataLine(cells));

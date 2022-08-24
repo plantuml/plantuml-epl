@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,24 +38,27 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.api.ApiStable;
+import net.sourceforge.plantuml.cucadiagram.Display;
 
 /**
- * Represents a single diagram. A Diagram could be a UML (sequence diagram, class diagram...) or an non-UML diagram.
+ * Represents a single diagram. A Diagram could be a UML (sequence diagram,
+ * class diagram...) or an non-UML diagram.
  * 
  * @author Arnaud Roques
  */
+@ApiStable
 public interface Diagram {
 
 	/**
-	 * Export the diagram as an image to some format. Note that a diagram could be drawn as several images (think about
-	 * <code>new page</code> for sequence diagram for example).
+	 * Export the diagram as an image to some format. Note that a diagram could be
+	 * drawn as several images (think about <code>new page</code> for sequence
+	 * diagram for example).
 	 * 
-	 * @param os
-	 *            where to write the image
-	 * @param num
-	 *            usually 0 (index of the image to be exported for this diagram).
-	 * @param fileFormat
-	 *            file format to use
+	 * @param os         where to write the image
+	 * @param num        usually 0 (index of the image to be exported for this
+	 *                   diagram).
+	 * @param fileFormat file format to use
 	 * 
 	 * @return a description of the generated image
 	 * 
@@ -70,6 +73,10 @@ public interface Diagram {
 	 */
 	int getNbImages();
 
+	int getSplitPagesHorizontal();
+
+	int getSplitPagesVertical();
+
 	DiagramDescription getDescription();
 
 	String getMetadata();
@@ -78,16 +85,14 @@ public interface Diagram {
 
 	/**
 	 * The original source of the diagram
-	 * 
-	 * @return
 	 */
 	UmlSource getSource();
 
 	/**
 	 * Check if the Diagram have some links.
-	 * 
-	 * @return
 	 */
 	public boolean hasUrl();
+
+	public Display getTitleDisplay();
 
 }

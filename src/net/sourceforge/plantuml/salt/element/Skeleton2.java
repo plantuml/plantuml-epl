@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class Skeleton2 {
 
-	private final List<Entry> entries = new ArrayList<Entry>();
+	private final List<Entry> entries = new ArrayList<>();
 	private static final double sizeX = 8;
 
 	static class Entry {

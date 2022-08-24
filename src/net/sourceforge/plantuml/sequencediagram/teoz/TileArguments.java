@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -61,8 +61,8 @@ public class TileArguments implements Bordered {
 	}
 
 	public TileArguments withBackColorGeneral(HColor backColorElement, HColor backColorGeneral) {
-		return new TileArguments(stringBounder, livingSpaces, skin, new SkinParamBackcolored(skinParam,
-				backColorElement, backColorGeneral), origin);
+		return new TileArguments(stringBounder, livingSpaces, skin,
+				new SkinParamBackcolored(skinParam, backColorElement, backColorGeneral), origin);
 	}
 
 	public TileArguments withBackColor(Reference reference) {

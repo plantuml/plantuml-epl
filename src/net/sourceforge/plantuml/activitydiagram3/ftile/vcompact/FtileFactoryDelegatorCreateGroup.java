@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,13 +36,13 @@ package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
 import java.util.Collections;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.activitydiagram3.PositionedNote;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactoryDelegator;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -57,12 +57,10 @@ public class FtileFactoryDelegatorCreateGroup extends FtileFactoryDelegator {
 	@Override
 	public Ftile createGroup(Ftile list, Display name, HColor backColor, HColor titleColor, PositionedNote note,
 			HColor borderColor, USymbol type, double roundCorner) {
-		final HColor arrowColor = rose.getHtmlColor(skinParam(), ColorParam.arrow);
-		Ftile result = new FtileGroup(list, name, null, arrowColor, backColor, titleColor, skinParam(), borderColor,
-				type, roundCorner);
-		if (note != null) {
-			result = new FtileWithNotes(result, Collections.singleton(note), skinParam());
-		}
+		Ftile result = new FtileGroup(list, name, backColor, titleColor, skinParam(), borderColor, type, roundCorner);
+		if (note != null)
+			result = new FtileWithNotes(result, Collections.singleton(note), skinParam(), VerticalAlignment.CENTER);
+
 		return result;
 	}
 

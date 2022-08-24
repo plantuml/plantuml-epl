@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -70,7 +70,7 @@ class LicenseWindow extends JFrame {
 		this.setTitle("Licence PlantUML (" + Version.versionString() + ")");
 
 		getContentPane().add(getNorthLabel(), BorderLayout.NORTH);
-		final List<String> list = new ArrayList<String>(License.getCurrent().getTextFull());
+		final List<String> list = new ArrayList<>(License.getCurrent().getTextFull());
 		getContentPane().add(getJComponent(list), BorderLayout.CENTER);
 		getContentPane().add(getSouthLabel(), BorderLayout.SOUTH);
 

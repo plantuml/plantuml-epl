@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,14 +43,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.log.Logme;
+import net.sourceforge.plantuml.security.SImageIO;
 
 public class IconLoader {
 
 	private static final int NUMBER_OF_ICONS = 30;
 
 	private final static Map<String, BufferedImage> all = new ConcurrentHashMap<String, BufferedImage>();
-	static private final List<String> tmp = new ArrayList<String>();
+	static private final List<String> tmp = new ArrayList<>();
 
 	public static BufferedImage getRandom() {
 		// return addTransparent(getIcon("sprite029.png"));
@@ -89,11 +90,11 @@ public class IconLoader {
 			if (is == null) {
 				return null;
 			}
-			final BufferedImage image = ImageIO.read(is);
+			final BufferedImage image = SImageIO.read(is);
 			is.close();
 			return image;
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 		return null;
 	}

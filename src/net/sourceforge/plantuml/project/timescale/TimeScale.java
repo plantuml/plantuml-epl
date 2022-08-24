@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,16 @@
  */
 package net.sourceforge.plantuml.project.timescale;
 
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.time.Day;
 
 public interface TimeScale {
 
-	public double getStartingPosition(Wink instant);
+	public double getStartingPosition(Day instant);
 
-	public double getEndingPosition(Wink instant);
+	public double getEndingPosition(Day instant);
 
-	public double getWidth(Wink instant);
+	public double getWidth(Day instant);
+
+	public boolean isBreaking(Day instant);
 
 }

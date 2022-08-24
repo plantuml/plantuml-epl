@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,18 +34,20 @@
  */
 package net.sourceforge.plantuml.skin;
 
-import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ActorStickMan extends AbstractTextBlock implements TextBlock {
 
@@ -57,9 +59,11 @@ public class ActorStickMan extends AbstractTextBlock implements TextBlock {
 	private final double headDiam = 16;
 
 	private final SymbolContext symbolContext;
+	private final boolean actorBusiness;
 
-	ActorStickMan(SymbolContext symbolContext) {
+	ActorStickMan(SymbolContext symbolContext, boolean actorBusiness) {
 		this.symbolContext = symbolContext;
+		this.actorBusiness = actorBusiness;
 	}
 
 	public void drawU(UGraphic ug) {
@@ -85,7 +89,24 @@ public class ActorStickMan extends AbstractTextBlock implements TextBlock {
 
 		ug = symbolContext.apply(ug);
 		ug.apply(new UTranslate(startX, thickness())).draw(head);
-		ug.apply(new UTranslate(centerX, headDiam + thickness())).apply(new HColorNone().bg()).draw(path);
+		if (actorBusiness) {
+			specialBusiness(ug.apply(new UTranslate(startX + headDiam / 2, thickness() + headDiam / 2)));
+		}
+		ug.apply(new UTranslate(centerX, headDiam + thickness())).apply(HColors.none().bg()).draw(path);
+	}
+
+	private void specialBusiness(UGraphic ug) {
+		final double alpha = 21 * Math.PI / 64;
+		final Point2D p1 = getOnCircle(Math.PI / 4 + alpha);
+		final Point2D p2 = getOnCircle(Math.PI / 4 - alpha);
+		ug = ug.apply(new UTranslate(p1));
+		ug.draw(new ULine(p2.getX() - p1.getX(), p2.getY() - p1.getY()));
+	}
+
+	private Point2D getOnCircle(double alpha) {
+		final double x = headDiam / 2 * Math.cos(alpha);
+		final double y = headDiam / 2 * Math.sin(alpha);
+		return new Point2D.Double(x, y);
 	}
 
 	private double thickness() {

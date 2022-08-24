@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,11 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class LinkConstraint {
 
@@ -84,7 +84,7 @@ public class LinkConstraint {
 		if (x2 == 0 && y2 == 0) {
 			return;
 		}
-		ug = ug.apply(HColorUtils.BLACK);
+		ug = ug.apply(HColors.BLACK);
 //		ug.apply(new UTranslate(x1, y1)).draw(new URectangle(10, 10));
 //		ug.apply(new UTranslate(x2, y2)).draw(new URectangle(10, 10));
 
@@ -92,7 +92,7 @@ public class LinkConstraint {
 		ug = ug.apply(new UStroke(3, 3, 1));
 		ug.apply(new UTranslate(x1, y1)).draw(line);
 
-		final TextBlock label = display.create(new FontConfiguration(skinParam, FontParam.ARROW, null),
+		final TextBlock label = display.create(FontConfiguration.create(skinParam, FontParam.ARROW, null),
 				HorizontalAlignment.CENTER, skinParam);
 		final Dimension2D dimLabel = label.calculateDimension(ug.getStringBounder());
 		final double x = (x1 + x2) / 2 - dimLabel.getWidth() / 2;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ public class CommandMerge extends SingleLineCommand2<BpmDiagram> {
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandMerge.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("ID", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("ID", "([%pLN_.@]+)"), //
 				new RegexLeaf(":?"), //
 				new RegexLeaf("\\<\\+\\>"), //
 				RegexLeaf.end());

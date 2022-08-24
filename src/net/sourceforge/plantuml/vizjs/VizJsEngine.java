@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,7 +57,6 @@ public class VizJsEngine {
 		final Method mCreate = classVizJS.getMethod("create");
 		mExecute = classVizJS.getMethod("execute", String.class);
 		this.viz = mCreate.invoke(null);
-		System.err.println("Creating one engine");
 	}
 
 	public String execute(String dot) throws IllegalAccessException, IllegalArgumentException,

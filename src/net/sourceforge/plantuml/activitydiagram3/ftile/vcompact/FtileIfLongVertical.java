@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,19 +51,21 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Connection;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
+import net.sourceforge.plantuml.activitydiagram3.ftile.FtileMargedWest;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileMinWidthCentered;
-import net.sourceforge.plantuml.activitydiagram3.ftile.FtileOverpassing;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileUtils;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
-import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.cond.FtileIfWithLinks;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDiamond;
-import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDiamondInside3;
+import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDiamondInside2;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -83,10 +84,9 @@ class FtileIfLongVertical extends AbstractFtile {
 
 	private final Rainbow arrowColor;
 
-	
 	@Override
 	public Collection<Ftile> getMyChildren() {
-		final List<Ftile> result = new ArrayList<Ftile>(tiles);
+		final List<Ftile> result = new ArrayList<>(tiles);
 		result.add(tile2);
 		return Collections.unmodifiableList(result);
 	}
@@ -99,15 +99,15 @@ class FtileIfLongVertical extends AbstractFtile {
 		}
 		this.lastDiamond = lastDiamond;
 		this.tile2 = tile2;
-		this.diamonds = new ArrayList<Ftile>(diamonds);
-		this.tiles = new ArrayList<Ftile>(tiles);
+		this.diamonds = new ArrayList<>(diamonds);
+		this.tiles = new ArrayList<>(tiles);
 
 		this.arrowColor = arrowColor;
 
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		if (getSwimlaneIn() != null) {
 			result.add(getSwimlaneIn());
 		}
@@ -129,49 +129,58 @@ class FtileIfLongVertical extends AbstractFtile {
 	static Ftile create(Swimlane swimlane, HColor borderColor, HColor backColor, Rainbow arrowColor,
 			FtileFactory ftileFactory, ConditionStyle conditionStyle, List<Branch> thens, Branch branch2,
 			FontConfiguration fc, LinkRendering topInlinkRendering, LinkRendering afterEndwhile) {
-		final List<Ftile> tiles = new ArrayList<Ftile>();
 
+		List<Ftile> diamonds = new ArrayList<>();
+
+		double west = 10;
 		for (Branch branch : thens) {
-			tiles.add(new FtileMinWidthCentered(branch.getFtile(), 30));
-		}
-
-		final Ftile tile2 = new FtileMinWidthCentered(branch2.getFtile(), 30);
-
-		List<Ftile> diamonds = new ArrayList<Ftile>();
-		for (Branch branch : thens) {
-			final TextBlock tb1 = branch.getLabelPositive().create(fc, HorizontalAlignment.LEFT,
+			final TextBlock tb1 = branch.getDisplayPositive().create(fc, HorizontalAlignment.LEFT,
 					ftileFactory.skinParam());
 			final TextBlock tbTest = branch.getLabelTest().create(fc,
 					ftileFactory.skinParam().getDefaultTextAlignment(HorizontalAlignment.LEFT),
 					ftileFactory.skinParam());
-			FtileDiamondInside3 diamond = new FtileDiamondInside3(branch.skinParam(), backColor, borderColor, swimlane,
-					tbTest);
+			FtileDiamondInside2 diamond = new FtileDiamondInside2(tbTest, branch.skinParam(), backColor, borderColor,
+					swimlane);
+
 			diamond = diamond.withEast(tb1);
 			diamonds.add(diamond);
+
+			if (Display.isNull(branch.getInlabel()) == false) {
+				final TextBlock tbInlabel = branch.getInlabel().create(fc, HorizontalAlignment.LEFT,
+						ftileFactory.skinParam());
+				west = Math.max(west, tbInlabel.calculateDimension(ftileFactory.getStringBounder()).getWidth());
+			}
+
 		}
 
-		final TextBlock tb2 = branch2.getLabelPositive().create(fc, HorizontalAlignment.LEFT, ftileFactory.skinParam());
-		final int last = diamonds.size() - 1;
-		diamonds.set(last, ((FtileDiamondInside3) diamonds.get(last)).withSouth(tb2));
+		final List<Ftile> tiles = new ArrayList<>();
 
-		// diamonds = alignDiamonds(diamonds, ftileFactory.getStringBounder());
+		for (Branch branch : thens) {
+			tiles.add(new FtileMargedWest(branch.getFtile(), west));
+		}
 
 		final Ftile lastDiamond = new FtileDiamond(tiles.get(0).skinParam(), backColor, borderColor, swimlane);
 
+		final Ftile tile2 = new FtileMinWidthCentered(branch2.getFtile(), 30);
 		final FtileIfLongVertical result = new FtileIfLongVertical(diamonds, tiles, tile2, arrowColor, lastDiamond);
 
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		for (int i = 0; i < thens.size(); i++) {
 			final Ftile ftile = tiles.get(i);
 			final Ftile diam = diamonds.get(i);
 
-			final Rainbow color = FtileIfWithLinks.getInColor(thens.get(i), arrowColor);
+			final Rainbow color = thens.get(i).getInColor(arrowColor);
+
 			conns.add(result.new ConnectionVerticalIn(diam, ftile, color == null ? arrowColor : color));
-			// conns.add(result.new ConnectionVerticalOut(ftile, arrowColor));
 		}
 
 		for (int i = 0; i < diamonds.size() - 1; i++) {
-			conns.add(result.new ConnectionVertical(diamonds.get(i), diamonds.get(i + 1), arrowColor));
+			final Branch branch = thens.get(i + 1);
+			TextBlock tbInlabel = null;
+			if (Display.isNull(branch.getInlabel()) == false)
+				tbInlabel = branch.getInlabel().create(fc, HorizontalAlignment.LEFT, ftileFactory.skinParam());
+
+			conns.add(result.new ConnectionVertical(diamonds.get(i), diamonds.get(i + 1), arrowColor, tbInlabel));
 		}
 		conns.add(result.new ConnectionThenOut(tiles.get(0), arrowColor));
 		for (int i = 1; i < tiles.size(); i++) {
@@ -180,7 +189,10 @@ class FtileIfLongVertical extends AbstractFtile {
 
 		final Rainbow topInColor = topInlinkRendering.getRainbow(arrowColor);
 		conns.add(result.new ConnectionIn(topInColor));
-		conns.add(result.new ConnectionLastElse(topInColor));
+
+		final TextBlock tb2 = branch2.getDisplayPositive().create(fc, HorizontalAlignment.LEFT,
+				ftileFactory.skinParam());
+		conns.add(result.new ConnectionLastElse(topInColor, tb2));
 		conns.add(result.new ConnectionLastElseOut(arrowColor));
 
 		return FtileUtils.addConnection(result, conns);
@@ -198,7 +210,7 @@ class FtileIfLongVertical extends AbstractFtile {
 		public void drawU(UGraphic ug) {
 			final UTranslate tr = getTranslateDiamond(getFtile2(), ug.getStringBounder());
 			final Point2D p2 = tr.getTranslated(getFtile2().calculateDimension(ug.getStringBounder()).getPointIn());
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown());
 			final Point2D p1 = calculateDimensionInternal(ug.getStringBounder()).getPointIn();
 
 			snake.addPoint(p1);
@@ -224,7 +236,7 @@ class FtileIfLongVertical extends AbstractFtile {
 			final Point2D p1 = getP1(stringBounder);
 			final Point2D p2 = getP2(stringBounder);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), color, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), color, Arrows.asToDown());
 			snake.addPoint(p1);
 			snake.addPoint(p2.getX(), p1.getY());
 			snake.addPoint(p2);
@@ -234,8 +246,8 @@ class FtileIfLongVertical extends AbstractFtile {
 		private Point2D getP1(StringBounder stringBounder) {
 			final Dimension2D dimDiamond1 = getFtile1().calculateDimension(stringBounder);
 			final double diamondWidth = dimDiamond1.getWidth();
-			return getTranslateDiamond(getFtile1(), stringBounder).getTranslated(
-					new Point2D.Double(diamondWidth, dimDiamond1.getHeight() / 2));
+			return getTranslateDiamond(getFtile1(), stringBounder)
+					.getTranslated(new Point2D.Double(diamondWidth, dimDiamond1.getHeight() / 2));
 		}
 
 		private Point2D getP2(StringBounder stringBounder) {
@@ -248,10 +260,12 @@ class FtileIfLongVertical extends AbstractFtile {
 	class ConnectionVertical extends AbstractConnection {
 
 		private final Rainbow color;
+		private final TextBlock label;
 
-		public ConnectionVertical(Ftile diamond1, Ftile diamond2, Rainbow color) {
+		public ConnectionVertical(Ftile diamond1, Ftile diamond2, Rainbow color, TextBlock label) {
 			super(diamond1, diamond2);
 			this.color = color;
+			this.label = label;
 		}
 
 		public void drawU(UGraphic ug) {
@@ -259,7 +273,8 @@ class FtileIfLongVertical extends AbstractFtile {
 			final Point2D p1 = getP1(stringBounder);
 			final Point2D p2 = getP2(stringBounder);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), color, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), color, Arrows.asToDown()).withLabel(label,
+					VerticalAlignment.CENTER);
 			snake.addPoint(p1);
 			snake.addPoint(p2);
 			ug.draw(snake);
@@ -280,10 +295,12 @@ class FtileIfLongVertical extends AbstractFtile {
 	class ConnectionLastElse extends AbstractConnection {
 
 		private final Rainbow arrowColor;
+		private final TextBlock label;
 
-		public ConnectionLastElse(Rainbow arrowColor) {
+		public ConnectionLastElse(Rainbow arrowColor, TextBlock label) {
 			super(diamonds.get(diamonds.size() - 1), tile2);
 			this.arrowColor = arrowColor;
+			this.label = label;
 		}
 
 		public void drawU(UGraphic ug) {
@@ -292,10 +309,11 @@ class FtileIfLongVertical extends AbstractFtile {
 			final FtileGeometry dimDiamond = getFtile1().calculateDimension(stringBounder);
 			final Point2D p1 = tr1.getTranslated(dimDiamond.getPointOut());
 
-			final Point2D p2 = getTranslate2(stringBounder).getTranslated(
-					getFtile2().calculateDimension(stringBounder).getPointIn());
+			final Point2D p2 = getTranslate2(stringBounder)
+					.getTranslated(getFtile2().calculateDimension(stringBounder).getPointIn());
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown()).withLabel(label,
+					VerticalAlignment.CENTER);
 			snake.addPoint(p1);
 			snake.addPoint(p1.getX(), p2.getY() - 15);
 			snake.addPoint(p2.getX(), p2.getY() - 15);
@@ -321,10 +339,10 @@ class FtileIfLongVertical extends AbstractFtile {
 				return;
 			}
 			final Point2D p1 = getTranslate2(stringBounder).getTranslated(dim1.getPointOut());
-			final Point2D p2 = getTranslateLastDiamond(stringBounder).getTranslated(
-					getFtile2().calculateDimension(stringBounder).getPointIn());
+			final Point2D p2 = getTranslateLastDiamond(stringBounder)
+					.getTranslated(getFtile2().calculateDimension(stringBounder).getPointIn());
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown());
 			snake.addPoint(p1);
 			snake.addPoint(p1.getX(), p2.getY() - 15);
 			snake.addPoint(p2.getX(), p2.getY() - 15);
@@ -352,13 +370,13 @@ class FtileIfLongVertical extends AbstractFtile {
 			final Point2D p1 = getTranslate1(getFtile1(), stringBounder).getTranslated(dim1.getPointOut());
 
 			final FtileGeometry dimLastDiamond = getFtile2().calculateDimension(stringBounder);
-			Point2D p2 = getTranslateLastDiamond(stringBounder).getTranslated(
-					getFtile2().calculateDimension(stringBounder).getPointIn());
+			Point2D p2 = getTranslateLastDiamond(stringBounder)
+					.getTranslated(getFtile2().calculateDimension(stringBounder).getPointIn());
 			p2 = new UTranslate(dimLastDiamond.getWidth() / 2, dimLastDiamond.getHeight() / 2).getTranslated(p2);
 
 			final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToLeft());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToLeft());
 			snake.addPoint(p1);
 			snake.addPoint(p1.getX(), p1.getY() + 15);
 			snake.addPoint(dimTotal.getWidth(), p1.getY() + 15);
@@ -389,7 +407,7 @@ class FtileIfLongVertical extends AbstractFtile {
 
 			final Point2D p2 = new Point2D.Double(dimTotal.getWidth(), p1.getY() + 15);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToRight());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToRight());
 			snake.addPoint(p1);
 			snake.addPoint(p1.getX(), p2.getY());
 			snake.addPoint(p2);
@@ -481,21 +499,22 @@ class FtileIfLongVertical extends AbstractFtile {
 
 	private FtileGeometry calculateDimensionInternal(StringBounder stringBounder) {
 		double col1 = 0;
-		double col1overpass = 0;
+		// double col1overpass = 0;
 		double col2 = 0;
 		double height = marginy1;
 		for (int i = 0; i < tiles.size(); i++) {
 			final FtileGeometry dim1 = tiles.get(i).calculateDimension(stringBounder);
-			final FtileGeometry diamondOverpassing = ((FtileOverpassing) diamonds.get(i))
-					.getOverpassDimension(stringBounder);
+//			final FtileGeometry diamondOverpassing = ((FtileOverpassing) diamonds.get(i))
+//					.getOverpassDimension(stringBounder);
 			final FtileGeometry diamondDim = diamonds.get(i).calculateDimension(stringBounder);
 
 			height += diamondDim.getHeight() + dim1.getHeight();
 			col1 = Math.max(col1, diamondDim.getWidth());
-			col1overpass = Math.max(col1overpass, diamondOverpassing.getWidth());
+			// col1overpass = Math.max(col1overpass, diamondOverpassing.getWidth());
 			col2 = Math.max(col2, dim1.getWidth());
 		}
-		final double width = Math.max(col1 + col2, col1overpass);
+		// final double width = Math.max(col1 + col2, col1overpass);
+		final double width = col1 + col2;
 		FtileGeometry result = new FtileGeometry(width, height, width / 2, 0);
 
 		final FtileGeometry dimTile2 = tile2.calculateDimension(stringBounder);
@@ -519,7 +538,7 @@ class FtileIfLongVertical extends AbstractFtile {
 	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 
-		final List<Ftile> all = new ArrayList<Ftile>(tiles);
+		final List<Ftile> all = new ArrayList<>(tiles);
 		all.add(tile2);
 		for (Ftile tmp : all) {
 			if (tmp.calculateDimension(stringBounder).hasPointOut()) {

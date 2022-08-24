@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,28 +34,27 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.CornerParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.LineParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
-import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.Stencil;
-import net.sourceforge.plantuml.cucadiagram.BodyEnhanced2;
+import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
-import net.sourceforge.plantuml.graph2.GeomUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -68,13 +67,14 @@ import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
-import net.sourceforge.plantuml.svek.Line;
-import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.svek.SvekLine;
+import net.sourceforge.plantuml.svek.SvekNode;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
+import net.sourceforge.plantuml.ugraphic.UGroupType;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -90,62 +90,58 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 	private final int marginY = 5;
 	private final boolean withShadow;
 	private final ISkinParam skinParam;
+	private final Style style;
 
 	private final TextBlock textBlock;
 
-	public EntityImageNote(ILeaf entity, ISkinParam skinParam) {
+	public EntityImageNote(ILeaf entity, ISkinParam skinParam, UmlDiagramType umlDiagramType) {
 		super(entity, getSkin(getISkinParam(skinParam, entity), entity));
 		this.skinParam = getISkinParam(skinParam, entity);
 
 		this.withShadow = getSkinParam().shadowing(getEntity().getStereotype());
 		final Display strings = entity.getDisplay();
 
-		final Rose rose = new Rose();
+		this.style = getDefaultStyleDefinition(umlDiagramType.getStyleName())
+				.getMergedStyle(skinParam.getCurrentStyleBuilder());
+		if (entity.getColors().getColor(ColorType.BACK) == null)
+			this.noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
+					skinParam.getIHtmlColorSet());
+		else
+			this.noteBackgroundColor = entity.getColors().getColor(ColorType.BACK);
 
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
-			if (entity.getColors(getSkinParam()).getColor(ColorType.BACK) == null) {
-				this.noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
-			} else {
-				this.noteBackgroundColor = entity.getColors(getSkinParam()).getColor(ColorType.BACK);
-			}
-			this.borderColor = style.value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
-			this.shadowing = style.value(PName.Shadowing).asDouble();
-		} else {
-			this.shadowing = skinParam.shadowing(getEntity().getStereotype()) ? 4 : 0;
-			if (entity.getColors(getSkinParam()).getColor(ColorType.BACK) == null) {
-				this.noteBackgroundColor = rose.getHtmlColor(getSkinParam(), ColorParam.noteBackground);
-			} else {
-				this.noteBackgroundColor = entity.getColors(getSkinParam()).getColor(ColorType.BACK);
-			}
-			this.borderColor = SkinParamUtils.getColor(getSkinParam(), null, ColorParam.noteBorder);
-		}
+		this.borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		this.shadowing = style.value(PName.Shadowing).asDouble();
 
-		if (strings.size() == 1 && strings.get(0).length() == 0) {
+		final FontConfiguration fontConfiguration = style.getFontConfiguration(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final HorizontalAlignment horizontalAlignment = style.getHorizontalAlignment();
+
+		if (strings.size() == 1 && strings.get(0).length() == 0)
 			textBlock = new TextBlockEmpty();
-		} else {
-			textBlock = new BodyEnhanced2(strings, FontParam.NOTE, getSkinParam(), HorizontalAlignment.LEFT,
-					new FontConfiguration(getSkinParam(), FontParam.NOTE, null), getSkinParam().wrapWidth());
-		}
+		else
+			textBlock = BodyFactory.create3(strings, getSkinParam(), horizontalAlignment, fontConfiguration,
+					getSkinParam().wrapWidth(), style);
+
 	}
 
 	private static ISkinParam getISkinParam(ISkinParam skinParam, IEntity entity) {
-		if (entity.getColors(skinParam) != null) {
-			return entity.getColors(skinParam).mute(skinParam);
-		}
+		if (entity.getColors() != null)
+			return entity.getColors().mute(skinParam);
+
 		return skinParam;
 	}
 
 	static ISkinParam getSkin(ISkinParam skinParam, IEntity entity) {
 		final Stereotype stereotype = entity.getStereotype();
-		HColor back = entity.getColors(skinParam).getColor(ColorType.BACK);
-		if (back != null) {
+		HColor back = entity.getColors().getColor(ColorType.BACK);
+		if (back != null)
 			return new SkinParamBackcolored(skinParam, back);
-		}
+
 		back = getColorStatic(skinParam, ColorParam.noteBackground, stereotype);
-		if (back != null) {
+		if (back != null)
 			return new SkinParamBackcolored(skinParam, back);
-		}
+
 		return skinParam;
 	}
 
@@ -193,15 +189,21 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 		return new Dimension2DDouble(width, height);
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.note);
+	private StyleSignatureBasic getDefaultStyleDefinition(SName sname) {
+		return StyleSignatureBasic.of(SName.root, SName.element, sname, SName.note);
 	}
 
 	final public void drawU(UGraphic ug) {
 		final Url url = getEntity().getUrl99();
-		if (url != null) {
+
+		final Map<UGroupType, String> typeIDent = new EnumMap<>(UGroupType.class);
+		typeIDent.put(UGroupType.CLASS, "elem " + getEntity().getCode() + " selected");
+		typeIDent.put(UGroupType.ID, "elem_" + getEntity().getCode());
+		ug.startGroup(typeIDent);
+
+		if (url != null)
 			ug.startUrl(url);
-		}
+
 		final UGraphic ug2 = UGraphicStencil.create(ug, this, new UStroke());
 		if (opaleLine == null || opaleLine.isOpale() == false) {
 			drawNormal(ug2);
@@ -225,15 +227,16 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 			final Point2D newRefpp2 = move(pp2, node.getMinX(), node.getMinY());
 			final Point2D projection = move(other.projection(newRefpp2, stringBounder), -node.getMinX(),
 					-node.getMinY());
-			final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true);
+			final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true, getStroke());
 			opale.setRoundCorner(getRoundCorner());
 			opale.setOpale(strategy, pp1, projection);
 			final UGraphic stroked = applyStroke(ug2);
-			opale.drawU(Colors.applyStroke(stroked, getEntity().getColors(skinParam)));
+			opale.drawU(Colors.applyStroke(stroked, getEntity().getColors()));
 		}
-		if (url != null) {
+		if (url != null)
 			ug.closeUrl();
-		}
+
+		ug.closeGroup();
 	}
 
 	private double getRoundCorner() {
@@ -248,9 +251,9 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final UPath polygon = Opale.getPolygonNormal(getTextWidth(stringBounder), getTextHeight(stringBounder),
 				getRoundCorner());
-		if (withShadow) {
-			polygon.setDeltaShadow(4);
-		}
+
+		polygon.setDeltaShadow(this.shadowing);
+
 		ug = ug.apply(noteBackgroundColor.bg()).apply(borderColor);
 		final UGraphic stroked = applyStroke(ug);
 		stroked.draw(polygon);
@@ -260,49 +263,65 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 	}
 
 	private UGraphic applyStroke(UGraphic ug) {
-		final UStroke stroke = skinParam.getThickness(LineParam.noteBorder, null);
-		if (stroke == null) {
-			return ug;
-		}
-		return ug.apply(stroke);
+		return ug.apply(style.getStroke());
+
+	}
+
+	private UStroke getStroke() {
+		return style.getStroke();
 	}
 
 	private Direction getOpaleStrategy(double width, double height, Point2D pt) {
-		final double d1 = GeomUtils.getOrthoDistance(new Line2D.Double(width, 0, width, height), pt);
-		final double d2 = GeomUtils.getOrthoDistance(new Line2D.Double(0, height, width, height), pt);
-		final double d3 = GeomUtils.getOrthoDistance(new Line2D.Double(0, 0, 0, height), pt);
-		final double d4 = GeomUtils.getOrthoDistance(new Line2D.Double(0, 0, width, 0), pt);
-		if (d3 <= d1 && d3 <= d2 && d3 <= d4) {
+		final double d1 = getOrthoDistance(new Line2D.Double(width, 0, width, height), pt);
+		final double d2 = getOrthoDistance(new Line2D.Double(0, height, width, height), pt);
+		final double d3 = getOrthoDistance(new Line2D.Double(0, 0, 0, height), pt);
+		final double d4 = getOrthoDistance(new Line2D.Double(0, 0, width, 0), pt);
+		if (d3 <= d1 && d3 <= d2 && d3 <= d4)
 			return Direction.LEFT;
-		}
-		if (d1 <= d2 && d1 <= d3 && d1 <= d4) {
+
+		if (d1 <= d2 && d1 <= d3 && d1 <= d4)
 			return Direction.RIGHT;
-		}
-		if (d4 <= d1 && d4 <= d2 && d4 <= d3) {
+
+		if (d4 <= d1 && d4 <= d2 && d4 <= d3)
 			return Direction.UP;
-		}
-		if (d2 <= d1 && d2 <= d3 && d2 <= d4) {
+
+		if (d2 <= d1 && d2 <= d3 && d2 <= d4)
 			return Direction.DOWN;
-		}
+
 		return null;
 
+	}
+
+	private static double getOrthoDistance(Line2D.Double seg, Point2D pt) {
+		if (isHorizontal(seg))
+			return Math.abs(seg.getP1().getY() - pt.getY());
+
+		if (isVertical(seg))
+			return Math.abs(seg.getP1().getX() - pt.getX());
+
+		throw new IllegalArgumentException();
+	}
+
+	private static boolean isHorizontal(Line2D.Double seg) {
+		return seg.getP1().getY() == seg.getP2().getY();
+	}
+
+	private static boolean isVertical(Line2D.Double seg) {
+		return seg.getP1().getX() == seg.getP2().getX();
 	}
 
 	public ShapeType getShapeType() {
 		return ShapeType.RECTANGLE;
 	}
 
-	private Line opaleLine;
-	private Node node;
-	private Node other;
+	private SvekLine opaleLine;
+	private SvekNode node;
+	private SvekNode other;
 
-	public void setOpaleLine(Line line, Node node, Node other) {
-		if (other == null) {
-			throw new IllegalArgumentException();
-		}
+	public void setOpaleLine(SvekLine line, SvekNode node, SvekNode other) {
 		this.opaleLine = line;
 		this.node = node;
-		this.other = other;
+		this.other = Objects.requireNonNull(other);
 	}
 
 	public double getStartingX(StringBounder stringBounder, double y) {

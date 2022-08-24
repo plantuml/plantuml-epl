@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,6 @@ import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.skin.ActorStyle;
 import net.sourceforge.plantuml.skin.ArrowDirection;
@@ -50,9 +49,11 @@ import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.ConditionEndStyle;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
+import net.sourceforge.plantuml.svg.LengthAdjust;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public interface ISkinParam extends ISkinSimple {
 
@@ -62,11 +63,11 @@ public interface ISkinParam extends ISkinSimple {
 
 	public boolean useUnderlineForHyperlink();
 
-	public HColor getBackgroundColor(boolean replaceTransparentByWhite);
+	public HColor getBackgroundColor();
 
 	public HColor getHtmlColor(ColorParam param, Stereotype stereotype, boolean clickable);
 
-	public Colors getColors(ColorParam param, Stereotype stereotype);
+	public Colors getColors(ColorParam param, Stereotype stereotype) throws NoSuchColorException;
 
 	public HColor getFontHtmlColor(Stereotype stereotype, FontParam... param);
 
@@ -75,7 +76,7 @@ public interface ISkinParam extends ISkinSimple {
 	public UFont getFont(Stereotype stereotype, boolean inPackageTitle, FontParam... fontParam);
 
 	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection,
-			boolean isReverseDefine);
+			boolean isReverseDefine, HorizontalAlignment overrideDefault);
 
 	public HorizontalAlignment getDefaultTextAlignment(HorizontalAlignment defaultValue);
 
@@ -92,8 +93,6 @@ public interface ISkinParam extends ISkinSimple {
 	public boolean shadowing(Stereotype stereotype);
 
 	public boolean shadowingForNote(Stereotype stereotype);
-
-	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter);
 
 	public PackageStyle packageStyle();
 
@@ -124,8 +123,6 @@ public interface ISkinParam extends ISkinSimple {
 	public ConditionStyle getConditionStyle();
 
 	public ConditionEndStyle getConditionEndStyle();
-
-	public double minClassWidth();
 
 	public boolean sameClassWidth();
 
@@ -188,5 +185,11 @@ public interface ISkinParam extends ISkinSimple {
 	public void setDefaultSkin(String newSkin);
 
 	public ActorStyle actorStyle();
+
+	public void setSvgSize(String origin, String sizeToUse);
+
+	public LengthAdjust getlengthAdjust();
+
+	// public void assumeTransparent(ThemeStyle style);
 
 }

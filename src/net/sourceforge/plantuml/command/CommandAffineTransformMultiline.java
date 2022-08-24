@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,20 +34,20 @@
  */
 package net.sourceforge.plantuml.command;
 
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.TitledDiagram;
 
-public class CommandAffineTransformMultiline extends CommandMultilines<UmlDiagram> {
+public class CommandAffineTransformMultiline extends CommandMultilines<TitledDiagram> {
 
 	public CommandAffineTransformMultiline() {
-		super("(?i)^!transformation[%s]+\\{[%s]*$");
+		super("^!transformation[%s]+\\{[%s]*$");
 	}
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^[%s]*!\\}[%s]*$";
+		return "^[%s]*!\\}[%s]*$";
 	}
 
-	public CommandExecutionResult execute(final UmlDiagram diagram, BlocLines lines) {
+	public CommandExecutionResult execute(final TitledDiagram diagram, BlocLines lines) {
 		// lines = lines.subExtract(1, 1);
 		// diagram.setAnimation(lines);
 		return CommandExecutionResult.error("Not yet implemented");

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,28 +34,28 @@
  */
 package net.sourceforge.plantuml.oregon;
 
+import static net.sourceforge.plantuml.graphic.GraphicStrings.createGreenOnBlackMonospaced;
+
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainDiagram;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
+import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 
-public class PSystemOregon extends AbstractPSystem {
+public class PSystemOregon extends PlainDiagram {
 
 	private Screen screen;
 	private List<String> inputs;
 
 	@Deprecated
-	public PSystemOregon(Keyboard keyboard) {
+	public PSystemOregon(UmlSource source, Keyboard keyboard) {
+		super(source);
 		final BasicGame game = new OregonBasicGame();
 		try {
 			game.run(keyboard);
@@ -67,8 +67,14 @@ public class PSystemOregon extends AbstractPSystem {
 		}
 	}
 
-	public PSystemOregon() {
-		this.inputs = new ArrayList<String>();
+	@Override
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return super.createImageBuilder(fileFormatOption).blackBackcolor();
+	}
+
+	public PSystemOregon(UmlSource source) {
+		super(source);
+		this.inputs = new ArrayList<>();
 	}
 
 	public void add(String line) {
@@ -94,17 +100,8 @@ public class PSystemOregon extends AbstractPSystem {
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final TextBlockBackcolored result = getGraphicStrings();
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-				false, null, getMetadata(), null, 1.0, result.getBackcolor());
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
-	}
-
-	private TextBlockBackcolored getGraphicStrings() throws IOException {
-		return GraphicStrings.createGreenOnBlackMonospaced(getScreen().getLines());
+	protected UDrawable getRootDrawable(FileFormatOption fileFormatOption) throws IOException {
+		return createGreenOnBlackMonospaced(getScreen().getLines());
 	}
 
 	public DiagramDescription getDescription() {

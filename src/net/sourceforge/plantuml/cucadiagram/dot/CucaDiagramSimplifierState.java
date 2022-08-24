@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -75,7 +75,7 @@ public final class CucaDiagramSimplifierState {
 	}
 
 	private Collection<IGroup> getOrdered(IGroup root) {
-		final Collection<IGroup> ordered = new LinkedHashSet<IGroup>();
+		final Collection<IGroup> ordered = new LinkedHashSet<>();
 		ordered.add(root);
 		int size = 1;
 		while (true) {
@@ -85,7 +85,7 @@ public final class CucaDiagramSimplifierState {
 				break;
 			}
 		}
-		final List<IGroup> result = new ArrayList<IGroup>();
+		final List<IGroup> result = new ArrayList<>();
 		for (IGroup g : ordered) {
 			if (g instanceof GroupRoot == false) {
 				result.add(0, g);
@@ -95,7 +95,7 @@ public final class CucaDiagramSimplifierState {
 	}
 
 	private void addOneLevel(Collection<IGroup> currents) {
-		for (IGroup g : new ArrayList<IGroup>(currents)) {
+		for (IGroup g : new ArrayList<>(currents)) {
 			for (IGroup child : reverse(g.getChildren())) {
 				currents.add(child);
 			}
@@ -103,7 +103,7 @@ public final class CucaDiagramSimplifierState {
 	}
 
 	private List<IGroup> reverse(Collection<IGroup> source) {
-		final List<IGroup> result = new ArrayList<IGroup>();
+		final List<IGroup> result = new ArrayList<>();
 		for (IGroup g : source) {
 			result.add(0, g);
 		}

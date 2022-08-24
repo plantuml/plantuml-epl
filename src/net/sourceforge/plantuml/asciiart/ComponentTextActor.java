@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.asciiart;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.StringUtils;
@@ -69,17 +69,19 @@ public class ComponentTextActor extends AbstractComponentText {
 
 		final int xman = width / 2 - 1;
 		if (type == ComponentType.ACTOR_HEAD) {
-			charArea.drawStringsLR(stringsToDisplay.as(), 1, getHeight());
 			if (fileFormat == FileFormat.UTXT) {
+				charArea.drawStringsLRUnicode(stringsToDisplay.asList(), 1, getHeight());
 				charArea.drawShape(AsciiShape.STICKMAN_UNICODE, xman, 0);
 			} else {
+				charArea.drawStringsLRSimple(stringsToDisplay.asList(), 1, getHeight());
 				charArea.drawShape(AsciiShape.STICKMAN, xman, 0);
 			}
 		} else if (type == ComponentType.ACTOR_TAIL) {
-			charArea.drawStringsLR(stringsToDisplay.as(), 1, 0);
 			if (fileFormat == FileFormat.UTXT) {
+				charArea.drawStringsLRUnicode(stringsToDisplay.asList(), 1, 0);
 				charArea.drawShape(AsciiShape.STICKMAN_UNICODE, xman, 1);
 			} else {
+				charArea.drawStringsLRSimple(stringsToDisplay.asList(), 1, 0);
 				charArea.drawShape(AsciiShape.STICKMAN, xman, 1);
 			}
 		} else {

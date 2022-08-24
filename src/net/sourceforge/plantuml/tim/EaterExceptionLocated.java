@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.tim;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.StringLocated;
 
 public class EaterExceptionLocated extends Exception {
@@ -47,10 +49,7 @@ public class EaterExceptionLocated extends Exception {
 	}
 
 	public static EaterExceptionLocated located(String message, StringLocated location) {
-		if (location == null) {
-			throw new IllegalArgumentException();
-		}
-		return new EaterExceptionLocated(message, location);
+		return new EaterExceptionLocated(message, Objects.requireNonNull(location));
 	}
 
 	public final String getMessage() {

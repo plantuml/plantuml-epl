@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,7 +36,7 @@ package net.sourceforge.plantuml.creole;
 
 import net.sourceforge.plantuml.creole.atom.Atom;
 import net.sourceforge.plantuml.creole.atom.Bullet;
-import net.sourceforge.plantuml.creole.legacy.AtomText;
+import net.sourceforge.plantuml.creole.legacy.AtomTextUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 
 public class StripeStyle {
@@ -61,7 +61,7 @@ public class StripeStyle {
 		}
 		if (type == StripeStyleType.LIST_WITH_NUMBER) {
 			final int localNumber = context.getLocalNumber(order);
-			return AtomText.createListNumber(fontConfiguration, order, localNumber);
+			return AtomTextUtils.createListNumber(fontConfiguration, order, localNumber);
 		}
 		return null;
 	}

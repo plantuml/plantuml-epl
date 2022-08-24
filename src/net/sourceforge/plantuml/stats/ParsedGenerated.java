@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.stats;
 
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 import net.sourceforge.plantuml.api.NumberAnalyzed;
@@ -45,11 +46,8 @@ public class ParsedGenerated {
 	private final NumberAnalyzed generated;
 
 	private ParsedGenerated(NumberAnalyzed parsed, NumberAnalyzed generated) {
-		if (parsed == null || generated == null) {
-			throw new IllegalArgumentException();
-		}
-		this.parsed = parsed;
-		this.generated = generated;
+		this.parsed = Objects.requireNonNull(parsed);
+		this.generated = Objects.requireNonNull(generated);
 
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,7 +42,6 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
 import net.sourceforge.plantuml.cucadiagram.GroupHierarchy;
@@ -59,7 +58,7 @@ import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -103,7 +102,7 @@ public final class GroupPngMakerActivity {
 	}
 
 	private List<Link> getPureInnerLinks() {
-		final List<Link> result = new ArrayList<Link>();
+		final List<Link> result = new ArrayList<>();
 		for (Link link : diagram.getLinks()) {
 			final IEntity e1 = (IEntity) link.getEntity1();
 			final IEntity e2 = (IEntity) link.getEntity2();
@@ -115,8 +114,8 @@ public final class GroupPngMakerActivity {
 		return result;
 	}
 
-	final public StyleSignature getDefaultStyleDefinitionGroup() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.group);
+	final public StyleSignatureBasic getDefaultStyleDefinitionGroup() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.group);
 	}
 
 	public IEntityImage getImage() throws IOException, InterruptedException {
@@ -136,16 +135,13 @@ public final class GroupPngMakerActivity {
 		if (group.getGroupType() == GroupType.INNER_ACTIVITY) {
 			final Stereotype stereo = group.getStereotype();
 			final HColor borderColor = getColor(ColorParam.activityBorder, stereo);
-			final HColor backColor = group.getColors(skinParam).getColor(ColorType.BACK) == null
+			final HColor backColor = group.getColors().getColor(ColorType.BACK) == null
 					? getColor(ColorParam.background, stereo)
-					: group.getColors(skinParam).getColor(ColorType.BACK);
-			final double shadowing;
-			if (SkinParam.USE_STYLES()) {
-				final Style style = getDefaultStyleDefinitionGroup().getMergedStyle(skinParam.getCurrentStyleBuilder());
-				shadowing = style.value(PName.Shadowing).asDouble();
-			} else {
-				shadowing = skinParam.shadowing(group.getStereotype()) ? 4 : 0;
-			}
+					: group.getColors().getColor(ColorType.BACK);
+
+			final Style style = getDefaultStyleDefinitionGroup().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			final double shadowing = style.value(PName.Shadowing).asDouble();
+
 			return new InnerActivity(svek2.buildImage(null, new String[0]), borderColor, backColor, shadowing);
 		}
 

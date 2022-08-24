@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -58,7 +58,7 @@ public class CommandParticipantA extends CommandParticipant {
 								new RegexLeaf("as"), //
 								RegexLeaf.spaceOneOrMore() //
 						)), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("CODE", "([%pLN_.@]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREO", "(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //

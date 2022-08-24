@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -63,7 +63,7 @@ public class SpriteColorBuilder4096 {
 		final int width = img.getWidth();
 		final int height = img.getHeight();
 
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 
 		for (int y = 0; y < height; y++) {
 			final StringBuilder sb = new StringBuilder();

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,9 +50,9 @@ public class ReadLineReader implements ReadLine {
 	private final String description;
 
 	private ReadLineReader(Reader reader, String description, LineLocation parent) {
-		if (description == null) {
+		if (description == null)
 			description = "?";
-		}
+
 		this.br = new BufferedReader(reader);
 		this.location = new LineLocationImpl(description, parent);
 		this.description = description;
@@ -79,16 +79,16 @@ public class ReadLineReader implements ReadLine {
 	public StringLocated readLine() throws IOException {
 		String s = br.readLine();
 		location = location.oneLineRead();
-		if (s == null) {
+		if (s == null)
 			return null;
-		}
+
 		// if (s.length() > LIMIT) {
 		// Log.debug("Line truncated from " + s.length() + " to " + LIMIT);
 		// s = s.substring(0, LIMIT);
 		// }
-		if (s.startsWith("\uFEFF")) {
+		if (s.startsWith("\uFEFF"))
 			s = s.substring(1);
-		}
+
 		s = s.replace('\u2013', '-');
 		// s = BackSlash.convertHiddenNewLine(s);
 		// s = s.replace('\u00A0', ' ');

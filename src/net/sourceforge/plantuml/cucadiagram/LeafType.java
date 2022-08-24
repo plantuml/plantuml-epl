@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,9 +42,13 @@ public enum LeafType {
 
 	EMPTY_PACKAGE,
 
-	ABSTRACT_CLASS, CLASS, INTERFACE, ANNOTATION, LOLLIPOP_FULL, LOLLIPOP_HALF, NOTE, TIPS, OBJECT, MAP, ASSOCIATION, ENUM, CIRCLE,
-	
-	USECASE, 
+	ABSTRACT_CLASS, CLASS, INTERFACE, ANNOTATION,
+	PROTOCOL, STRUCT,
+	EXCEPTION,
+	LOLLIPOP_FULL, LOLLIPOP_HALF, NOTE, TIPS, OBJECT, MAP, JSON, ASSOCIATION,
+	ENUM, CIRCLE,
+
+	USECASE, USECASE_BUSINESS,
 
 	DESCRIPTION,
 
@@ -55,9 +59,9 @@ public enum LeafType {
 	STATE, STATE_CONCURRENT, PSEUDO_STATE, DEEP_HISTORY, STATE_CHOICE, STATE_FORK_JOIN,
 
 	BLOCK, ENTITY,
-	
+
 	DOMAIN, REQUIREMENT,
-	
+
 	PORT, PORTIN, PORTOUT,
 
 	STILL_UNKNOWN;
@@ -75,7 +79,8 @@ public enum LeafType {
 
 	public boolean isLikeClass() {
 		return this == LeafType.ANNOTATION || this == LeafType.ABSTRACT_CLASS || this == LeafType.CLASS
-				|| this == LeafType.INTERFACE || this == LeafType.ENUM || this == LeafType.ENTITY;
+				|| this == LeafType.INTERFACE || this == LeafType.ENUM   || this == LeafType.ENTITY
+				|| this == LeafType.PROTOCOL  || this == LeafType.STRUCT || this == LeafType.EXCEPTION;
 	}
 
 	public String toHtml() {
@@ -83,11 +88,11 @@ public enum LeafType {
 		return StringUtils.capitalize(html);
 	}
 
-	public boolean manageModifier() {
-		if (this == ANNOTATION || this == ABSTRACT_CLASS || this == CLASS || this == INTERFACE || this == ENUM
-				|| this == OBJECT || this == ENTITY) {
-			return true;
-		}
-		return false;
-	}
+//	public boolean manageModifier() {
+//		if (this == ANNOTATION || this == ABSTRACT_CLASS || this == CLASS || this == INTERFACE || this == ENUM
+//				|| this == OBJECT || this == ENTITY) {
+//			return true;
+//		}
+//		return false;
+//	}
 }

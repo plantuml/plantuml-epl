@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,10 @@
  */
 package net.sourceforge.plantuml.ugraphic;
 
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+
 import net.sourceforge.plantuml.creole.Stencil;
+import net.sourceforge.plantuml.graphic.StringBounder;
 
 public class UGraphicStencil extends AbstractUGraphicHorizontalLine {
 
@@ -44,8 +47,23 @@ public class UGraphicStencil extends AbstractUGraphicHorizontalLine {
 	public static UGraphic create(UGraphic ug, Stencil stencil, UStroke defaultStroke) {
 		return new UGraphicStencil(ug, stencil, defaultStroke);
 	}
-	
-	
+
+	public static UGraphic create(UGraphic ug, Dimension2D dim) {
+		return new UGraphicStencil(ug, getRectangleStencil(dim), new UStroke());
+	}
+
+	private static Stencil getRectangleStencil(final Dimension2D dim) {
+		return new Stencil() {
+			public double getStartingX(StringBounder stringBounder, double y) {
+				return 0;
+			}
+
+			public double getEndingX(StringBounder stringBounder, double y) {
+				return dim.getWidth();
+			}
+		};
+	}
+
 	private UGraphicStencil(UGraphic ug, Stencil stencil, UStroke defaultStroke) {
 		super(ug);
 		this.stencil = stencil;

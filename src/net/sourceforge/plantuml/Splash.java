@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,6 +50,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.version.PSystemVersion;
 
 public class Splash extends Window implements MouseListener, MouseMotionListener {
@@ -138,7 +139,7 @@ public class Splash extends Window implements MouseListener, MouseMotionListener
 			try {
 				Desktop.getDesktop().browse(new URL("https://plantuml.com").toURI());
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 			return;
 		}
@@ -211,8 +212,8 @@ public class Splash extends Window implements MouseListener, MouseMotionListener
 		final int y = 33;
 		final int barWidth = 170;
 		final int barHeight = (int) (rect.getHeight() + 2);
-		final int grey = 230;
-		g.setColor(new Color(grey, grey, grey));
+		final int gray = 230;
+		g.setColor(new Color(gray, gray, gray));
 		final int value = barWidth * intValue / totalValue;
 		g.fillRect(x, y, value, barHeight);
 		g.setColor(Color.BLACK);

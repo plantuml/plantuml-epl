@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -61,6 +61,7 @@ public class ReferenceTile extends AbstractTile implements Tile {
 	}
 
 	public ReferenceTile(Reference reference, TileArguments tileArguments) {
+		super(tileArguments.getStringBounder());
 		this.reference = reference;
 		this.tileArguments = tileArguments;
 	}
@@ -73,7 +74,7 @@ public class ReferenceTile extends AbstractTile implements Tile {
 			final LivingSpace livingSpace = tileArguments.getLivingSpace(p);
 			final Real pos = livingSpace.getPosC(stringBounder);
 			if (first == null || pos.getCurrentValue() < first.getCurrentValue()) {
-				this.first = livingSpace.getPosB();
+				this.first = livingSpace.getPosB(stringBounder);
 			}
 			if (last == null || pos.getCurrentValue() > last.getCurrentValue()) {
 				this.last = livingSpace.getPosD(stringBounder);
@@ -93,8 +94,8 @@ public class ReferenceTile extends AbstractTile implements Tile {
 		strings = strings.add("ref");
 		strings = strings.addAll(reference.getStrings());
 
-		final Component comp = tileArguments.getSkin().createComponent(null, ComponentType.REFERENCE,
-				null, tileArguments.getSkinParam(), strings);
+		final Component comp = tileArguments.getSkin().createComponent(reference.getUsedStyles(),
+				ComponentType.REFERENCE, null, tileArguments.getSkinParam(), strings);
 		return comp;
 	}
 
@@ -103,28 +104,28 @@ public class ReferenceTile extends AbstractTile implements Tile {
 		init(stringBounder);
 		final Component comp = getComponent(stringBounder);
 		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
-		final Area area = new Area(last.getCurrentValue() - first.getCurrentValue(), dim.getHeight());
+		final Area area = Area.create(last.getCurrentValue() - first.getCurrentValue(), dim.getHeight());
 
 		ug = ug.apply(UTranslate.dx(first.getCurrentValue()));
 		comp.drawU(ug, area, (Context2D) ug);
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
-		final Component comp = getComponent(stringBounder);
-		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
+	public double getPreferredHeight() {
+		final Component comp = getComponent(getStringBounder());
+		final Dimension2D dim = comp.getPreferredDimension(getStringBounder());
 		return dim.getHeight();
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 	}
 
-	public Real getMinX(StringBounder stringBounder) {
-		init(stringBounder);
+	public Real getMinX() {
+		init(getStringBounder());
 		return this.first;
 	}
 
-	public Real getMaxX(StringBounder stringBounder) {
-		init(stringBounder);
+	public Real getMaxX() {
+		init(getStringBounder());
 		return this.last;
 	}
 

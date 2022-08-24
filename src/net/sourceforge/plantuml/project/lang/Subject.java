@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,19 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
+import java.util.Collection;
+
+import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.project.Failable;
+import net.sourceforge.plantuml.project.GanttDiagram;
 
 public interface Subject {
+
+	public Collection<? extends SentenceSimple> getSentences();
+
+	public IRegex toRegex();
+
+	public Failable<? extends Object> getMe(GanttDiagram project, RegexResult arg);
 
 }

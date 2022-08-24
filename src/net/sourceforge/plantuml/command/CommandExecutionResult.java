@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,15 +44,18 @@ public class CommandExecutionResult {
 	private final String error;
 	private final AbstractPSystem newDiagram;
 	private final List<String> debugLines;
+	private final int score;
 
-	private CommandExecutionResult(String error, AbstractPSystem newDiagram, List<String> debugLines) {
+	private CommandExecutionResult(AbstractPSystem newDiagram, String error, int score, List<String> debugLines) {
 		this.error = error;
 		this.newDiagram = newDiagram;
 		this.debugLines = debugLines;
+		this.score = score;
+
 	}
 
 	public CommandExecutionResult withDiagram(AbstractPSystem newDiagram) {
-		return new CommandExecutionResult(error, newDiagram, null);
+		return new CommandExecutionResult(newDiagram, error, 0, null);
 	}
 
 	@Override
@@ -61,34 +64,37 @@ public class CommandExecutionResult {
 	}
 
 	public static CommandExecutionResult newDiagram(AbstractPSystem result) {
-		return new CommandExecutionResult(null, result, null);
+		return new CommandExecutionResult(result, null, 0, null);
 	}
 
 	public static CommandExecutionResult ok() {
-		return new CommandExecutionResult(null, null, null);
+		return new CommandExecutionResult(null, null, 0, null);
+	}
+
+	public static CommandExecutionResult badColor() {
+		return new CommandExecutionResult(null, "No such color", 1, null);
 	}
 
 	public static CommandExecutionResult error(String error) {
-		return new CommandExecutionResult(error, null, null);
+		return new CommandExecutionResult(null, error, 0, null);
 	}
 
 	public static CommandExecutionResult error(String error, Throwable t) {
-		return new CommandExecutionResult(error, null, getStackTrace(t));
+		return new CommandExecutionResult(null, error, 0, getStackTrace(t));
 	}
 
 	public static List<String> getStackTrace(Throwable exception) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		result.add(exception.toString());
-		for (StackTraceElement ste : exception.getStackTrace()) {
+		for (StackTraceElement ste : exception.getStackTrace())
 			result.add("  " + ste.toString());
-		}
+
 		if (exception.getCause() != null) {
 			final Throwable cause = exception.getCause();
 			result.add("  ");
 			result.add("Caused by " + cause.toString());
-			for (StackTraceElement ste : cause.getStackTrace()) {
+			for (StackTraceElement ste : cause.getStackTrace())
 				result.add("  " + ste.toString());
-			}
 
 		}
 		return result;
@@ -99,10 +105,14 @@ public class CommandExecutionResult {
 	}
 
 	public String getError() {
-		if (isOk()) {
+		if (isOk())
 			throw new IllegalStateException();
-		}
+
 		return error;
+	}
+
+	public int getScore() {
+		return score;
 	}
 
 	public AbstractPSystem getNewDiagram() {

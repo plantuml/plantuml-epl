@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -59,6 +59,7 @@ import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.Splash;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.stats.StatsUtils;
 
@@ -78,8 +79,8 @@ public class PlantUmlTask extends Task {
 
 	private String dir = null;
 	private final Option option = new Option();
-	private List<FileSet> filesets = new ArrayList<FileSet>();
-	private List<FileList> filelists = new ArrayList<FileList>();
+	private List<FileSet> filesets = new ArrayList<>();
+	private List<FileList> filelists = new ArrayList<>();
 	private AtomicInteger nbFiles = new AtomicInteger(0);
 	private ExecutorService executorService;
 
@@ -129,10 +130,10 @@ public class PlantUmlTask extends Task {
 			}
 			this.log("Nb images generated: " + nbFiles.get());
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw new BuildException(e.toString());
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw new BuildException(e.toString());
 		}
 
@@ -243,18 +244,19 @@ public class PlantUmlTask extends Task {
 			this.log(s);
 			throw new BuildException(s);
 		}
-		for (File f : dir.listFiles()) {
-			if (f.isFile() == false) {
-				continue;
+		if (dir.listFiles() != null)
+			for (File f : dir.listFiles()) {
+				if (f.isFile() == false)
+					continue;
+
+				if (fileToProcess(f.getName()) == false)
+					continue;
+
+				final boolean error = processingSingleFile(f);
+				if (error)
+					return f;
+
 			}
-			if (fileToProcess(f.getName()) == false) {
-				continue;
-			}
-			final boolean error = processingSingleFile(f);
-			if (error) {
-				return f;
-			}
-		}
 		return null;
 	}
 

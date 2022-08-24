@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,14 +43,18 @@ import net.sourceforge.plantuml.math.ScientificEquationSafe;
 
 public class CommandCreoleMath implements Command {
 
-	private final Pattern2 pattern;
+	@Override
+	public String startingChars() {
+		return "<";
+	}
 
-	private CommandCreoleMath(String p) {
-		this.pattern = MyPattern.cmpile(p);
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + Splitter.mathPattern + ")");
+
+	private CommandCreoleMath() {
 	}
 
 	public static Command create() {
-		return new CommandCreoleMath("^(?i)(" + Splitter.mathPattern + ")");
+		return new CommandCreoleMath();
 	}
 
 	public int matchingSize(String line) {

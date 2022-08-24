@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,6 +45,7 @@ import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.directdot.PSystemDot;
 import net.sourceforge.plantuml.eggs.PSystemWelcome;
 import net.sourceforge.plantuml.error.PSystemErrorUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.math.PSystemMath;
 import net.sourceforge.plantuml.salt.PSystemSalt;
 import net.sourceforge.plantuml.stats.api.Stats;
@@ -173,7 +174,7 @@ public class StatsUtilsIncrement {
 						lockHtml.unlock();
 					}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logme.error(e);
 			}
 
 		}

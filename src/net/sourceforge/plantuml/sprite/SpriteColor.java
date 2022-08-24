@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,10 +35,10 @@
 package net.sourceforge.plantuml.sprite;
 
 import java.awt.Color;
-import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -49,23 +49,23 @@ import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class SpriteColor implements Sprite {
 
 	private final int width;
 	private final int height;
-	private final int grey[][];
+	private final int gray[][];
 	private final int color[][];
 
 	public SpriteColor(int width, int height) {
 		this.width = width;
 		this.height = height;
-		this.grey = new int[height][width];
+		this.gray = new int[height][width];
 		this.color = new int[height][width];
 	}
 
-	public void setGrey(int x, int y, int level) {
+	public void setGray(int x, int y, int level) {
 		if (x < 0 || x >= width) {
 			return;
 		}
@@ -75,7 +75,7 @@ public class SpriteColor implements Sprite {
 		if (level < 0 || level >= 16) {
 			throw new IllegalArgumentException();
 		}
-		grey[y][x] = level;
+		gray[y][x] = level;
 		color[y][x] = -1;
 	}
 
@@ -86,7 +86,7 @@ public class SpriteColor implements Sprite {
 		if (y < 0 || y >= height) {
 			return;
 		}
-		grey[y][x] = -1;
+		gray[y][x] = -1;
 		color[y][x] = col;
 	}
 
@@ -102,17 +102,17 @@ public class SpriteColor implements Sprite {
 		final BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
 		if (backcolor == null) {
-			backcolor = HColorUtils.WHITE;
+			backcolor = HColors.WHITE;
 		}
 		if (forecolor == null) {
-			forecolor = HColorUtils.BLACK;
+			forecolor = HColors.BLACK;
 		}
-		final HColorGradient gradient = new HColorGradient(backcolor, forecolor, '\0');
+		final HColorGradient gradient = HColors.gradient(backcolor, forecolor, '\0');
 		for (int col = 0; col < width; col++) {
 			for (int line = 0; line < height; line++) {
 				final int localColor = color[line][col];
 				if (localColor == -1) {
-					final double coef = 1.0 * grey[line][col] / (16 - 1);
+					final double coef = 1.0 * gray[line][col] / (16 - 1);
 					final Color c = gradient.getColor(colorMapper, coef);
 					im.setRGB(col, line, c.getRGB());
 				} else {
@@ -123,7 +123,7 @@ public class SpriteColor implements Sprite {
 		return new UImage(new PixelImage(im, AffineTransformType.TYPE_BILINEAR));
 	}
 
-	public TextBlock asTextBlock(final HColor color, final double scale) {
+	public TextBlock asTextBlock(final HColor color, final double scale, ColorMapper colorMapper) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {

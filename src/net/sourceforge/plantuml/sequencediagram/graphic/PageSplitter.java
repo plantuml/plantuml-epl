@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,8 +57,8 @@ class PageSplitter {
 			double signatureHeight, double newpageHeight, Display diagramTitle) {
 		this.fullHeight = fullHeight;
 		this.diagramTitle = diagramTitle;
-		this.titles = new ArrayList<Display>();
-		this.positions = new ArrayList<Double>();
+		this.titles = new ArrayList<>();
+		this.positions = new ArrayList<>();
 
 		for (Map.Entry<Newpage, Double> ent : newpages.entrySet()) {
 			titles.add(ent.getKey().getTitle());
@@ -76,7 +76,7 @@ class PageSplitter {
 		if (positions.size() == 0) {
 			return Arrays.asList(onePage());
 		}
-		final List<Page> result = new ArrayList<Page>();
+		final List<Page> result = new ArrayList<>();
 
 		result.add(firstPage());
 		for (int i = 0; i < positions.size() - 1; i++) {

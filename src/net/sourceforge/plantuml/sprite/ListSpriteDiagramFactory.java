@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,30 +38,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class ListSpriteDiagramFactory extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public ListSpriteDiagramFactory(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class ListSpriteDiagramFactory extends PSystemCommandFactory {
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
-		addCommonCommands1(cmds);
-		addCommonCommands2(cmds);
+		final List<Command> cmds = new ArrayList<>();
+		CommonCommands.addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands2(cmds);
 		cmds.add(new CommandListSprite());
 		return cmds;
 	}
 
 	@Override
-	public ListSpriteDiagram createEmptyDiagram() {
-		return new ListSpriteDiagram(skinParam);
+	public ListSpriteDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new ListSpriteDiagram(style, source, skinParam);
 	}
 
 }

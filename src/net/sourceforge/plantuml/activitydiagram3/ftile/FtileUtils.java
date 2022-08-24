@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,6 +43,9 @@ public class FtileUtils {
 	}
 
 	public static Ftile addConnection(Ftile ftile, Collection<Connection> connections) {
+		if (connections.size() == 0) {
+			return ftile;
+		}
 		return new FtileWithConnection(ftile, connections);
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -67,7 +67,7 @@ public class UnusedSpace {
 	private double meanX2;
 	private double meanY2;
 
-	private final List<Point> points = new ArrayList<Point>();
+	private final List<Point> points = new ArrayList<>();
 
 	final private static Map<Object, UnusedSpace> cache = new HashMap<Object, UnusedSpace>();
 
@@ -84,7 +84,7 @@ public class UnusedSpace {
 	private UnusedSpace(UFont font, char c) {
 		final BufferedImage im = new BufferedImage(2 * HALF_SIZE, 2 * HALF_SIZE, BufferedImage.TYPE_INT_RGB);
 		final Graphics2D g2d = im.createGraphics();
-		g2d.setFont(font.getFont());
+		g2d.setFont(font.getUnderlayingFont());
 		g2d.drawString("" + c, HALF_SIZE, HALF_SIZE);
 
 		int minI = Integer.MAX_VALUE;
@@ -138,7 +138,7 @@ public class UnusedSpace {
 		// ImageIO.write(im, "png", SecurityUtils.File("c:/img" + cpt + ".png"));
 		// cpt++;
 		// } catch (IOException e) {
-		// e.printStackTrace();
+		// Logme.error(e);
 		// }
 
 	}

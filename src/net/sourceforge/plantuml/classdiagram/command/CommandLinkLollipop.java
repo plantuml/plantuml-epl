@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -72,7 +72,7 @@ final public class CommandLinkLollipop extends SingleLineCommand2<AbstractClassO
 								RegexLeaf.spaceOneOrMore() //
 						)), //
 				new RegexLeaf("ENT1", "(?:" + optionalKeywords(umlDiagramType) + "[%s]+)?"
-						+ "(\\.?[\\p{L}0-9_]+(?:\\.[\\p{L}0-9_]+)*|[%g][^%g]+[%g])[%s]*(\\<\\<.*\\>\\>)?"), //
+						+ "(\\.?[%pLN_]+(?:\\.[%pLN_]+)*|[%g][^%g]+[%g])[%s]*(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("FIRST_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -82,7 +82,7 @@ final public class CommandLinkLollipop extends SingleLineCommand2<AbstractClassO
 				new RegexOptional(new RegexLeaf("SECOND_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("ENT2", "(?:" + optionalKeywords(umlDiagramType) + "[%s]+)?"
-						+ "(\\.?[\\p{L}0-9_]+(?:\\.[\\p{L}0-9_]+)*|[%g][^%g]+[%g])[%s]*(\\<\\<.*\\>\\>)?"), //
+						+ "(\\.?[%pLN_]+(?:\\.[%pLN_]+)*|[%g][^%g]+[%g])[%s]*(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional( //
 						new RegexConcat( //
@@ -94,7 +94,7 @@ final public class CommandLinkLollipop extends SingleLineCommand2<AbstractClassO
 
 	private static String optionalKeywords(UmlDiagramType type) {
 		if (type == UmlDiagramType.CLASS) {
-			return "(interface|enum|annotation|abstract[%s]+class|abstract|class|entity)";
+			return "(interface|enum|annotation|abstract[%s]+class|abstract|class|entity|protocol|struct|exception)";
 		}
 		if (type == UmlDiagramType.OBJECT) {
 			return "(object)";
@@ -191,9 +191,9 @@ final public class CommandLinkLollipop extends SingleLineCommand2<AbstractClassO
 		 * secondLabel); }
 		 */
 
-		final Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labelLink), length, firstLabel,
-				secondLabel, diagram.getLabeldistance(), diagram.getLabelangle(), diagram.getSkinParam()
-						.getCurrentStyleBuilder());
+		final Link link = new Link(diagram.getSkinParam()
+				.getCurrentStyleBuilder(), cl1, cl2, linkType, Display.getWithNewlines(labelLink), length,
+				firstLabel, secondLabel, diagram.getLabeldistance(), diagram.getLabelangle());
 		diagram.resetPragmaLabel();
 		addLink(diagram, link, arg.get("HEADER", 0));
 

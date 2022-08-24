@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,6 +36,7 @@ package net.sourceforge.plantuml.graphic;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
@@ -47,7 +48,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class FontConfiguration {
 
@@ -64,29 +65,43 @@ public class FontConfiguration {
 	private final boolean useUnderlineForHyperlink;
 	private final int tabSize;
 
-	public FontConfiguration(UFont font, HColor color, HColor hyperlinkColor, boolean useUnderlineForHyperlink) {
-		this(font, color, hyperlinkColor, useUnderlineForHyperlink, 8);
+	public String toStringDebug() {
+		return getFont().toStringDebug() + " " + styles.toString();
 	}
 
-	public FontConfiguration(UFont font, HColor color, HColor hyperlinkColor, boolean useUnderlineForHyperlink,
-			int tabSize) {
-		this(getStyles(font), font, color, font, color, null, FontPosition.NORMAL, new SvgAttributes(), false,
-				hyperlinkColor, useUnderlineForHyperlink, tabSize);
+	public static FontConfiguration create(UFont font, HColor color, HColor hyperlinkColor,
+			boolean useUnderlineForHyperlink) {
+		return create(font, color, hyperlinkColor, useUnderlineForHyperlink, 8);
+	}
+
+	public static FontConfiguration create(UFont font, HColor color, HColor hyperlinkColor,
+			boolean useUnderlineForHyperlink, int tabSize) {
+		return new FontConfiguration(getStyles(font), font, color, font, color, null, FontPosition.NORMAL,
+				new SvgAttributes(), false, hyperlinkColor, useUnderlineForHyperlink, tabSize);
 	}
 
 	public static FontConfiguration blackBlueTrue(UFont font) {
-		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLUE, true, 8);
+		return create(font, HColors.BLACK.withDark(HColors.WHITE), HColors.BLUE, true, 8);
 	}
 
-	public FontConfiguration(ISkinParam skinParam, FontParam fontParam, Stereotype stereo) {
-		this(SkinParamUtils.getFont(skinParam, fontParam, stereo),
+	public static FontConfiguration create(ISkinParam skinParam, FontParam fontParam, Stereotype stereo) {
+		return create(SkinParamUtils.getFont(skinParam, fontParam, stereo),
 				SkinParamUtils.getFontColor(skinParam, fontParam, stereo), skinParam.getHyperlinkColor(),
 				skinParam.useUnderlineForHyperlink(), skinParam.getTabSize());
 	}
 
-	public FontConfiguration(Style style, ISkinParam skinParam, Stereotype stereo, FontParam fontParam) {
-		this(style.getUFont(), style.value(PName.FontColor).asColor(skinParam.getIHtmlColorSet()),
-				skinParam.getHyperlinkColor(), skinParam.useUnderlineForHyperlink(), skinParam.getTabSize());
+	public static FontConfiguration create(ISkinParam skinParam, Style style) {
+		return create(skinParam, style, null);
+	}
+
+	public static FontConfiguration create(ISkinParam skinParam, Style style, Colors colors) {
+		final HColor hyperlinkColor = style.value(PName.HyperLinkColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final boolean useUnderlineForHyperlink = skinParam.useUnderlineForHyperlink();
+		HColor color = colors == null ? null : colors.getColor(ColorType.TEXT);
+		if (color == null)
+			color = style.value(PName.FontColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
+		return create(style.getUFont(), color, hyperlinkColor, useUnderlineForHyperlink, skinParam.getTabSize());
 	}
 
 	// ---
@@ -95,9 +110,9 @@ public class FontConfiguration {
 		return useUnderlineForHyperlink;
 	}
 
-	public final HColor getHyperlinkColor() {
-		return hyperlinkColor;
-	}
+//	public final HColor getHyperlinkColor() {
+//		return hyperlinkColor;
+//	}
 
 	// ---
 
@@ -162,16 +177,16 @@ public class FontConfiguration {
 				fontPosition, svgAttributes, true, hyperlinkColor, useUnderlineForHyperlink, tabSize);
 	}
 
-	public FontConfiguration changeColor(HColor htmlColor) {
-		return new FontConfiguration(styles, motherFont, motherColor, currentFont, htmlColor, extendedColor,
+	public FontConfiguration changeColor(HColor newHtmlColor) {
+		if (hyperlink)
+			return new FontConfiguration(styles, motherFont, motherColor, currentFont, currentColor, extendedColor,
+					fontPosition, svgAttributes, hyperlink, newHtmlColor, useUnderlineForHyperlink, tabSize);
+		return new FontConfiguration(styles, motherFont, motherColor, currentFont, newHtmlColor, extendedColor,
 				fontPosition, svgAttributes, hyperlink, hyperlinkColor, useUnderlineForHyperlink, tabSize);
 	}
 
 	public FontConfiguration mute(Colors colors) {
-		if (colors == null) {
-			throw new IllegalArgumentException();
-		}
-		final HColor color = colors.getColor(ColorType.TEXT);
+		final HColor color = Objects.requireNonNull(colors).getColor(ColorType.TEXT);
 		if (color == null) {
 			return this;
 		}

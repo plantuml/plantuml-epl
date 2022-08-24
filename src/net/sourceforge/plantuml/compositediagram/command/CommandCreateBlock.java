@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -64,7 +64,7 @@ public class CommandCreateBlock extends SingleLineCommand2<CompositeDiagram> {
 								new RegexLeaf("as"), //
 								RegexLeaf.spaceOneOrMore() //
 						)), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), RegexLeaf.end()); //
+				new RegexLeaf("CODE", "([%pLN_.]+)"), RegexLeaf.end()); //
 	}
 
 	@Override

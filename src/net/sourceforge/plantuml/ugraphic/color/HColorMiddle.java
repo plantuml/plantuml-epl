@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ public class HColorMiddle extends HColorAbstract implements HColor {
 	private final HColor c1;
 	private final HColor c2;
 
-	public HColorMiddle(HColor c1, HColor c2) {
+	HColorMiddle(HColor c1, HColor c2) {
 		this.c1 = c1;
 		this.c2 = c2;
 	}
@@ -60,6 +60,14 @@ public class HColorMiddle extends HColorAbstract implements HColor {
 		final int g = (g1 + g2) / 2;
 		final int b = (b1 + b2) / 2;
 		return new Color(r, g, b);
+	}
+
+	public final HColor getC1() {
+		return c1;
+	}
+
+	public final HColor getC2() {
+		return c2;
 	}
 
 }

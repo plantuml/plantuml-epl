@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -46,7 +46,7 @@ public class FtileDecorateWelding extends FtileDecorate {
 
 	public FtileDecorateWelding(final Ftile ftile, final List<WeldingPoint> breaks) {
 		super(ftile);
-		this.breaks = new ArrayList<WeldingPoint>(breaks);
+		this.breaks = new ArrayList<>(breaks);
 	}
 
 	@Override

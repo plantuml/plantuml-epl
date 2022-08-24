@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,11 @@
  */
 package net.sourceforge.plantuml.tim.expression;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.json.JsonValue;
 
-public class TValue {
+public final class TValue {
 
 	private final int intValue;
 	private final String stringValue;
@@ -49,12 +51,9 @@ public class TValue {
 	}
 
 	private TValue(String stringValue) {
-		if (stringValue == null) {
-			throw new IllegalArgumentException();
-		}
 		this.intValue = 0;
 		this.jsonValue = null;
-		this.stringValue = stringValue;
+		this.stringValue = Objects.requireNonNull(stringValue);
 	}
 
 	public TValue(JsonValue json) {
@@ -125,14 +124,14 @@ public class TValue {
 		if (this.isNumber() && v2.isNumber()) {
 			return new TValue(this.intValue * v2.intValue);
 		}
-		return new TValue(toString() + v2.toString());
+		return new TValue(toString() + "*" + v2.toString());
 	}
 
 	public TValue dividedBy(TValue v2) {
 		if (this.isNumber() && v2.isNumber()) {
 			return new TValue(this.intValue / v2.intValue);
 		}
-		return new TValue(toString() + v2.toString());
+		return new TValue(toString() + "/" + v2.toString());
 	}
 
 	public boolean isNumber() {
@@ -141,6 +140,10 @@ public class TValue {
 
 	public boolean isJson() {
 		return this.jsonValue != null;
+	}
+
+	public boolean isString() {
+		return this.stringValue != null;
 	}
 
 	public Token toToken() {

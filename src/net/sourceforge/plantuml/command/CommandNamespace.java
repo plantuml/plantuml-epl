@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,7 +37,7 @@ package net.sourceforge.plantuml.command;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.classdiagram.ClassDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -53,6 +53,7 @@ import net.sourceforge.plantuml.cucadiagram.NamespaceStrategy;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandNamespace extends SingleLineCommand2<ClassDiagram> {
 
@@ -64,7 +65,7 @@ public class CommandNamespace extends SingleLineCommand2<ClassDiagram> {
 		return RegexConcat.build(CommandNamespace.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("namespace"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_][-\\p{L}0-9_.:\\\\]*)"), //
+				new RegexLeaf("NAME", "([%pLN_][-%pLN_.:\\\\]*)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -76,7 +77,8 @@ public class CommandNamespace extends SingleLineCommand2<ClassDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String idShort = arg.get("NAME", 0);
 		final Code code;
 		final IGroup currentPackage;
@@ -95,12 +97,12 @@ public class CommandNamespace extends SingleLineCommand2<ClassDiagram> {
 		final IEntity p = diagram.getCurrentGroup();
 		final String stereotype = arg.get("STEREOTYPE", 0);
 		if (stereotype != null) {
-			p.setStereotype(new Stereotype(stereotype));
+			p.setStereotype(Stereotype.build(stereotype));
 		}
 
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			p.addUrl(url);
 		}
@@ -108,7 +110,7 @@ public class CommandNamespace extends SingleLineCommand2<ClassDiagram> {
 		final String color = arg.get("COLOR", 0);
 		if (color != null) {
 			p.setSpecificColorTOBEREMOVED(ColorType.BACK,
-					diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(color));
+					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), color));
 		}
 		return CommandExecutionResult.ok();
 	}

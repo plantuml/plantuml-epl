@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,17 +39,24 @@ import java.awt.geom.Point2D;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.svek.AbstractExtremityFactory;
 import net.sourceforge.plantuml.svek.Side;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class ExtremityFactoryPlus extends AbstractExtremityFactory implements ExtremityFactory {
 
+	private final HColor backgroundColor;
+
+	public ExtremityFactoryPlus(HColor backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
+
 	@Override
 	public UDrawable createUDrawable(Point2D center, double angle, Side side) {
-		return ExtremityPlus.create(center, angle - Math.PI / 2);
+		return ExtremityPlus.create(center, angle - Math.PI / 2, backgroundColor);
 	}
 
 	public UDrawable createUDrawable(Point2D p0, Point2D p1, Point2D p2, Side side) {
 		final double ortho = atan2(p0, p2);
-		return ExtremityPlus.create(p1, ortho);
+		return ExtremityPlus.create(p1, ortho, backgroundColor);
 	}
 
 }

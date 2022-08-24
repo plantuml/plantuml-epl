@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,9 +41,10 @@ import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositioned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandMultilinesLegend extends CommandMultilines2<TitledDiagram> {
 
@@ -68,11 +69,11 @@ public class CommandMultilinesLegend extends CommandMultilines2<TitledDiagram> {
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?legend$";
+		return "^end[%s]?legend$";
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(TitledDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(TitledDiagram diagram, BlocLines lines) throws NoSuchColorException {
 		lines = lines.trimSmart(1);
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final String align = line0.get("ALIGN", 0);
@@ -86,7 +87,7 @@ public class CommandMultilinesLegend extends CommandMultilines2<TitledDiagram> {
 			if (alignment == null) {
 				alignment = HorizontalAlignment.CENTER;
 			}
-			diagram.setLegend(DisplayPositionned.single(strings.replaceBackslashT(), alignment, valignment));
+			diagram.setLegend(DisplayPositioned.single(strings.replaceBackslashT(), alignment, valignment));
 			return CommandExecutionResult.ok();
 		}
 		return CommandExecutionResult.error("No legend defined");

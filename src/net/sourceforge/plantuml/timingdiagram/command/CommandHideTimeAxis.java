@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,6 +41,7 @@ import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.timingdiagram.TimeAxisStategy;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagram;
 
 public class CommandHideTimeAxis extends SingleLineCommand2<TimingDiagram> {
@@ -51,7 +52,7 @@ public class CommandHideTimeAxis extends SingleLineCommand2<TimingDiagram> {
 
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandHideTimeAxis.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("hide"), //
+				new RegexLeaf("COMMAND", "(hide|manual)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("time"), //
 				new RegexLeaf(".?"), //
@@ -61,7 +62,10 @@ public class CommandHideTimeAxis extends SingleLineCommand2<TimingDiagram> {
 
 	@Override
 	final protected CommandExecutionResult executeArg(TimingDiagram diagram, LineLocation location, RegexResult arg) {
-		return diagram.hideTimeAxis();
+		final String cmd = arg.get("COMMAND", 0);
+		if ("MANUAL".equalsIgnoreCase(cmd))
+			return diagram.setTimeAxisStategy(TimeAxisStategy.MANUAL);
+		return diagram.setTimeAxisStategy(TimeAxisStategy.HIDDEN);
 	}
 
 }

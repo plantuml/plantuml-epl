@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,30 +34,30 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 class USymbolStack extends USymbol {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.STACK;
+	public SName getSName() {
+		return SName.stack;
 	}
 
-	private void drawQueue(UGraphic ug, double width, double height, boolean shadowing, double roundCorner) {
+	private void drawQueue(UGraphic ug, double width, double height, double shadowing, double roundCorner) {
 		final double border = 15;
 
 		final URectangle rect = new URectangle(width - 2 * border, height).rounded(roundCorner);
-		ug.apply(new HColorNone()).apply(UTranslate.dx(border)).draw(rect);
+		ug.apply(HColors.none()).apply(UTranslate.dx(border)).draw(rect);
 
 		final UPath path = new UPath();
 		if (roundCorner == 0) {
@@ -79,10 +79,8 @@ class USymbolStack extends USymbol {
 			path.arcTo(new Point2D.Double(width - border + roundCorner / 2, 0), roundCorner / 2, 0, 1);
 			path.lineTo(width, 0);
 		}
-		if (shadowing) {
-			path.setDeltaShadow(3.0);
-		}
-		ug.apply(new HColorNone().bg()).draw(path);
+		path.setDeltaShadow(shadowing);
+		ug.apply(HColors.none().bg()).draw(path);
 	}
 
 	private Margin getMargin() {
@@ -96,9 +94,9 @@ class USymbolStack extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawQueue(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawQueue(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
@@ -122,7 +120,7 @@ class USymbolStack extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawQueue(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawQueue(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
@@ -136,11 +134,6 @@ class USymbolStack extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

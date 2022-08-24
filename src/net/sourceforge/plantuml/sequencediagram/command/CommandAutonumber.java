@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -56,7 +56,7 @@ public class CommandAutonumber extends SingleLineCommand2<SequenceDiagram> {
 		return RegexConcat.build(CommandAutonumber.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("autonumber"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("START", "(\\d(?:(?:[^\\p{L}0-9%s]+|\\d+)*\\d)?)?"), //
+				new RegexLeaf("START", "(\\d(?:(?:[^%pLN%s]+|\\d+)*\\d)?)?"), //
 				new RegexOptional( //
 						new RegexConcat( //
 								RegexLeaf.spaceOneOrMore(), //

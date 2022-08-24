@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.bpm;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ConnectorPuzzleEmpty extends AbstractConnectorPuzzle implements Placeable, TextBlock, ConnectorPuzzle {
 
@@ -87,7 +87,7 @@ public class ConnectorPuzzleEmpty extends AbstractConnectorPuzzle implements Pla
 
 	public void drawU(UGraphic ug) {
 		// System.err.println("DRAWING " + toString());
-		ug = ug.apply(HColorUtils.BLUE);
+		ug = ug.apply(HColors.BLUE);
 		for (Where w : Where.values()) {
 			if (have(w)) {
 				drawLine(ug, w);

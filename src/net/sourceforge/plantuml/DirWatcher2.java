@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -48,6 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
 
 public class DirWatcher2 {
@@ -70,14 +71,14 @@ public class DirWatcher2 {
 
 	public Map<File, Future<List<GeneratedImage>>> buildCreatedFiles() throws IOException, InterruptedException {
 		final Map<File, Future<List<GeneratedImage>>> result = new TreeMap<File, Future<List<GeneratedImage>>>();
-		if (dir.listFiles() != null) {
+		if (dir.listFiles() != null)
 			for (final File f : dir.listFiles()) {
-				if (f.isFile() == false) {
+				if (f.isFile() == false)
 					continue;
-				}
-				if (fileToProcess(f.getName()) == false) {
+
+				if (fileToProcess(f.getName()) == false)
 					continue;
-				}
+
 				final FileWatcher watcher = modifieds.get(f);
 
 				if (watcher == null || watcher.hasChanged()) {
@@ -97,7 +98,7 @@ public class DirWatcher2 {
 										modifieds.put(f, new FileWatcher(files));
 										return Collections.unmodifiableList(generatedImages);
 									} catch (Exception e) {
-										e.printStackTrace();
+										Logme.error(e);
 										return Collections.emptyList();
 									}
 								}
@@ -105,7 +106,6 @@ public class DirWatcher2 {
 					result.put(f, value);
 				}
 			}
-		}
 		return Collections.unmodifiableMap(result);
 	}
 

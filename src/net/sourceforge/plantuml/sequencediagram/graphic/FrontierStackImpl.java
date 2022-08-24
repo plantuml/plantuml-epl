@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -64,7 +64,7 @@ class FrontierStackImpl implements FrontierStack {
 	final private List<Stack> all;
 
 	public FrontierStackImpl(double freeY, int rangeEnd) {
-		final Stack s = new Stack(new FrontierComplex(freeY, rangeEnd));
+		final Stack s = new Stack(FrontierComplex.create(freeY, rangeEnd));
 		all = Collections.singletonList(s);
 	}
 
@@ -81,21 +81,21 @@ class FrontierStackImpl implements FrontierStack {
 	}
 
 	public FrontierStackImpl add(double delta, ParticipantRange range) {
-		final List<Stack> result = new ArrayList<Stack>(all);
+		final List<Stack> result = new ArrayList<>(all);
 		final Stack s = new Stack(getLast().add(delta, range));
 		result.set(result.size() - 1, s);
 		return new FrontierStackImpl(result);
 	}
 
 	public FrontierStack openBar() {
-		final List<Stack> result = new ArrayList<Stack>(all);
+		final List<Stack> result = new ArrayList<>(all);
 		final Stack s = new Stack(getLast().copy());
 		result.add(s);
 		return new FrontierStackImpl(result);
 	}
 
 	public FrontierStack restore() {
-		final List<Stack> result = new ArrayList<Stack>(all);
+		final List<Stack> result = new ArrayList<>(all);
 		final Stack openedBar = result.get(result.size() - 2);
 		final Stack lastStack = result.get(result.size() - 1);
 		result.set(result.size() - 2, openedBar.addEnvelop(lastStack.current));
@@ -106,7 +106,7 @@ class FrontierStackImpl implements FrontierStack {
 	}
 
 	public FrontierStack closeBar() {
-		final List<Stack> result = new ArrayList<Stack>(all);
+		final List<Stack> result = new ArrayList<>(all);
 		final Stack openedBar = result.get(result.size() - 2);
 		final Stack lastStack = result.get(result.size() - 1);
 		final Stack merge = openedBar.addEnvelop(lastStack.current);

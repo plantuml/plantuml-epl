@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,22 +39,20 @@ import java.awt.Color;
 public class ColorMapperLightnessInverse extends AbstractColorMapper implements ColorMapper {
 
 	public Color toColor(HColor color) {
-		if (color == null) {
+		if (color == null)
 			return null;
-		}
-		if (color instanceof HColorBackground) {
-			throw new UnsupportedOperationException();
-		}
-		if (color instanceof HColorUserDef) {
-			// Impact on JCCKIT
-			return Color.WHITE;
-		}
-		if (color instanceof HColorGradient) {
+
+		if (color instanceof HColorGradient)
 			return toColor(((HColorGradient) color).getColor1());
-		}
-		if (color instanceof HColorMiddle) {
+
+		if (color instanceof HColorMiddle)
 			return ((HColorMiddle) color).getMappedColor(this);
-		}
+
+		if (color instanceof HColorNone)
+			return ColorUtils.getReversed((new Color(0, 0, 0, 0)));
+
+		// return ColorUtils.reverseHsluv(((HColorSimple) color).getColor999());
 		return ColorUtils.getReversed(((HColorSimple) color).getColor999());
+
 	}
 }

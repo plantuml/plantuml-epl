@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +53,7 @@ class GroupingGraphicalElementHeader extends GroupingGraphicalElement {
 	private final Component comp;
 	private double endY;
 	private final boolean isParallel;
-	private final List<Component> notes = new ArrayList<Component>();
+	private final List<Component> notes = new ArrayList<>();
 
 	public GroupingGraphicalElementHeader(double currentY, Component comp, InGroupableList inGroupableList,
 			boolean isParallel) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -66,7 +67,7 @@ public class FileWithSuffix {
 		return file.toString();
 	}
 
-	public Reader getReader(String charset) throws IOException {
+	public Reader getReader(Charset charset) throws IOException {
 		if (file == null) {
 			return null;
 		}
@@ -75,22 +76,12 @@ public class FileWithSuffix {
 			return null;
 		}
 		if (entry == null) {
-			if (charset == null) {
-				Log.info("Using default charset");
-				return new InputStreamReader(tmp);
-			}
-			Log.info("Using charset " + charset);
 			return new InputStreamReader(tmp, charset);
 		}
 		final InputStream is = getDataFromZip(tmp, entry);
 		if (is == null) {
 			return null;
 		}
-		if (charset == null) {
-			Log.info("Using default charset");
-			return new InputStreamReader(is);
-		}
-		Log.info("Using charset " + charset);
 		return new InputStreamReader(is, charset);
 	}
 
@@ -193,7 +184,7 @@ public class FileWithSuffix {
 	}
 
 	public static Set<File> convert(Set<FileWithSuffix> all) throws FileNotFoundException {
-		final Set<File> result = new HashSet<File>();
+		final Set<File> result = new HashSet<>();
 		for (FileWithSuffix f : all) {
 			result.add(f.file.getUnderlyingFile().conv());
 		}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import java.util.List;
 public class BrailleCharFactory {
 
 	public static List<BrailleChar> build(String s) {
-		final List<BrailleChar> result = new ArrayList<BrailleChar>();
+		final List<BrailleChar> result = new ArrayList<>();
 		for (int i = 0; i < s.length(); i++) {
 			result.add(BrailleChar.fromChar(s.charAt(i)));
 		}

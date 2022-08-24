@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,16 @@
  */
 package net.sourceforge.plantuml.salt;
 
+import java.util.Objects;
+
 public class Terminated<O> {
 
 	private final O element;
 	private final Terminator terminator;
 
 	public Terminated(O element, Terminator terminator) {
-		if (terminator == null) {
-			throw new IllegalArgumentException();
-		}
 		this.element = element;
-		this.terminator = terminator;
+		this.terminator = Objects.requireNonNull(terminator);
 	}
 
 	public O getElement() {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
@@ -51,14 +50,14 @@ import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorMiddle;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class FtileCircleStop extends AbstractFtile {
 
 	private static final int SIZE = 22;
 
-	private final HColor backColor;
+	private HColor borderColor;
+	private HColor backColor;
 	private final Swimlane swimlane;
 	private double shadowing;
 
@@ -67,23 +66,21 @@ public class FtileCircleStop extends AbstractFtile {
 		return Collections.emptyList();
 	}
 
-	public FtileCircleStop(ISkinParam skinParam, HColor backColor, Swimlane swimlane, Style style) {
+	public FtileCircleStop(ISkinParam skinParam, HColor backColor, HColor borderColor, Swimlane swimlane, Style style) {
 		super(skinParam);
+		this.borderColor = borderColor;
 		this.backColor = backColor;
 		this.swimlane = swimlane;
-		if (SkinParam.USE_STYLES()) {
-			this.shadowing = style.value(PName.Shadowing).asDouble();
-		} else {
-			if (skinParam().shadowing(null)) {
-				this.shadowing = 3;
-			}
-		}
+		this.shadowing = style.value(PName.Shadowing).asDouble();
+		this.backColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(), getIHtmlColorSet());
+		this.borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), getIHtmlColorSet());
+
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		if (swimlane == null) {
+		if (swimlane == null)
 			return Collections.emptySet();
-		}
+
 		return Collections.singleton(swimlane);
 	}
 
@@ -98,15 +95,16 @@ public class FtileCircleStop extends AbstractFtile {
 	public void drawU(UGraphic ug) {
 		final UEllipse circle = new UEllipse(SIZE, SIZE);
 		circle.setDeltaShadow(shadowing);
-		ug.apply(backColor).apply(HColorUtils.WHITE.bg()).draw(circle);
+
+		ug.apply(borderColor).apply(backColor.bg()).draw(circle);
 
 		final double delta = 5;
 		final UEllipse circleSmall = new UEllipse(SIZE - delta * 2, SIZE - delta * 2);
 		// if (skinParam().shadowing(null)) {
 		// circleSmall.setDeltaShadow(3);
 		// }
-		ug.apply(new HColorMiddle(backColor, HColorUtils.WHITE))
-				.apply(backColor.bg()).apply(new UTranslate(delta, delta)).draw(circleSmall);
+		ug.apply(HColors.middle(borderColor, backColor)).apply(borderColor.bg()).apply(new UTranslate(delta, delta))
+				.draw(circleSmall);
 	}
 
 	@Override

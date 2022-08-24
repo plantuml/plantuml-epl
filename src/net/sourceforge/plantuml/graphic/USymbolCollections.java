@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,41 +34,26 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolCollections extends USymbol {
 
-	private final SkinParameter skinParameter;
-	// private final HorizontalAlignment stereotypeAlignement;
-
-	public USymbolCollections(SkinParameter skinParameter) {
-		this.skinParameter = skinParameter;
-		// this.stereotypeAlignement = stereotypeAlignement;
-	}
-
-//	@Override
-//	public USymbol withStereoAlignment(HorizontalAlignment alignment) {
-//		return new USymbolCollections(skinParameter, alignment);
-//	}
-
 	@Override
-	public SkinParameter getSkinParameter() {
-		return skinParameter;
+	public SName getSName() {
+		return SName.collections;
 	}
 
-	private void drawCollections(UGraphic ug, double width, double height, boolean shadowing, double roundCorner) {
+	private void drawCollections(UGraphic ug, double width, double height, double shadowing, double roundCorner) {
 		final URectangle small = new URectangle(width - getDeltaCollection(), height - getDeltaCollection())
 				.rounded(roundCorner);
-		if (shadowing) {
-			small.setDeltaShadow(3.0);
-		}
+		small.setDeltaShadow(shadowing);
+
 		ug.apply(new UTranslate(getDeltaCollection(), getDeltaCollection())).draw(small);
 		small.setDeltaShadow(0);
 		ug.apply(UTranslate.dy(0)).draw(small);
@@ -89,9 +74,9 @@ class USymbolCollections extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawCollections(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawCollections(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, stereoAlignment);
@@ -115,7 +100,7 @@ class USymbolCollections extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawCollections(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawCollections(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereoX;
@@ -137,11 +122,6 @@ class USymbolCollections extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,13 @@
  */
 package net.sourceforge.plantuml.creole.atom;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.Position;
 import net.sourceforge.plantuml.creole.SheetBlock1;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -50,13 +50,13 @@ import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class AtomTable extends AbstractAtom implements Atom {
 
 	class Line {
-		private final List<Atom> cells = new ArrayList<Atom>();
-		private final List<HColor> cellsBackColor = new ArrayList<HColor>();
+		private final List<Atom> cells = new ArrayList<>();
+		private final List<HColor> cellsBackColor = new ArrayList<>();
 		private final HColor lineBackColor;
 
 		private Line(HColor lineBackColor) {
@@ -78,7 +78,7 @@ public class AtomTable extends AbstractAtom implements Atom {
 		}
 	}
 
-	private final List<Line> lines = new ArrayList<Line>();
+	private final List<Line> lines = new ArrayList<>();
 	private final Map<Atom, Position> positions = new HashMap<Atom, Position>();
 	private final HColor lineColor;
 
@@ -106,7 +106,7 @@ public class AtomTable extends AbstractAtom implements Atom {
 				final double y2 = getStartingY(i + 1);
 				final double x1 = getStartingX(0);
 				final double x2 = getStartingX(getNbCols());
-				ug.apply(new HColorNone()).apply(line.lineBackColor.bg()).apply(new UTranslate(x1, y1))
+				ug.apply(HColors.none()).apply(line.lineBackColor.bg()).apply(new UTranslate(x1, y1))
 						.draw(new URectangle(x2 - x1, y2 - y1));
 			}
 			for (int j = 0; j < getNbCols(); j++) {
@@ -125,7 +125,7 @@ public class AtomTable extends AbstractAtom implements Atom {
 				if (cellBackColor != null) {
 					final double y1 = getStartingY(i);
 					final double y2 = getStartingY(i + 1);
-					ug.apply(new HColorNone()).apply(cellBackColor.bg()).apply(new UTranslate(x1, y1))
+					ug.apply(HColors.none()).apply(cellBackColor.bg()).apply(new UTranslate(x1, y1))
 							.draw(new URectangle(x2 - x1, y2 - y1));
 				}
 				final Position pos = positions.get(cell);
@@ -136,7 +136,10 @@ public class AtomTable extends AbstractAtom implements Atom {
 				} else {
 					dx = 0;
 				}
-				cell.drawU(ug.apply(pos.getTranslate().compose(UTranslate.dx(dx))));
+				if (cellBackColor == null)
+					cell.drawU(ug.apply(pos.getTranslate().compose(UTranslate.dx(dx))));
+				else
+					cell.drawU(ug.apply(cellBackColor.bg()).apply(pos.getTranslate().compose(UTranslate.dx(dx))));
 			}
 		}
 		ug = ug.apply(lineColor);

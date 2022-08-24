@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Pragma;
@@ -83,10 +84,7 @@ final public class DotData implements PortionShower {
 			String namespaceSeparator, Pragma pragma) {
 		this.namespaceSeparator = namespaceSeparator;
 		this.pragma = pragma;
-		this.topParent = topParent;
-		if (topParent == null) {
-			throw new IllegalArgumentException();
-		}
+		this.topParent = Objects.requireNonNull(topParent);
 		this.dotMode = dotMode;
 		this.isHideEmptyDescriptionForState = isHideEmptyDescriptionForState;
 		this.colorMapper = colorMapper;
@@ -183,14 +181,14 @@ final public class DotData implements PortionShower {
 			final Integer value = sametails.get(sametail);
 			sametails.put(sametail, value == null ? 1 : value + 1);
 		}
-		final Collection<String> toremove = new HashSet<String>();
+		final Collection<String> toremove = new HashSet<>();
 		final int limit = skinParam.groupInheritance();
 		for (Map.Entry<String, Integer> ent : sametails.entrySet()) {
 			final String key = ent.getKey();
 			if (ent.getValue() < limit) {
 				toremove.add(key);
 			} else {
-				final List<Link> some = new ArrayList<Link>();
+				final List<Link> some = new ArrayList<>();
 				for (Link link : links) {
 					if (key.equals(link.getSametail())) {
 						some.add(link);
@@ -214,7 +212,7 @@ final public class DotData implements PortionShower {
 	}
 
 	private List<Link> getLinksOfThisLeaf(ILeaf leaf) {
-		final List<Link> result = new ArrayList<Link>();
+		final List<Link> result = new ArrayList<>();
 		for (Link link : links) {
 			if (link.contains(leaf)) {
 				result.add(link);

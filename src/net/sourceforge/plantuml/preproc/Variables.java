@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 
 public class Variables {
 
-	private final List<DefineVariable> all = new ArrayList<DefineVariable>();
+	private final List<DefineVariable> all = new ArrayList<>();
 	private final String fonctionName;
 	private final String definitionQuoted;
 

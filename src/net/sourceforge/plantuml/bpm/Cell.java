@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import java.util.List;
 public class Cell {
 
 	private Placeable data;
-	private final List<Placeable> destinations = new ArrayList<Placeable>();
+	private final List<Placeable> destinations = new ArrayList<>();
 
 	public final Placeable getData() {
 		return data;

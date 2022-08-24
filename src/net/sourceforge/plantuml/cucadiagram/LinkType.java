@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,13 +35,15 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.ugraphic.UStroke;
 
 public class LinkType {
 
 	private final LinkHat hat1;
 	private final LinkDecor decor1;
-	private final LinkStyle style;
+	private final LinkStyle linkStyle;
 	private final LinkDecor decor2;
 	private final LinkHat hat2;
 	private final LinkMiddleDecor middleDecor;
@@ -51,19 +53,19 @@ public class LinkType {
 	}
 
 	public boolean looksLikeRevertedForSvg() {
-		if (this.decor1 == LinkDecor.NONE && this.decor2 != LinkDecor.NONE) {
+		if (this.decor1 == LinkDecor.NONE && this.decor2 != LinkDecor.NONE)
 			return true;
-		}
+
 		return false;
 	}
 
 	public boolean looksLikeNoDecorAtAllSvg() {
-		if (this.decor1 == LinkDecor.NONE && this.decor2 == LinkDecor.NONE) {
+		if (this.decor1 == LinkDecor.NONE && this.decor2 == LinkDecor.NONE)
 			return true;
-		}
-		if (this.decor1 != LinkDecor.NONE && this.decor2 != LinkDecor.NONE) {
+
+		if (this.decor1 != LinkDecor.NONE && this.decor2 != LinkDecor.NONE)
 			return true;
-		}
+
 		return false;
 	}
 
@@ -76,11 +78,11 @@ public class LinkType {
 	}
 
 	public LinkType withoutDecors1() {
-		return new LinkType(hat1, LinkDecor.NONE, style, middleDecor, decor2, hat2);
+		return new LinkType(hat1, LinkDecor.NONE, linkStyle, middleDecor, decor2, hat2);
 	}
 
 	public LinkType withoutDecors2() {
-		return new LinkType(hat1, decor1, style, middleDecor, LinkDecor.NONE, hat2);
+		return new LinkType(hat1, decor1, linkStyle, middleDecor, LinkDecor.NONE, hat2);
 	}
 
 	// public boolean contains(LinkDecor decors) {
@@ -89,7 +91,7 @@ public class LinkType {
 
 	@Override
 	public String toString() {
-		return decor1 + "-" + style + "-" + decor2;
+		return decor1 + "-" + linkStyle + "-" + decor2;
 	}
 
 	@Override
@@ -100,16 +102,13 @@ public class LinkType {
 	@Override
 	public boolean equals(Object obj) {
 		final LinkType other = (LinkType) obj;
-		return this.decor1 == other.decor1 && this.decor2 == other.decor2 && this.style == other.style;
+		return this.decor1 == other.decor1 && this.decor2 == other.decor2 && this.linkStyle == other.linkStyle;
 	}
 
 	private LinkType(LinkHat hat1, LinkDecor decor1, LinkStyle style, LinkMiddleDecor middleDecor, LinkDecor decor2,
 			LinkHat hat2) {
-		if (style == null) {
-			throw new IllegalArgumentException();
-		}
 		this.decor1 = decor1;
-		this.style = style;
+		this.linkStyle = Objects.requireNonNull(style);
 		this.decor2 = decor2;
 		this.middleDecor = middleDecor;
 		this.hat1 = hat1;
@@ -117,7 +116,7 @@ public class LinkType {
 	}
 
 	public boolean isInvisible() {
-		return style.isInvisible();
+		return linkStyle.isInvisible();
 	}
 
 	public LinkType goDashed() {
@@ -129,7 +128,7 @@ public class LinkType {
 	}
 
 	public LinkType goThickness(double thickness) {
-		return new LinkType(hat1, decor1, style.goThickness(thickness), middleDecor, decor2, hat2);
+		return new LinkType(hat1, decor1, linkStyle.goThickness(thickness), middleDecor, decor2, hat2);
 	}
 
 	public LinkType goBold() {
@@ -137,23 +136,23 @@ public class LinkType {
 	}
 
 	public LinkType getInversed() {
-		return new LinkType(hat2, decor2, style, middleDecor, decor1, hat1);
+		return new LinkType(hat2, decor2, linkStyle, middleDecor.getInversed(), decor1, hat1);
 	}
 
 	public LinkType withMiddleCircle() {
-		return new LinkType(hat1, decor1, style, LinkMiddleDecor.CIRCLE, decor2, hat2);
+		return new LinkType(hat1, decor1, linkStyle, LinkMiddleDecor.CIRCLE, decor2, hat2);
 	}
 
 	public LinkType withMiddleCircleCircled() {
-		return new LinkType(hat1, decor1, style, LinkMiddleDecor.CIRCLE_CIRCLED, decor2, hat2);
+		return new LinkType(hat1, decor1, linkStyle, LinkMiddleDecor.CIRCLE_CIRCLED, decor2, hat2);
 	}
 
 	public LinkType withMiddleCircleCircled1() {
-		return new LinkType(hat1, decor1, style, LinkMiddleDecor.CIRCLE_CIRCLED1, decor2, hat2);
+		return new LinkType(hat1, decor1, linkStyle, LinkMiddleDecor.CIRCLE_CIRCLED1, decor2, hat2);
 	}
 
 	public LinkType withMiddleCircleCircled2() {
-		return new LinkType(hat1, decor1, style, LinkMiddleDecor.CIRCLE_CIRCLED2, decor2, hat2);
+		return new LinkType(hat1, decor1, linkStyle, LinkMiddleDecor.CIRCLE_CIRCLED2, decor2, hat2);
 	}
 
 	public LinkType getInvisible() {
@@ -184,9 +183,9 @@ public class LinkType {
 
 		final double arrowsize = Math.max(decor1.getArrowSize(), decor2.getArrowSize());
 		if (arrowsize > 0) {
-			if (sb.length() > 0) {
+			if (sb.length() > 0)
 				sb.append(",");
-			}
+
 			sb.append("arrowsize=" + arrowsize);
 		}
 		return sb.toString();
@@ -197,7 +196,7 @@ public class LinkType {
 	}
 
 	public final LinkStyle getStyle() {
-		return style;
+		return linkStyle;
 	}
 
 	public final LinkDecor getDecor2() {
@@ -227,21 +226,24 @@ public class LinkType {
 	}
 
 	public LinkType getPart1() {
-		return new LinkType(hat1, decor1, style, middleDecor, LinkDecor.NONE, LinkHat.NONE);
+		return new LinkType(hat1, decor1, linkStyle, middleDecor, LinkDecor.NONE, LinkHat.NONE);
 	}
 
 	public LinkType getPart2() {
-		return new LinkType(LinkHat.NONE, LinkDecor.NONE, style, middleDecor, decor2, hat2);
+		return new LinkType(LinkHat.NONE, LinkDecor.NONE, linkStyle, middleDecor, decor2, hat2);
 	}
 
 	public UStroke getStroke3(UStroke defaultThickness) {
-		if (style.isThicknessOverrided()) {
-			return style.getStroke3();
-		}
-		if (defaultThickness == null) {
-			return style.getStroke3();
-		}
-		return style.goThickness(defaultThickness.getThickness()).getStroke3();
+		if (linkStyle.isThicknessOverrided())
+			return linkStyle.getStroke3();
+
+		if (defaultThickness == null)
+			return linkStyle.getStroke3();
+
+		if (defaultThickness.getDashVisible() == 0 && defaultThickness.getDashSpace() == 0)
+			return linkStyle.goThickness(defaultThickness.getThickness()).getStroke3();
+
+		return defaultThickness;
 	}
 
 	public LinkMiddleDecor getMiddleDecor() {
@@ -257,11 +259,11 @@ public class LinkType {
 	}
 
 	public LinkType withLollipopInterfaceEye2() {
-		return new LinkType(hat1, LinkDecor.NONE, style, middleDecor, decor2, hat2);
+		return new LinkType(hat1, LinkDecor.NONE, linkStyle, middleDecor, decor2, hat2);
 	}
 
 	public LinkType withLollipopInterfaceEye1() {
-		return new LinkType(hat1, decor1, style, middleDecor, LinkDecor.NONE, hat2);
+		return new LinkType(hat1, decor1, linkStyle, middleDecor, LinkDecor.NONE, hat2);
 	}
 
 }

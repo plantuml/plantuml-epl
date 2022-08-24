@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,11 @@
  */
 package net.sourceforge.plantuml.tim;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,8 +53,8 @@ import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.json.Json;
-import net.sourceforge.plantuml.json.JsonObject;
 import net.sourceforge.plantuml.json.JsonValue;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
 import net.sourceforge.plantuml.preproc.ImportedFiles;
@@ -65,6 +68,7 @@ import net.sourceforge.plantuml.preproc2.PreprocessorIncludeStrategy;
 import net.sourceforge.plantuml.preproc2.PreprocessorUtils;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SURL;
+import net.sourceforge.plantuml.theme.ThemeUtils;
 import net.sourceforge.plantuml.tim.expression.Knowledge;
 import net.sourceforge.plantuml.tim.expression.TValue;
 import net.sourceforge.plantuml.tim.iterator.CodeIterator;
@@ -83,20 +87,41 @@ import net.sourceforge.plantuml.tim.iterator.CodeIteratorWhile;
 import net.sourceforge.plantuml.tim.stdlib.AlwaysFalse;
 import net.sourceforge.plantuml.tim.stdlib.AlwaysTrue;
 import net.sourceforge.plantuml.tim.stdlib.CallUserFunction;
+import net.sourceforge.plantuml.tim.stdlib.Chr;
+import net.sourceforge.plantuml.tim.stdlib.Darken;
 import net.sourceforge.plantuml.tim.stdlib.DateFunction;
+import net.sourceforge.plantuml.tim.stdlib.Dec2hex;
 import net.sourceforge.plantuml.tim.stdlib.Dirpath;
+import net.sourceforge.plantuml.tim.stdlib.Eval;
+import net.sourceforge.plantuml.tim.stdlib.Feature;
 import net.sourceforge.plantuml.tim.stdlib.FileExists;
 import net.sourceforge.plantuml.tim.stdlib.Filename;
 import net.sourceforge.plantuml.tim.stdlib.FunctionExists;
+import net.sourceforge.plantuml.tim.stdlib.GetJsonKey;
+import net.sourceforge.plantuml.tim.stdlib.GetJsonType;
 import net.sourceforge.plantuml.tim.stdlib.GetVariableValue;
 import net.sourceforge.plantuml.tim.stdlib.GetVersion;
 import net.sourceforge.plantuml.tim.stdlib.Getenv;
+import net.sourceforge.plantuml.tim.stdlib.Hex2dec;
+import net.sourceforge.plantuml.tim.stdlib.HslColor;
 import net.sourceforge.plantuml.tim.stdlib.IntVal;
 import net.sourceforge.plantuml.tim.stdlib.InvokeProcedure;
+import net.sourceforge.plantuml.tim.stdlib.IsDark;
+import net.sourceforge.plantuml.tim.stdlib.IsLight;
+import net.sourceforge.plantuml.tim.stdlib.JsonKeyExists;
+import net.sourceforge.plantuml.tim.stdlib.Lighten;
+import net.sourceforge.plantuml.tim.stdlib.LoadJson;
+import net.sourceforge.plantuml.tim.stdlib.LoadJsonLegacy;
 import net.sourceforge.plantuml.tim.stdlib.LogicalNot;
 import net.sourceforge.plantuml.tim.stdlib.Lower;
+import net.sourceforge.plantuml.tim.stdlib.Newline;
+import net.sourceforge.plantuml.tim.stdlib.Now;
 import net.sourceforge.plantuml.tim.stdlib.RetrieveProcedure;
+import net.sourceforge.plantuml.tim.stdlib.ReverseColor;
+import net.sourceforge.plantuml.tim.stdlib.ReverseHsluvColor;
 import net.sourceforge.plantuml.tim.stdlib.SetVariableValue;
+import net.sourceforge.plantuml.tim.stdlib.Size;
+import net.sourceforge.plantuml.tim.stdlib.SplitStr;
 import net.sourceforge.plantuml.tim.stdlib.StringFunction;
 import net.sourceforge.plantuml.tim.stdlib.Strlen;
 import net.sourceforge.plantuml.tim.stdlib.Strpos;
@@ -106,19 +131,19 @@ import net.sourceforge.plantuml.tim.stdlib.VariableExists;
 
 public class TContext {
 
-	private final List<StringLocated> resultList = new ArrayList<StringLocated>();
-	private final List<StringLocated> debug = new ArrayList<StringLocated>();
+	private final List<StringLocated> resultList = new ArrayList<>();
+	private final List<StringLocated> debug = new ArrayList<>();
 
 	public final FunctionsSet functionsSet = new FunctionsSet();
 
 	private ImportedFiles importedFiles;
-	private final String charset;
+	private final Charset charset;
 
 	private final Map<String, Sub> subs = new HashMap<String, Sub>();
 	private final DefinitionsContainer definitionsContainer;
 
-	// private final Set<FileWithSuffix> usedFiles = new HashSet<FileWithSuffix>();
-	private final Set<FileWithSuffix> filesUsedCurrent = new HashSet<FileWithSuffix>();
+	// private final Set<FileWithSuffix> usedFiles = new HashSet<>();
+	private final Set<FileWithSuffix> filesUsedCurrent = new HashSet<>();
 
 	public Set<FileWithSuffix> getFilesUsedCurrent() {
 		return Collections.unmodifiableSet(filesUsedCurrent);
@@ -148,22 +173,43 @@ public class TContext {
 		functionsSet.addFunction(new Upper());
 		functionsSet.addFunction(new Lower());
 		functionsSet.addFunction(new StringFunction());
+		functionsSet.addFunction(new Newline());
+		functionsSet.addFunction(new Feature());
+		functionsSet.addFunction(new Lighten());
+		functionsSet.addFunction(new Darken());
+		functionsSet.addFunction(new IsDark());
+		functionsSet.addFunction(new IsLight());
+		functionsSet.addFunction(new ReverseHsluvColor());
+		functionsSet.addFunction(new ReverseColor());
+		functionsSet.addFunction(new Eval());
+		functionsSet.addFunction(new Hex2dec());
+		functionsSet.addFunction(new Dec2hex());
+		functionsSet.addFunction(new HslColor());
+		functionsSet.addFunction(new LoadJson());
+		functionsSet.addFunction(new LoadJsonLegacy());
+		functionsSet.addFunction(new Chr());
+		functionsSet.addFunction(new Size());
+		functionsSet.addFunction(new GetJsonKey());
+		functionsSet.addFunction(new GetJsonType());
+		functionsSet.addFunction(new SplitStr());
+		functionsSet.addFunction(new JsonKeyExists());
+		functionsSet.addFunction(new Now());
+		// %standard_exists_function
+		// %str_replace
 		// !exit
 		// !log
 		// %min
 		// %max
 		// Regexp
-		// %plantuml_version
 		// %time
 		// %trim
-		// %str_replace
 	}
 
-	public TContext(ImportedFiles importedFiles, Defines defines, String charset,
+	public TContext(ImportedFiles importedFiles, Defines defines, Charset charset,
 			DefinitionsContainer definitionsContainer) {
 		this.definitionsContainer = definitionsContainer;
 		this.importedFiles = importedFiles;
-		this.charset = charset;
+		this.charset = requireNonNull(charset);
 		this.addStandardFunctions(defines);
 	}
 
@@ -193,17 +239,6 @@ public class TContext {
 		} catch (Exception e) {
 			return TValue.fromString(result);
 		}
-	}
-
-	private TValue fromJsonOld(TMemory memory, String name) {
-		final int x = name.indexOf('.');
-		final TValue data = memory.getVariable(name.substring(0, x));
-		if (data == null) {
-			return null;
-		}
-		final JsonObject json = (JsonObject) data.toJson();
-		final JsonValue result = json.get(name.substring(x + 1));
-		return TValue.fromJson(result);
 	}
 
 	private CodeIterator buildCodeIterator(TMemory memory, List<StringLocated> body) {
@@ -266,7 +301,7 @@ public class TContext {
 				throw (EaterException) e;
 			if (e instanceof EaterExceptionLocated)
 				throw (EaterExceptionLocated) e;
-			e.printStackTrace();
+			Logme.error(e);
 			throw EaterException.located("Fatal parsing error");
 		}
 	}
@@ -277,6 +312,9 @@ public class TContext {
 
 		if (type == TLineType.INCLUDESUB) {
 			this.executeIncludesub(memory, s);
+			return null;
+		} else if (type == TLineType.THEME) {
+			this.executeTheme(memory, s);
 			return null;
 		} else if (type == TLineType.INCLUDE) {
 			this.executeInclude(memory, s);
@@ -329,18 +367,20 @@ public class TContext {
 	}
 
 	private void addPlain(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
-		StringLocated tmp = applyFunctionsAndVariablesInternal(memory, s);
+		final StringLocated tmp[] = applyFunctionsAndVariablesInternal(memory, s);
 		if (tmp != null) {
 			if (pendingAdd != null) {
-				tmp = new StringLocated(pendingAdd + tmp.getString(), tmp.getLocation());
+				tmp[0] = new StringLocated(pendingAdd + tmp[0].getString(), tmp[0].getLocation());
 				pendingAdd = null;
 			}
-			resultList.add(tmp);
+			for (StringLocated line : tmp)
+				resultList.add(line);
+
 		}
 	}
 
 	private void simulatePlain(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
-		final StringLocated ignored = applyFunctionsAndVariablesInternal(memory, s);
+		final StringLocated ignored[] = applyFunctionsAndVariablesInternal(memory, s);
 	}
 
 	private void executeAffectationDefine(TMemory memory, StringLocated s)
@@ -363,21 +403,26 @@ public class TContext {
 		undef.analyze(this, memory);
 	}
 
-	private StringLocated applyFunctionsAndVariablesInternal(TMemory memory, StringLocated located)
+	private StringLocated[] applyFunctionsAndVariablesInternal(TMemory memory, StringLocated located)
 			throws EaterException, EaterExceptionLocated {
-		if (memory.isEmpty() && functionsSet.size() == 0) {
-			return located;
-		}
+		if (memory.isEmpty() && functionsSet.size() == 0)
+			return new StringLocated[] { located };
+
 		final String result = applyFunctionsAndVariables(memory, located.getLocation(), located.getString());
-		if (result == null) {
+		if (result == null)
 			return null;
-		}
-		return new StringLocated(result, located.getLocation());
+
+		final String[] splited = result.split("\n");
+		final StringLocated[] tab = new StringLocated[splited.length];
+		for (int i = 0; i < splited.length; i++)
+			tab[i] = new StringLocated(splited[i], located.getLocation());
+
+		return tab;
 	}
 
 	private String pendingAdd = null;
 
-	public String applyFunctionsAndVariables(TMemory memory, LineLocation location, String str)
+	public String applyFunctionsAndVariables(TMemory memory, LineLocation location, final String str)
 			throws EaterException, EaterExceptionLocated {
 		// https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
 		// https://stackoverflow.com/questions/1326682/java-replacing-multiple-different-substring-in-a-string-at-once-or-in-the-most
@@ -399,17 +444,22 @@ public class TContext {
 				final TFunctionSignature signature = new TFunctionSignature(presentFunction, call.getValues().size(),
 						call.getNamedArguments().keySet());
 				final TFunction function = functionsSet.getFunctionSmart(signature);
-				if (function == null) {
+				if (function == null)
 					throw EaterException.located("Function not found " + presentFunction);
-				}
+
 				if (function.getFunctionType() == TFunctionType.PROCEDURE) {
 					this.pendingAdd = result.toString();
-					executeVoid3(location, memory, sub, function);
+					executeVoid3(location, memory, sub, function, call);
+					i += call.getCurrentPosition();
+					final String remaining = str.substring(i);
+					if (remaining.length() > 0)
+						appendToLastResult(remaining);
+
 					return null;
 				}
 				if (function.getFunctionType() == TFunctionType.LEGACY_DEFINELONG) {
 					this.pendingAdd = str.substring(0, i);
-					executeVoid3(location, memory, sub, function);
+					executeVoid3(location, memory, sub, function, call);
 					return null;
 				}
 				assert function.getFunctionType() == TFunctionType.RETURN_FUNCTION
@@ -427,9 +477,16 @@ public class TContext {
 		return result.toString();
 	}
 
-	private void executeVoid3(LineLocation location, TMemory memory, String s, TFunction function)
-			throws EaterException, EaterExceptionLocated {
-		function.executeProcedure(this, memory, location, s);
+	private void appendToLastResult(String remaining) {
+		final StringLocated last = this.resultList.get(this.resultList.size() - 1);
+		this.resultList.set(this.resultList.size() - 1, last.append(remaining));
+	}
+
+	private void executeVoid3(LineLocation location, TMemory memory, String s, TFunction function,
+			EaterFunctionCall call) throws EaterException, EaterExceptionLocated {
+		function.executeProcedureInternal(this, memory, call.getValues(), call.getNamedArguments());
+		// function.executeProcedure(this, memory, location, s, call.getValues(),
+		// call.getNamedArguments());
 	}
 
 	private void executeImport(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
@@ -444,7 +501,7 @@ public class TContext {
 				return;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw EaterException.located("Cannot import " + e.getMessage());
 		}
 
@@ -454,6 +511,13 @@ public class TContext {
 	private void executeLog(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
 		final EaterLog log = new EaterLog(s.getTrimmed());
 		log.analyze(this, memory);
+	}
+
+	public FileWithSuffix getFileWithSuffix(String from, String realName) throws IOException {
+		final String s = ThemeUtils.getFullPath(from, realName);
+		final FileWithSuffix file = importedFiles.getFile(s, null);
+		return file;
+
 	}
 
 	private void executeIncludesub(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
@@ -473,29 +537,33 @@ public class TContext {
 						saveImportedFiles = this.importedFiles;
 						this.importedFiles = this.importedFiles.withCurrentDir(f2.getParentFile());
 						final Reader reader = f2.getReader(charset);
-						if (reader == null) {
+						if (reader == null)
 							throw EaterException.located("cannot include " + location);
+
+						try {
+							ReadLine readerline = ReadLineReader.create(reader, location, s.getLocation());
+							readerline = new UncommentReadLine(readerline);
+							sub = Sub.fromFile(readerline, blocname, this, memory);
+						} finally {
+							reader.close();
 						}
-						ReadLine readerline = ReadLineReader.create(reader, location, s.getLocation());
-						readerline = new UncommentReadLine(readerline);
-						sub = Sub.fromFile(readerline, blocname, this, memory);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logme.error(e);
 					throw EaterException.located("cannot include " + location);
 				}
 			}
-			if (sub == null) {
+			if (sub == null)
 				sub = subs.get(location);
-			}
-			if (sub == null) {
+
+			if (sub == null)
 				throw EaterException.located("cannot include " + location);
-			}
+
 			executeLinesInternal(memory, sub.lines(), null);
 		} finally {
-			if (saveImportedFiles != null) {
+			if (saveImportedFiles != null)
 				this.importedFiles = saveImportedFiles;
-			}
+
 		}
 	}
 
@@ -504,10 +572,10 @@ public class TContext {
 		include.analyze(this, memory);
 		final String definitionName = include.getLocation();
 		final List<String> definition = definitionsContainer.getDefinition(definitionName);
-		ReadLine reader2 = new ReadLineList(definition, s.getLocation());
+		final ReadLine reader2 = new ReadLineList(definition, s.getLocation());
 
 		try {
-			final List<StringLocated> body = new ArrayList<StringLocated>();
+			final List<StringLocated> body = new ArrayList<>();
 			do {
 				final StringLocated sl = reader2.readLine();
 				if (sl == null) {
@@ -517,8 +585,43 @@ public class TContext {
 				body.add(sl);
 			} while (true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw EaterException.located("" + e);
+		} finally {
+			try {
+				reader2.close();
+			} catch (IOException e) {
+				Logme.error(e);
+			}
+		}
+	}
+
+	private void executeTheme(TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
+		final EaterTheme eater = new EaterTheme(s.getTrimmed(), importedFiles);
+		eater.analyze(this, memory);
+		final ReadLine reader = eater.getTheme();
+		if (reader == null)
+			throw EaterException.located("No such theme " + eater.getName());
+
+		try {
+			final List<StringLocated> body = new ArrayList<>();
+			do {
+				final StringLocated sl = reader.readLine();
+				if (sl == null) {
+					executeLines(memory, body, null, false);
+					return;
+				}
+				body.add(sl);
+			} while (true);
+		} catch (IOException e) {
+			Logme.error(e);
+			throw EaterException.located("Error reading theme " + e);
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				Logme.error(e);
+			}
 		}
 	}
 
@@ -534,49 +637,46 @@ public class TContext {
 			location = location.substring(0, idx);
 		}
 
-		ReadLine reader2 = null;
+		ReadLine reader = null;
 		ImportedFiles saveImportedFiles = null;
 		try {
 			if (location.startsWith("http://") || location.startsWith("https://")) {
 				final SURL url = SURL.create(location);
-				if (url == null) {
+				if (url == null)
 					throw EaterException.located("Cannot open URL");
-				}
-				reader2 = PreprocessorUtils.getReaderIncludeUrl2(url, s, suf, charset);
 
-			}
-			if (location.startsWith("<") && location.endsWith(">")) {
-				reader2 = PreprocessorUtils.getReaderStdlibInclude(s, location.substring(1, location.length() - 1));
+				reader = PreprocessorUtils.getReaderIncludeUrl(url, s, suf, charset);
+			} else if (location.startsWith("<") && location.endsWith(">")) {
+				reader = PreprocessorUtils.getReaderStdlibInclude(s, location.substring(1, location.length() - 1));
 			} else {
 				final FileWithSuffix f2 = importedFiles.getFile(location, suf);
 				if (f2.fileOk()) {
-					if (strategy == PreprocessorIncludeStrategy.DEFAULT && filesUsedCurrent.contains(f2)) {
+					if (strategy == PreprocessorIncludeStrategy.DEFAULT && filesUsedCurrent.contains(f2))
 						return;
-					}
-					if (strategy == PreprocessorIncludeStrategy.ONCE && filesUsedCurrent.contains(f2)) {
+
+					if (strategy == PreprocessorIncludeStrategy.ONCE && filesUsedCurrent.contains(f2))
 						throw EaterException.located("This file has already been included");
-					}
 
 					if (StartDiagramExtractReader.containsStartDiagram(f2, s, charset)) {
-						reader2 = StartDiagramExtractReader.build(f2, s, charset);
+						reader = StartDiagramExtractReader.build(f2, s, charset);
 					} else {
-						final Reader reader = f2.getReader(charset);
-						if (reader == null) {
+						final Reader tmp = f2.getReader(charset);
+						if (tmp == null)
 							throw EaterException.located("Cannot include file");
-						}
-						reader2 = ReadLineReader.create(reader, location, s.getLocation());
+
+						reader = ReadLineReader.create(tmp, location, s.getLocation());
 					}
 					saveImportedFiles = this.importedFiles;
 					this.importedFiles = this.importedFiles.withCurrentDir(f2.getParentFile());
-					assert reader2 != null;
+					assert reader != null;
 					filesUsedCurrent.add(f2);
 				}
 			}
-			if (reader2 != null) {
+			if (reader != null) {
 				try {
-					final List<StringLocated> body = new ArrayList<StringLocated>();
+					final List<StringLocated> body = new ArrayList<>();
 					do {
-						final StringLocated sl = reader2.readLine();
+						final StringLocated sl = reader.readLine();
 						if (sl == null) {
 							executeLines(memory, body, null, false);
 							return;
@@ -584,55 +684,60 @@ public class TContext {
 						body.add(sl);
 					} while (true);
 				} finally {
-					if (saveImportedFiles != null) {
+					if (saveImportedFiles != null)
 						this.importedFiles = saveImportedFiles;
-					}
+
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw EaterException.located("cannot include " + e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					Logme.error(e);
+				}
+			}
 		}
 
 		throw EaterException.located("cannot include " + location);
 	}
 
 	public boolean isLegacyDefine(String functionName) {
-		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet()) {
-			if (ent.getKey().getFunctionName().equals(functionName) && ent.getValue().getFunctionType().isLegacy()) {
+		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet())
+			if (ent.getKey().getFunctionName().equals(functionName) && ent.getValue().getFunctionType().isLegacy())
 				return true;
-			}
-		}
+
 		return false;
 	}
 
 	public boolean isUnquoted(String functionName) {
-		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet()) {
-			if (ent.getKey().getFunctionName().equals(functionName) && ent.getValue().isUnquoted()) {
+		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet())
+			if (ent.getKey().getFunctionName().equals(functionName) && ent.getValue().isUnquoted())
 				return true;
-			}
-		}
+
 		return false;
 	}
 
 	public boolean doesFunctionExist(String functionName) {
-		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet()) {
-			if (ent.getKey().getFunctionName().equals(functionName)) {
+		for (Map.Entry<TFunctionSignature, TFunction> ent : functionsSet.functions().entrySet())
+			if (ent.getKey().getFunctionName().equals(functionName))
 				return true;
-			}
-		}
+
 		return false;
 	}
 
 	private String getFunctionNameAt(String s, int pos) {
 		if (pos > 0 && TLineType.isLetterOrUnderscoreOrDigit(s.charAt(pos - 1))
-				&& VariableManager.justAfterBackslashN(s, pos) == false) {
+				&& VariableManager.justAfterBackslashN(s, pos) == false)
 			return null;
-		}
+
 		final String fname = functionsSet.getLonguestMatchStartingIn(s.substring(pos));
-		if (fname.length() == 0) {
+		if (fname.length() == 0)
 			return null;
-		}
+
 		return fname.substring(0, fname.length() - 1);
 	}
 
@@ -649,9 +754,9 @@ public class TContext {
 		while (resultList.size() > n1) {
 			sb.append(resultList.get(n1).getString());
 			resultList.remove(n1);
-			if (resultList.size() > n1) {
+			if (resultList.size() > n1)
 				sb.append("\\n");
-			}
+
 		}
 		return sb.toString();
 	}

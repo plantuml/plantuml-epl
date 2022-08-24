@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,8 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Url;
@@ -56,13 +57,10 @@ class GraphicalReference extends GraphicalElement implements InGroupable {
 	public GraphicalReference(double startingY, Component comp, LivingParticipantBox livingParticipantBox1,
 			LivingParticipantBox livingParticipantBox2, Url url) {
 		super(startingY);
-		if (livingParticipantBox1 == null || livingParticipantBox2 == null) {
-			throw new IllegalArgumentException();
-		}
 		this.url = url;
 		this.comp = comp;
-		this.livingParticipantBox1 = livingParticipantBox1;
-		this.livingParticipantBox2 = livingParticipantBox2;
+		this.livingParticipantBox1 = Objects.requireNonNull(livingParticipantBox1);
+		this.livingParticipantBox2 = Objects.requireNonNull(livingParticipantBox2);
 	}
 
 	@Override

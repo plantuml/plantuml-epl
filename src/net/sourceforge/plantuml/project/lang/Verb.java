@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,10 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.regex.IRegex;
 
 public interface Verb {
 
-	public CommandExecutionResult execute(Subject subject, Complement complement);
+	public IRegex toRegex();
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,60 +35,98 @@
 package net.sourceforge.plantuml.style;
 
 import java.awt.Font;
+import java.util.Objects;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ValueImpl implements Value {
 
-	private final String value;
-	private final int priority;
+	private final DarkString value;
 
-	public ValueImpl(String value, AutomaticCounter counter) {
+	public static ValueImpl dark(String value, AutomaticCounter counter) {
+		return new ValueImpl(new DarkString(null, Objects.requireNonNull(value), counter.getNextInt()));
+	}
+
+	public static ValueImpl regular(String value, AutomaticCounter counter) {
+		return new ValueImpl(new DarkString(Objects.requireNonNull(value), null, counter.getNextInt()));
+	}
+
+	public static ValueImpl regular(String value, int priority) {
+		return new ValueImpl(new DarkString(Objects.requireNonNull(value), null, priority));
+	}
+
+	public Value mergeWith(Value other) {
+		if (other == null)
+			return this;
+		if (other instanceof ValueImpl)
+			return new ValueImpl(value.mergeWith(((ValueImpl) other).value));
+		if (other instanceof ValueColor) {
+			if (other.getPriority() > getPriority())
+				return other;
+			return this;
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	private ValueImpl(DarkString value) {
 		this.value = value;
-		this.priority = counter.getNextInt();
+	}
+
+	public Value addPriority(int delta) {
+		return new ValueImpl(value.addPriority(delta));
 	}
 
 	@Override
 	public String toString() {
-		return value + " (" + priority + ")";
+		return value.toString();
 	}
 
 	public String asString() {
-		return value;
+		return value.getValue1();
 	}
 
-	public HColor asColor(HColorSet set) {
-		if ("none".equalsIgnoreCase(value)) {
+	public HColor asColor(ThemeStyle themeStyle, HColorSet set) {
+		final String value1 = value.getValue1();
+		if ("none".equalsIgnoreCase(value1))
 			return null;
+
+		if ("transparent".equalsIgnoreCase(value1))
+			return HColors.transparent();
+
+		if (value1 == null)
+			throw new IllegalArgumentException(value.toString());
+
+		final HColor result = set.getColorOrWhite(themeStyle, value1);
+		if (value.getValue2() != null) {
+			final HColor dark = set.getColorOrWhite(themeStyle, value.getValue2());
+			return result.withDark(dark);
 		}
-		if ("transparent".equalsIgnoreCase(value)) {
-			return HColorUtils.transparent();
-		}
-		return set.getColorIfValid(value);
+		return result;
 	}
 
 	public boolean asBoolean() {
-		return "true".equalsIgnoreCase(value);
+		return "true".equalsIgnoreCase(value.getValue1());
 	}
 
 	public int asInt() {
-		return Integer.parseInt(value);
+		return Integer.parseInt(value.getValue1());
 	}
 
 	public double asDouble() {
-		return Double.parseDouble(value);
+		return Double.parseDouble(value.getValue1());
 	}
 
 	public int asFontStyle() {
-		if (value.equalsIgnoreCase("bold")) {
+		if (value.getValue1().equalsIgnoreCase("bold"))
 			return Font.BOLD;
-		}
-		if (value.equalsIgnoreCase("italic")) {
+
+		if (value.getValue1().equalsIgnoreCase("italic"))
 			return Font.ITALIC;
-		}
+
 		return Font.PLAIN;
 	}
 
@@ -97,7 +135,7 @@ public class ValueImpl implements Value {
 	}
 
 	public int getPriority() {
-		return priority;
+		return value.getPriority();
 	}
 
 }

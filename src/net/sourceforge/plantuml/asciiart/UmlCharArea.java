@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -48,6 +48,8 @@ public interface UmlCharArea extends BasicCharArea {
 
 	void drawShape(AsciiShape shape, int x, int y);
 
-	void drawStringsLR(Collection<? extends CharSequence> strings, int x, int y);
+	void drawStringsLRSimple(Collection<? extends CharSequence> strings, int x, int y);
+
+	void drawStringsLRUnicode(Collection<? extends CharSequence> strings, int x, int y);
 
 }

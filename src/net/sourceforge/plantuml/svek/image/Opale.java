@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,16 +34,17 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPath;
+import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.MathUtils;
@@ -62,16 +63,18 @@ public class Opale extends AbstractTextBlock implements TextBlock {
 	private Point2D pp2;
 	private final boolean withLink;
 	private double roundCorner;
+	private final UStroke stroke;
 
 	private final TextBlock textBlock;
 
 	public Opale(double shadowing, HColor borderColor, HColor noteBackgroundColor, TextBlock textBlock,
-			boolean withLink) {
+			boolean withLink, UStroke stroke) {
 		this.noteBackgroundColor = noteBackgroundColor;
 		this.withLink = withLink;
 		this.shadowing2 = shadowing;
 		this.borderColor = borderColor;
 		this.textBlock = textBlock;
+		this.stroke = stroke;
 	}
 
 	public void setRoundCorner(double roundCorner) {
@@ -103,20 +106,22 @@ public class Opale extends AbstractTextBlock implements TextBlock {
 		final StringBounder stringBounder = ug.getStringBounder();
 		ug = ug.apply(noteBackgroundColor.bg()).apply(borderColor);
 		final UPath polygon;
-		if (withLink == false) {
+		if (withLink == false)
 			polygon = getPolygonNormal(stringBounder);
-		} else if (strategy == Direction.LEFT) {
+		else if (strategy == Direction.LEFT)
 			polygon = getPolygonLeft(stringBounder, pp1, pp2);
-		} else if (strategy == Direction.RIGHT) {
+		else if (strategy == Direction.RIGHT)
 			polygon = getPolygonRight(stringBounder, pp1, pp2);
-		} else if (strategy == Direction.UP) {
+		else if (strategy == Direction.UP)
 			polygon = getPolygonUp(stringBounder, pp1, pp2);
-		} else if (strategy == Direction.DOWN) {
+		else if (strategy == Direction.DOWN)
 			polygon = getPolygonDown(stringBounder, pp1, pp2);
-		} else {
+		else
 			throw new IllegalArgumentException();
-		}
+
 		polygon.setDeltaShadow(shadowing2);
+		if (stroke != null)
+			ug = ug.apply(stroke);
 		ug.draw(polygon);
 		ug.draw(getCorner(getWidth(stringBounder), roundCorner));
 		textBlock.drawU(ug.apply(new UTranslate(marginX1, marginY)));

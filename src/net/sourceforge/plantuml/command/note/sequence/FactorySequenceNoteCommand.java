@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,12 +35,11 @@
 package net.sourceforge.plantuml.command.note.sequence;
 
 import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -62,6 +61,7 @@ import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteStyle;
 import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class FactorySequenceNoteCommand implements SingleMultiFactoryCommand<SequenceDiagram> {
 
@@ -76,7 +76,7 @@ public final class FactorySequenceNoteCommand implements SingleMultiFactoryComma
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("POSITION", "(right|left|over)"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("PARTICIPANT", "(?:of[%s]+)?([\\p{L}0-9_.@]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("PARTICIPANT", "(?:of[%s]+)?([%pLN_.@]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				color().getRegex(), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -94,7 +94,7 @@ public final class FactorySequenceNoteCommand implements SingleMultiFactoryComma
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("POSITION", "(right|left|over)"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("PARTICIPANT", "(?:of[%s])?([\\p{L}0-9_.@]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("PARTICIPANT", "(?:of[%s])?([%pLN_.@]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				color().getRegex(), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -115,10 +115,11 @@ public final class FactorySequenceNoteCommand implements SingleMultiFactoryComma
 
 			@Override
 			public String getPatternEnd() {
-				return "(?i)^end[%s]?(note|hnote|rnote)$";
+				return "^end[%s]?(note|hnote|rnote)$";
 			}
 
-			protected CommandExecutionResult executeNow(final SequenceDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final SequenceDiagram system, BlocLines lines)
+					throws NoSuchColorException {
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
@@ -132,16 +133,17 @@ public final class FactorySequenceNoteCommand implements SingleMultiFactoryComma
 
 			@Override
 			protected CommandExecutionResult executeArg(final SequenceDiagram diagram, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				return executeInternal(diagram, arg, BlocLines.getWithNewlines(arg.get("NOTE", 0)));
 			}
 
 		};
 	}
 
-	private CommandExecutionResult executeInternal(SequenceDiagram diagram, RegexResult arg, BlocLines strings) {
-		final Participant p = diagram.getOrCreateParticipant(StringUtils
-				.eventuallyRemoveStartingAndEndingDoubleQuote(arg.get("PARTICIPANT", 0)));
+	private CommandExecutionResult executeInternal(SequenceDiagram diagram, RegexResult arg, BlocLines strings)
+			throws NoSuchColorException {
+		final Participant p = diagram.getOrCreateParticipant(
+				StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg.get("PARTICIPANT", 0)));
 
 		final NotePosition position = NotePosition.valueOf(StringUtils.goUpperCase(arg.get("POSITION", 0)));
 
@@ -150,18 +152,19 @@ public final class FactorySequenceNoteCommand implements SingleMultiFactoryComma
 			final boolean parallel = arg.get("PARALLEL", 0) != null;
 			final Display display = diagram.manageVariable(strings.toDisplay());
 			final Note note = new Note(p, position, display, diagram.getSkinParam().getCurrentStyleBuilder());
-			Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+			Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+					diagram.getSkinParam().getIHtmlColorSet());
 			final String stereotypeString = arg.get("STEREO", 0);
 			if (stereotypeString != null) {
-				final Stereotype stereotype = new Stereotype(stereotypeString);
-				colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), FontParam.NOTE,
-						ColorParam.noteBackground, ColorParam.noteBorder);
+				final Stereotype stereotype = Stereotype.build(stereotypeString);
+				colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), ColorParam.noteBackground,
+						ColorParam.noteBorder);
 				note.setStereotype(stereotype);
 			}
 			note.setColors(colors);
 			note.setNoteStyle(NoteStyle.getNoteStyle(arg.get("STYLE", 0)));
 			if (arg.get("URL", 0) != null) {
-				final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+				final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 				final Url urlLink = urlBuilder.getUrl(arg.get("URL", 0));
 				note.setUrl(urlLink);
 			}

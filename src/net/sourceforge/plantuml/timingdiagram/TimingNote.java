@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,6 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
-import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.command.Position;
@@ -47,9 +45,11 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.svek.image.Opale;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -60,8 +60,11 @@ public class TimingNote {
 	private final Display note;
 	private final Position position;
 	private final ISkinParam skinParam;
+	private final Style style;
 
-	public TimingNote(TimeTick when, Player player, Display note, Position position, ISkinParam skinParam) {
+	public TimingNote(TimeTick when, Player player, Display note, Position position, ISkinParam skinParam,
+			Style style) {
+		this.style = style;
 		this.note = note;
 		this.player = player;
 		this.when = when;
@@ -70,26 +73,28 @@ public class TimingNote {
 	}
 
 	public void drawU(UGraphic ug) {
-		if (position == Position.BOTTOM) {
+		if (position == Position.BOTTOM)
 			ug = ug.apply(UTranslate.dy(getMarginY() / 2));
-		}
+
 		createOpale().drawU(ug);
 
 	}
 
 	private Opale createOpale() {
-		final FontConfiguration fc = new FontConfiguration(skinParam, FontParam.NOTE, null);
-		final Rose rose = new Rose();
 
-		final HColor noteBackgroundColor = rose.getHtmlColor(skinParam, ColorParam.noteBackground);
-		final HColor borderColor = rose.getHtmlColor(skinParam, ColorParam.noteBorder);
+		final FontConfiguration fc = FontConfiguration.create(skinParam, style);
+		final double shadowing = style.value(PName.Shadowing).asDouble();
+		final HColor borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final HColor noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
+				skinParam.getIHtmlColorSet());
+		final UStroke stroke = style.getStroke();
 
-		final Sheet sheet = Parser.build(fc, skinParam.getDefaultTextAlignment(HorizontalAlignment.LEFT), skinParam, CreoleMode.FULL)
+		final Sheet sheet = Parser
+				.build(fc, skinParam.getDefaultTextAlignment(HorizontalAlignment.LEFT), skinParam, CreoleMode.FULL)
 				.createSheet(note);
 		final SheetBlock1 sheet1 = new SheetBlock1(sheet, LineBreakStrategy.NONE, skinParam.getPadding());
-		final double shadowing;
-		shadowing = skinParam.shadowing(null) ? 4 : 0;
-		final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, sheet1, false);
+		final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, sheet1, false, stroke);
 		return opale;
 	}
 

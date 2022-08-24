@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,12 +35,11 @@
 package net.sourceforge.plantuml.command.note;
 
 import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.classdiagram.command.CommandCreateClassMultilines;
 import net.sourceforge.plantuml.command.BlocLines;
@@ -68,6 +67,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryCommand<AbstractEntityDiagram> {
@@ -164,7 +164,7 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 
 			@Override
 			protected CommandExecutionResult executeArg(final AbstractEntityDiagram system, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				final String s = arg.get("NOTE", 0);
 				return executeInternal(arg, system, null, BlocLines.getWithNewlines(s));
 			}
@@ -178,12 +178,13 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 			@Override
 			public String getPatternEnd() {
 				if (withBracket) {
-					return "(?i)^(\\})$";
+					return "^(\\})$";
 				}
-				return "(?i)^[%s]*(end[%s]?note)$";
+				return "^[%s]*(end[%s]?note)$";
 			}
 
-			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines)
+					throws NoSuchColorException {
 				// StringUtils.trim(lines, false);
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
@@ -192,7 +193,7 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 				Url url = null;
 				if (line0.get("URL", 0) != null) {
 					final UrlBuilder urlBuilder = new UrlBuilder(system.getSkinParam().getValue("topurl"),
-							ModeUrl.STRICT);
+							UrlMode.STRICT);
 					url = urlBuilder.getUrl(line0.get("URL", 0));
 				}
 
@@ -202,7 +203,7 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 	}
 
 	private CommandExecutionResult executeInternal(RegexResult line0, AbstractEntityDiagram diagram, Url url,
-			BlocLines strings) {
+			BlocLines strings) throws NoSuchColorException {
 
 		final String pos = line0.get("POSITION", 0);
 
@@ -234,13 +235,14 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 		else
 			note = diagram.createLeaf(idNewLong, diagram.buildCode(tmp), strings.toDisplay(), LeafType.NOTE, null);
 
-		Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
 
 		final String stereotypeString = line0.get("STEREO", 0);
 		if (stereotypeString != null) {
-			final Stereotype stereotype = new Stereotype(stereotypeString);
-			colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), FontParam.NOTE,
-					ColorParam.noteBackground, ColorParam.noteBorder);
+			final Stereotype stereotype = Stereotype.build(stereotypeString);
+			colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), ColorParam.noteBackground,
+					ColorParam.noteBorder);
 			note.setStereotype(stereotype);
 		}
 
@@ -256,15 +258,15 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 
 		final LinkType type = new LinkType(LinkDecor.NONE, LinkDecor.NONE).goDashed();
 		if (position == Position.RIGHT) {
-			link = new Link(cl1, note, type, Display.NULL, 1, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), cl1, note, type, Display.NULL, 1);
 			link.setHorizontalSolitary(true);
 		} else if (position == Position.LEFT) {
-			link = new Link(note, cl1, type, Display.NULL, 1, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), note, cl1, type, Display.NULL, 1);
 			link.setHorizontalSolitary(true);
 		} else if (position == Position.BOTTOM) {
-			link = new Link(cl1, note, type, Display.NULL, 2, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), cl1, note, type, Display.NULL, 2);
 		} else if (position == Position.TOP) {
-			link = new Link(note, cl1, type, Display.NULL, 2, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), note, cl1, type, Display.NULL, 2);
 		} else {
 			throw new IllegalArgumentException();
 		}

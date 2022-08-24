@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,6 +41,8 @@ import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
+import net.sourceforge.plantuml.project.GanttConstraint;
 import net.sourceforge.plantuml.project.GanttDiagram;
 import net.sourceforge.plantuml.project.core.Task;
 
@@ -56,7 +58,9 @@ public class CommandGanttArrow2 extends SingleLineCommand2<GanttDiagram> {
 				new RegexLeaf("TASK1", "([^\\[\\]]+?)"), //
 				new RegexLeaf("\\]"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("ARROW", "(-+)"), //
+				new RegexLeaf("(-+)"), //
+				new RegexLeaf("ARROW_STYLE", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
+				new RegexLeaf("(-*)"), //
 				new RegexLeaf("\\>"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("\\["), //
@@ -74,7 +78,8 @@ public class CommandGanttArrow2 extends SingleLineCommand2<GanttDiagram> {
 		final Task task1 = diagram.getOrCreateTask(name1, null, false);
 		final Task task2 = diagram.getOrCreateTask(name2, null, false);
 
-		diagram.setTaskOrder(task1, task2);
+		final GanttConstraint link = diagram.forceTaskOrder(task1, task2);
+		link.applyStyle(diagram.getSkinParam().getThemeStyle(), arg.get("ARROW_STYLE", 0));
 
 		return CommandExecutionResult.ok();
 	}

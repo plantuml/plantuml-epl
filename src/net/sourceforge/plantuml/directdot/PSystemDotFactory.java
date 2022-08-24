@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,10 @@
  */
 package net.sourceforge.plantuml.directdot;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.PSystemBasicFactory;
 import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 
 public class PSystemDotFactory extends PSystemBasicFactory<PSystemDot> {
 
@@ -46,23 +48,23 @@ public class PSystemDotFactory extends PSystemBasicFactory<PSystemDot> {
 	}
 
 	@Override
-	public PSystemDot init(String startLine) {
+	public PSystemDot initDiagram(ThemeStyle style, UmlSource source, String startLine) {
 		data = null;
 		return null;
 	}
 
 	@Override
-	public PSystemDot executeLine(PSystemDot system, String line) {
-		if (system == null && line.matches("(strict\\s+)?(di)?graph\\s+\\w+\\s*\\{")) {
+	public PSystemDot executeLine(ThemeStyle style, UmlSource source, PSystemDot system, String line) {
+		if (system == null && line.matches("(strict\\s+)?(di)?graph\\s+\"?[-\\w]+\"?\\s*\\{")) {
 			data = new StringBuilder(line);
 			data.append("\n");
-			return new PSystemDot(data.toString());
+			return new PSystemDot(source, data.toString());
 		}
-		if (data == null || system == null) {
+		if (data == null || system == null)
 			return null;
-		}
+
 		data.append(line);
 		data.append("\n");
-		return new PSystemDot(data.toString());
+		return new PSystemDot(source, data.toString());
 	}
 }

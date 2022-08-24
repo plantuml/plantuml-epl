@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -51,6 +51,7 @@ import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandRepeat3 extends SingleLineCommand2<ActivityDiagram3> {
 
@@ -75,8 +76,11 @@ public class CommandRepeat3 extends SingleLineCommand2<ActivityDiagram3> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) {
-		final HColor color = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0));
+	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
+		final String s = arg.get("COLOR", 0);
+		final HColor color = s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s);
 		final Display label = Display.getWithNewlines(arg.get("LABEL", 0));
 		final BoxStyle boxStyle;
 		final String styleString = arg.get("STYLE", 0);
@@ -85,10 +89,11 @@ public class CommandRepeat3 extends SingleLineCommand2<ActivityDiagram3> {
 		} else {
 			boxStyle = BoxStyle.fromChar(styleString.charAt(0));
 		}
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		final String stereo = arg.get("STEREO", 0);
 		if (stereo != null) {
-			final Stereotype stereotype = new Stereotype(stereo);
+			final Stereotype stereotype = Stereotype.build(stereo);
 			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.activityBackground);
 		}
 

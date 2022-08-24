@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,27 +40,23 @@ import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverPolygonTikz implements UDriver<TikzGraphics> {
+public class DriverPolygonTikz implements UDriver<UPolygon, TikzGraphics> {
 
-	public void draw(UShape shape, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
-		final UPolygon poly = (UPolygon) shape;
+	public void draw(UPolygon poly, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
 		final double points[] = poly.getPointArray(x, y);
 
 		final HColor back = param.getBackcolor();
 		if (back instanceof HColorGradient) {
 			final HColorGradient gr = (HColorGradient) back;
-			final Color color1 = mapper.toColor(gr.getColor1());
-			final Color color2 = mapper.toColor(gr.getColor2());
-			tikz.setGradientColor(color1, color2, gr.getPolicy());
+			tikz.setGradientColor(gr.getColor1(), gr.getColor2(), gr.getPolicy());
 		} else {
-			tikz.setFillColor(mapper.toColor(back));
+			tikz.setFillColor(back);
 		}
-		tikz.setStrokeColor(mapper.toColor(param.getColor()));
+		tikz.setStrokeColor(param.getColor());
 		tikz.setStrokeWidth(param.getStroke().getThickness(), param.getStroke().getDashTikz());
 
 		tikz.polygon(points);

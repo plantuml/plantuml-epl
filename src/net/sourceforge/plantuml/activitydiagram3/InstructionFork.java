@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,6 +37,7 @@ package net.sourceforge.plantuml.activitydiagram3;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
@@ -44,14 +45,21 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.FtileWithNoteOpale;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileSplit;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtiles;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.Rainbow;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
 
 public class InstructionFork extends WithNote implements Instruction {
 
-	private final List<InstructionList> forks = new ArrayList<InstructionList>();
+	private final List<InstructionList> forks = new ArrayList<>();
 	private final Instruction parent;
 	private final LinkRendering inlinkRendering;
 	private final ISkinParam skinParam;
@@ -61,6 +69,7 @@ public class InstructionFork extends WithNote implements Instruction {
 	private String label;
 	boolean finished = false;
 
+	@Override
 	public boolean containsBreak() {
 		for (InstructionList fork : forks) {
 			if (fork.containsBreak()) {
@@ -72,32 +81,50 @@ public class InstructionFork extends WithNote implements Instruction {
 
 	public InstructionFork(Instruction parent, LinkRendering inlinkRendering, ISkinParam skinParam, Swimlane swimlane) {
 		this.parent = parent;
-		this.inlinkRendering = inlinkRendering;
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 		this.skinParam = skinParam;
 		this.swimlaneIn = swimlane;
 		this.swimlaneOut = swimlane;
-		this.forks.add(new InstructionList());
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
+		this.forks.add(InstructionList.empty());
 	}
 
 	private InstructionList getLastList() {
 		return forks.get(forks.size() - 1);
 	}
 
-	public void add(Instruction ins) {
-		getLastList().add(ins);
+	@Override
+	public CommandExecutionResult add(Instruction ins) {
+		return getLastList().add(ins);
 	}
 
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		final List<Gtile> all = new ArrayList<>();
+		for (InstructionList list : forks) {
+			Gtile tmp = list.createGtile(skinParam, stringBounder);
+			tmp = Gtiles.withIncomingArrow(tmp, 20);
+			tmp = Gtiles.withOutgoingArrow(tmp, 20);
+			all.add(tmp);
+		}
+
+		return new GtileSplit(all, swimlaneIn, getInLinkRenderingColor(skinParam).getColor());
+	}
+
+	private Rainbow getInLinkRenderingColor(ISkinParam skinParam) {
+		Rainbow color;
+		color = Rainbow.build(skinParam);
+		return color;
+	}
+
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
-		final List<Ftile> all = new ArrayList<Ftile>();
+		final List<Ftile> all = new ArrayList<>();
 		for (InstructionList list : forks) {
 			all.add(list.createFtile(factory));
 		}
 		Ftile result = factory.createParallel(all, style, label, swimlaneIn, swimlaneOut);
 		if (getPositionedNotes().size() > 0) {
-			result = FtileWithNoteOpale.create(result, getPositionedNotes(), skinParam, false);
+			result = FtileWithNoteOpale.create(result, getPositionedNotes(), skinParam, false, VerticalAlignment.CENTER);
 		}
 		return result;
 	}
@@ -108,13 +135,15 @@ public class InstructionFork extends WithNote implements Instruction {
 
 	public void forkAgain(Swimlane swimlane) {
 		this.swimlaneOut = swimlane;
-		this.forks.add(new InstructionList());
+		this.forks.add(InstructionList.empty());
 	}
 
+	@Override
 	final public boolean kill() {
 		return getLastList().kill();
 	}
 
+	@Override
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
 	}
@@ -130,17 +159,20 @@ public class InstructionFork extends WithNote implements Instruction {
 		return getLastList().addNote(note, position, type, colors, swimlaneNote);
 	}
 
+	@Override
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>(InstructionList.getSwimlanes2(forks));
+		final Set<Swimlane> result = new HashSet<>(InstructionList.getSwimlanes2(forks));
 		result.add(swimlaneIn);
 		result.add(swimlaneOut);
 		return result;
 	}
 
+	@Override
 	public Swimlane getSwimlaneIn() {
 		return swimlaneIn;
 	}
 
+	@Override
 	public Swimlane getSwimlaneOut() {
 		return swimlaneOut;
 	}

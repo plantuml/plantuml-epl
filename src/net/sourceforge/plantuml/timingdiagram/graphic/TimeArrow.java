@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,10 @@
  */
 package net.sourceforge.plantuml.timingdiagram.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.WithLinkType;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -48,8 +48,8 @@ import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class TimeArrow implements UDrawable {
 
@@ -59,8 +59,8 @@ public class TimeArrow implements UDrawable {
 	private final ISkinSimple spriteContainer;
 	private final WithLinkType type;
 
-	public static TimeArrow create(IntricatedPoint pt1, IntricatedPoint pt2, Display label,
-			ISkinSimple spriteContainer, WithLinkType type) {
+	public static TimeArrow create(IntricatedPoint pt1, IntricatedPoint pt2, Display label, ISkinSimple spriteContainer,
+			WithLinkType type) {
 		final TimeArrow arrow1 = new TimeArrow(pt1.getPointA(), pt2.getPointA(), label, spriteContainer, type);
 		final TimeArrow arrow2 = new TimeArrow(pt1.getPointA(), pt2.getPointB(), label, spriteContainer, type);
 		final TimeArrow arrow3 = new TimeArrow(pt1.getPointB(), pt2.getPointA(), label, spriteContainer, type);
@@ -96,7 +96,8 @@ public class TimeArrow implements UDrawable {
 	}
 
 	public TimeArrow translate(UTranslate translate) {
-		return new TimeArrow(translate.getTranslated(start), translate.getTranslated(end), label, spriteContainer, type);
+		return new TimeArrow(translate.getTranslated(start), translate.getTranslated(end), label, spriteContainer,
+				type);
 	}
 
 	public static Point2D onCircle(Point2D pt, double alpha) {
@@ -109,12 +110,14 @@ public class TimeArrow implements UDrawable {
 	private FontConfiguration getFontConfiguration() {
 		final UFont font = UFont.serif(14);
 
-		return new FontConfiguration(font, type.getSpecificColor(), type.getSpecificColor(), false);
+		final HColor color = type.getSpecificColor();
+		return FontConfiguration.create(font, color, color, false);
 	}
 
 	public void drawU(UGraphic ug) {
 		final double angle = getAngle();
-		ug = ug.apply(type.getSpecificColor()).apply(type.getType().getStroke3(new UStroke()));
+
+		ug = ug.apply(type.getSpecificColor()).apply(type.getUStroke());
 		final ULine line = new ULine(end.getX() - start.getX(), end.getY() - start.getY());
 		ug.apply(new UTranslate(start)).draw(line);
 
@@ -139,9 +142,6 @@ public class TimeArrow implements UDrawable {
 		}
 		textLabel.drawU(ug.apply(new UTranslate(xText, yText)));
 
-		// final double radius = 4;
-		// final UTranslate forCirle = new UTranslate(end.getX() - radius, end.getY() - radius);
-		// ug.apply(forCirle).draw(new UEllipse(2 * radius, 2 * radius));
 	}
 
 }

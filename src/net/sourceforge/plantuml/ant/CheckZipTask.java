@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -48,14 +48,15 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileList;
 import org.apache.tools.ant.types.FileSet;
 
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityUtils;
 
 public class CheckZipTask extends Task {
 
 	private String zipfile = null;
-	private List<FileSet> filesets = new ArrayList<FileSet>();
-	private List<FileList> filelists = new ArrayList<FileList>();
+	private List<FileSet> filesets = new ArrayList<>();
+	private List<FileList> filelists = new ArrayList<>();
 
 	/**
 	 * Add a set of files to touch
@@ -83,7 +84,7 @@ public class CheckZipTask extends Task {
 				manageFileList(fileList);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw new BuildException(e.toString());
 		}
 	}
@@ -106,29 +107,29 @@ public class CheckZipTask extends Task {
 		return entries.contains(s);
 	}
 
-	private final List<String> entries = new ArrayList<String>();
+	private final List<String> entries = new ArrayList<>();
 
 	private void loadZipFile(SFile file) throws IOException {
 
 		this.entries.clear();
-		final PrintWriter pw = SecurityUtils.createPrintWriter("tmp.txt");
 		final InputStream tmp = file.openFile();
 		if (tmp == null) {
 			throw new FileNotFoundException();
 		}
-		final ZipInputStream zis = new ZipInputStream(tmp);
-		ZipEntry ze = zis.getNextEntry();
-
-		while (ze != null) {
-			final String fileName = ze.getName();
-			this.entries.add(fileName);
-			if (fileName.endsWith("/") == false) {
-				pw.println("<file name=\"" + fileName + "\" />");
+		try (
+			final PrintWriter pw = SecurityUtils.createPrintWriter("tmp.txt");
+			final ZipInputStream zis = new ZipInputStream(tmp);
+		) {
+			ZipEntry ze = zis.getNextEntry();
+			while (ze != null) {
+				final String fileName = ze.getName();
+				this.entries.add(fileName);
+				if (fileName.endsWith("/") == false) {
+					pw.println("<file name=\"" + fileName + "\" />");
+				}
+				ze = zis.getNextEntry();
 			}
-			ze = zis.getNextEntry();
 		}
-		pw.close();
-		zis.close();
 	}
 
 	private synchronized void myLog(String s) {

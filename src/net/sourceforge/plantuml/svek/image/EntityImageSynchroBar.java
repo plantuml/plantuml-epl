@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,60 +34,56 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
-
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
-import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class EntityImageSynchroBar extends AbstractEntityImage {
 
-	public EntityImageSynchroBar(ILeaf entity, ISkinParam skinParam) {
+	// private final SName styleName;
+
+	public EntityImageSynchroBar(ILeaf entity, ISkinParam skinParam, SName styleName) {
 		super(entity, skinParam);
+		// this.styleName = styleName;
 	}
 
-	public StyleSignature getDefaultStyleDefinitionBar() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.activityBar);
+	private StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.activityBar);
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		if (getSkinParam().getRankdir() == Rankdir.LEFT_TO_RIGHT) {
+		if (getSkinParam().getRankdir() == Rankdir.LEFT_TO_RIGHT)
 			return new Dimension2DDouble(8, 80);
-		}
+
 		return new Dimension2DDouble(80, 8);
 	}
 
 	final public void drawU(UGraphic ug) {
 		final Dimension2D dim = calculateDimension(ug.getStringBounder());
 		final Shadowable rect = new URectangle(dim.getWidth(), dim.getHeight());
-		double shadowing = 0;
-		if (getSkinParam().shadowing(getEntity().getStereotype())) {
-			shadowing = 4;
-		}
-		HColor color = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.activityBar);
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinitionBar().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-			color = style.value(PName.LineColor).asColor(getSkinParam().getIHtmlColorSet());
-			shadowing = style.value(PName.Shadowing).asDouble();
-		}
+
+		final Style style = getStyleSignature().withTOBECHANGED(getEntity().getStereotype())
+				.getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+		final HColor color = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		final double shadowing = style.value(PName.Shadowing).asDouble();
+
 		rect.setDeltaShadow(shadowing);
-		ug.apply(new HColorNone()).apply(color.bg()).draw(rect);
+		ug.apply(HColors.none()).apply(color.bg()).draw(rect);
 	}
 
 	public ShapeType getShapeType() {

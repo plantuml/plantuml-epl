@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -65,9 +65,9 @@ public class CommandIf extends SingleLineCommand2<ActivityDiagram> {
 				new RegexOptional(//
 						new RegexOr("FIRST", //
 								new RegexLeaf("STAR", "(\\(\\*(top)?\\))"), //
-								new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
-								new RegexLeaf("BAR", "(?:==+)[%s]*([\\p{L}0-9_.]+)[%s]*(?:==+)"), //
-								new RegexLeaf("QUOTED", "[%g]([^%g]+)[%g](?:[%s]+as[%s]+([\\p{L}0-9_.]+))?"))), //
+								new RegexLeaf("CODE", "([%pLN_.]+)"), //
+								new RegexLeaf("BAR", "(?:==+)[%s]*([%pLN_.]+)[%s]*(?:==+)"), //
+								new RegexLeaf("QUOTED", "[%g]([^%g]+)[%g](?:[%s]+as[%s]+([%pLN_.]+))?"))), //
 				RegexLeaf.spaceZeroOrMore(), //
 				//new RegexOptional(new RegexLeaf("ARROW", "([=-]+(?:(left|right|up|down|le?|ri?|up?|do?)(?=[-=.]))?[=-]*\\>)")), //
 				new RegexOptional(new RegexConcat( // 
@@ -82,7 +82,7 @@ public class CommandIf extends SingleLineCommand2<ActivityDiagram> {
 				new RegexOptional(new RegexLeaf("BRACKET", "\\[([^\\]*]+[^\\]]*)\\]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOr(//
-						new RegexLeaf("IF1", "if[%s]*[%g]([^%g]*)[%g][%s]*(?:as[%s]+([\\p{L}0-9_.]+)[%s]+)?"), //
+						new RegexLeaf("IF1", "if[%s]*[%g]([^%g]*)[%g][%s]*(?:as[%s]+([%pLN_.]+)[%s]+)?"), //
 						new RegexLeaf("IF2", "if[%s]+(.+?)")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("then")), //
@@ -122,9 +122,9 @@ public class CommandIf extends SingleLineCommand2<ActivityDiagram> {
 
 		final IEntity branch = diagram.getCurrentContext().getBranch();
 
-		Link link = new Link(entity1, branch, new LinkType(LinkDecor.ARROW, LinkDecor.NONE),
-				Display.getWithNewlines(arg.get("BRACKET", 0)), lenght, null, ifLabel, diagram.getLabeldistance(),
-				diagram.getLabelangle(), diagram.getSkinParam().getCurrentStyleBuilder());
+		Link link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), entity1, branch,
+				new LinkType(LinkDecor.ARROW, LinkDecor.NONE), Display.getWithNewlines(arg.get("BRACKET", 0)), lenght, null, ifLabel,
+				diagram.getLabeldistance(), diagram.getLabelangle());
 		if (arg.get("ARROW", 0) != null) {
 			final Direction direction = StringUtils.getArrowDirection(arg.get("ARROW", 0));
 			if (direction == Direction.LEFT || direction == Direction.UP) {
@@ -132,7 +132,7 @@ public class CommandIf extends SingleLineCommand2<ActivityDiagram> {
 			}
 		}
 
-		link.applyStyle(arg.getLazzy("ARROW_STYLE", 0));
+		link.applyStyle(diagram.getSkinParam().getThemeStyle(), arg.getLazzy("ARROW_STYLE", 0));
 		diagram.addLink(link);
 
 		return CommandExecutionResult.ok();

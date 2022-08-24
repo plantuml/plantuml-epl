@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -78,7 +78,7 @@ public class Ident implements Code {
 	}
 
 	public Ident add(Ident added) {
-		final List<String> copy = new ArrayList<String>(parts);
+		final List<String> copy = new ArrayList<>(parts);
 		copy.addAll(added.parts);
 		return new Ident(copy);
 	}
@@ -101,14 +101,14 @@ public class Ident implements Code {
 	}
 
 	public Ident eventuallyRemoveStartingAndEndingDoubleQuote(String format) {
-		final List<String> copy = new ArrayList<String>(parts);
+		final List<String> copy = new ArrayList<>(parts);
 		final int pos = copy.size() - 1;
 		copy.set(pos, StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(copy.get(pos), format));
 		return new Ident(copy);
 	}
 
 	public Ident removeStartingParenthesis() {
-		final List<String> copy = new ArrayList<String>(parts);
+		final List<String> copy = new ArrayList<>(parts);
 		final int pos = copy.size() - 1;
 		final String last = copy.get(pos);
 		if (last.startsWith("()") == false) {
@@ -119,7 +119,7 @@ public class Ident implements Code {
 	}
 
 	public Ident addSuffix(String suffix) {
-		final List<String> copy = new ArrayList<String>(parts);
+		final List<String> copy = new ArrayList<>(parts);
 		final int pos = copy.size() - 1;
 		copy.set(pos, copy.get(pos) + suffix);
 		return new Ident(copy);
@@ -132,7 +132,7 @@ public class Ident implements Code {
 		if (x == -1) {
 			return null;
 		}
-		final List<String> copy = new ArrayList<String>(parts);
+		final List<String> copy = new ArrayList<>(parts);
 		final int pos = copy.size() - 1;
 		copy.set(pos, last.substring(0, x));
 		return new Ident(copy);
@@ -186,7 +186,7 @@ public class Ident implements Code {
 	public Ident add(String sup, String separator) {
 		this.checkResult(separator);
 		final Ident added = from(sup, separator);
-		final List<String> list = new ArrayList<String>(this.parts.size() + added.parts.size());
+		final List<String> list = new ArrayList<>(this.parts.size() + added.parts.size());
 		list.addAll(this.parts);
 		list.addAll(added.parts);
 		final Ident result = new Ident(list);
@@ -233,15 +233,15 @@ public class Ident implements Code {
 		final String last = parts.get(parts.size() - 1);
 		if (separator == null) {
 			if (code.getName().equals(last) != true && code.getName().equals(toString(separator)) == false) {
-				System.err.println("code1=" + code);
-				System.err.println("this1=" + this);
+//				System.err.println("code1=" + code);
+//				System.err.println("this1=" + this);
 				EntityFactory.bigError();
 			}
 		} else {
 			if (getLastPart(code.getName(), separator).equals(last) != true
 					&& code.getName().equals(toString(separator)) == false) {
-				System.err.println("code2=" + code);
-				System.err.println("this2=" + this);
+//				System.err.println("code2=" + code);
+//				System.err.println("this2=" + this);
 				EntityFactory.bigError();
 			}
 		}
@@ -274,7 +274,7 @@ public class Ident implements Code {
 		if (this.startsWith(from) == false) {
 			throw new IllegalArgumentException();
 		}
-		final List<String> result = new ArrayList<String>(to.parts);
+		final List<String> result = new ArrayList<>(to.parts);
 		for (int i = from.parts.size(); i < this.parts.size(); i++) {
 			result.add(this.parts.get(i));
 		}

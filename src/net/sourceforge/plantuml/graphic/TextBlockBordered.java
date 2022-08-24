@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,8 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.SheetBlock2;
 import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
@@ -45,7 +44,7 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class TextBlockBordered extends AbstractTextBlock implements TextBlock {
 
@@ -58,25 +57,11 @@ public class TextBlockBordered extends AbstractTextBlock implements TextBlock {
 	private final double left;
 	private final UStroke stroke;
 	private final boolean withShadow;
-
+	private final String id;
 	private final TextBlock textBlock;
 
 	TextBlockBordered(TextBlock textBlock, UStroke stroke, HColor borderColor, HColor backgroundColor,
-			double cornersize, double marginX, double marginY) {
-		this.top = marginY;
-		this.right = marginX;
-		this.bottom = marginY;
-		this.left = marginX;
-		this.cornersize = cornersize;
-		this.textBlock = textBlock;
-		this.withShadow = false;
-		this.stroke = stroke;
-		this.borderColor = borderColor;
-		this.backgroundColor = backgroundColor;
-	}
-
-	TextBlockBordered(TextBlock textBlock, UStroke stroke, HColor borderColor, HColor backgroundColor,
-			double cornersize, ClockwiseTopRightBottomLeft margins) {
+			double cornersize, ClockwiseTopRightBottomLeft margins, String id) {
 		this.top = margins.getTop();
 		this.right = margins.getRight();
 		this.bottom = margins.getBottom();
@@ -87,11 +72,7 @@ public class TextBlockBordered extends AbstractTextBlock implements TextBlock {
 		this.stroke = stroke;
 		this.borderColor = borderColor;
 		this.backgroundColor = backgroundColor;
-	}
-
-	TextBlockBordered(TextBlock textBlock, UStroke stroke, HColor borderColor, HColor backgroundColor,
-			double cornersize) {
-		this(textBlock, stroke, borderColor, backgroundColor, cornersize, 6, 5);
+		this.id = id;
 	}
 
 	private double getTextHeight(StringBounder stringBounder) {
@@ -115,16 +96,16 @@ public class TextBlockBordered extends AbstractTextBlock implements TextBlock {
 	}
 
 	private UGraphic applyStroke(UGraphic ug) {
-		if (stroke == null) {
+		if (stroke == null)
 			return ug;
-		}
+
 		return ug.apply(stroke);
 	}
 
 	private boolean noBorder() {
-		if (stroke == null) {
+		if (stroke == null)
 			return false;
-		}
+
 		return stroke.getThickness() == 0;
 	}
 
@@ -132,32 +113,32 @@ public class TextBlockBordered extends AbstractTextBlock implements TextBlock {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final Shadowable polygon = getPolygonNormal(stringBounder);
 		final UGraphic ugOriginal = ug;
-		if (withShadow) {
+		if (withShadow)
 			polygon.setDeltaShadow(4);
-		}
-		if (backgroundColor == null) {
-			ug = ug.apply(new HColorNone().bg());
-		} else {
+
+		if (backgroundColor == null)
+			ug = ug.apply(HColors.none().bg());
+		else
 			ug = ug.apply(backgroundColor.bg());
-		}
+
 		HColor color = noBorder() ? backgroundColor : borderColor;
-		if (color == null) {
-			color = new HColorNone();
-		}
+		if (color == null)
+			color = HColors.none();
+
 		ug = ug.apply(color);
 		ug = applyStroke(ug);
 		ug.draw(polygon);
 		TextBlock toDraw = textBlock;
-		if (textBlock instanceof SheetBlock2) {
+		if (textBlock instanceof SheetBlock2)
 			toDraw = ((SheetBlock2) textBlock).enlargeMe(left, right);
-		}
+
 		toDraw.drawU(ugOriginal.apply(color).apply(new UTranslate(left, top)));
 	}
 
 	private Shadowable getPolygonNormal(final StringBounder stringBounder) {
 		final double height = getTextHeight(stringBounder);
 		final double width = getTextWidth(stringBounder);
-		return new URectangle(width, height).rounded(cornersize);
+		return new URectangle(width, height).rounded(cornersize).withCommentAndCodeLine(id, null);
 	}
 
 }

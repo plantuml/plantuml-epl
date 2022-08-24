@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandStereotype extends SingleLineCommand2<ClassDiagram> {
 
@@ -57,19 +58,19 @@ public class CommandStereotype extends SingleLineCommand2<ClassDiagram> {
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandStereotype.class.getName(), //
 				RegexLeaf.start(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_.]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("NAME", "([%pLN_.]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREO", "(\\<\\<.*\\>\\>)"), RegexLeaf.end()); //
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) throws NoSuchColorException {
 		final String name = arg.get("NAME", 0);
 		final Ident ident = diagram.buildLeafIdent(name);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(name);
 		final String stereotype = arg.get("STEREO", 0);
 		final IEntity entity = diagram.getOrCreateLeaf(ident, code, null, null);
-		entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
+		entity.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
 				.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
 				.getIHtmlColorSet()));
 		return CommandExecutionResult.ok();

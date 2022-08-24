@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -68,6 +68,7 @@ public class CommandHelp extends SingleLineCommand2<Help> {
 		diagram.add("* help colors");
 		diagram.add("* help font");
 		diagram.add("* help skinparams");
+		diagram.add("* help themes");
 
 		return CommandExecutionResult.ok();
 	}

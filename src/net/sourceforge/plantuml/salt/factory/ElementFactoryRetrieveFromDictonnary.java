@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.salt.factory;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.salt.DataSource;
 import net.sourceforge.plantuml.salt.Dictionary;
 import net.sourceforge.plantuml.salt.Terminated;
@@ -57,12 +59,9 @@ public class ElementFactoryRetrieveFromDictonnary implements ElementFactory {
 
 		String name = next.getElement();
 		name = name.substring(2, name.length() - 2);
-		final Element retrieve = dictionary.get(name);
-		if (retrieve == null) {
-			throw new IllegalArgumentException("Cannot retrieve " + name);
-		}
+		final Element retrieve = Objects.requireNonNull(dictionary.get(name), name);
 
-		return new Terminated<Element>(retrieve, next.getTerminator());
+		return new Terminated<>(retrieve, next.getTerminator());
 	}
 
 	public boolean ready() {

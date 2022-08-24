@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,17 @@
  */
 package net.sourceforge.plantuml.xmi;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.OutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -57,10 +57,10 @@ import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
-import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.statediagram.StateDiagram;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 import net.sourceforge.plantuml.version.Version;
+import net.sourceforge.plantuml.xml.XmlFactories;
 
 public class XmiStateDiagram implements IXmiClassDiagram {
 
@@ -70,9 +70,8 @@ public class XmiStateDiagram implements IXmiClassDiagram {
 
 	public XmiStateDiagram(StateDiagram diagram) throws ParserConfigurationException {
 		this.diagram = diagram;
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-		final DocumentBuilder builder = factory.newDocumentBuilder();
+		final DocumentBuilder builder = XmlFactories.newDocumentBuilder();
 		this.document = builder.newDocument();
 		document.setXmlVersion("1.0");
 		document.setXmlStandalone(true);
@@ -214,28 +213,28 @@ public class XmiStateDiagram implements IXmiClassDiagram {
 		final Element feature = document.createElement("UML:Classifier.feature");
 		cla.appendChild(feature);
 
-		for (Member m : entity.getBodier().getFieldsToDisplay()) {
-			// <UML:Attribute xmi.id="UMLAttribute.6" name="Attribute1"
-			// visibility="public" isSpecification="false"
-			// ownerScope="instance" changeability="changeable"
-			// targetScope="instance" type="" owner="UMLClass.5"/>
-			final Element attribute = document.createElement("UML:Attribute");
-			attribute.setAttribute("xmi.id", "att" + UniqueSequence.getValue());
-			attribute.setAttribute("name", m.getDisplay(false));
-			feature.appendChild(attribute);
-		}
-
-		for (Member m : entity.getBodier().getMethodsToDisplay()) {
-			// <UML:Operation xmi.id="UMLOperation.7" name="Operation1"
-			// visibility="public" isSpecification="false"
-			// ownerScope="instance" isQuery="false" concurrency="sequential"
-			// isRoot="false" isLeaf="false"
-			// isAbstract="false" specification="" owner="UMLClass.5"/>
-			final Element operation = document.createElement("UML:Operation");
-			operation.setAttribute("xmi.id", "att" + UniqueSequence.getValue());
-			operation.setAttribute("name", m.getDisplay(false));
-			feature.appendChild(operation);
-		}
+//		for (Member m : entity.getBodier().getFieldsToDisplay()) {
+//			// <UML:Attribute xmi.id="UMLAttribute.6" name="Attribute1"
+//			// visibility="public" isSpecification="false"
+//			// ownerScope="instance" changeability="changeable"
+//			// targetScope="instance" type="" owner="UMLClass.5"/>
+//			final Element attribute = document.createElement("UML:Attribute");
+//			attribute.setAttribute("xmi.id", "att" + UniqueSequence.getValue());
+//			attribute.setAttribute("name", m.getDisplay(false));
+//			feature.appendChild(attribute);
+//		}
+//
+//		for (Member m : entity.getBodier().getMethodsToDisplay()) {
+//			// <UML:Operation xmi.id="UMLOperation.7" name="Operation1"
+//			// visibility="public" isSpecification="false"
+//			// ownerScope="instance" isQuery="false" concurrency="sequential"
+//			// isRoot="false" isLeaf="false"
+//			// isAbstract="false" specification="" owner="UMLClass.5"/>
+//			final Element operation = document.createElement("UML:Operation");
+//			operation.setAttribute("xmi.id", "att" + UniqueSequence.getValue());
+//			operation.setAttribute("name", m.getDisplay(false));
+//			feature.appendChild(operation);
+//		}
 		return cla;
 	}
 
@@ -244,11 +243,10 @@ public class XmiStateDiagram implements IXmiClassDiagram {
 
 		final Result resultat = new StreamResult(os);
 
-		final TransformerFactory fabrique = TransformerFactory.newInstance();
-		final Transformer transformer = fabrique.newTransformer();
+		final Transformer transformer = XmlFactories.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		// transformer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		transformer.setOutputProperty(OutputKeys.ENCODING, UTF_8.name());
 		// tf.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		transformer.transform(source, resultat);
 	}

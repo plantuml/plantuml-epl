@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -31,52 +31,56 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution:  Miguel Esteves
  */
 package net.sourceforge.plantuml.ugraphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ugraphic.comp.CompressionMode;
 
-public class URectangle extends AbstractShadowable implements Scalable, UShapeSized, UShapeIgnorableForCompression {
+public class URectangle extends AbstractShadowable implements UShapeSized, UShapeIgnorableForCompression {
 
 	private final double width;
 	private final double height;
 	private final double rx;
 	private final double ry;
 	private final String comment;
+	private final String codeLine;
 	private final boolean ignoreForCompressionOnX;
 	private final boolean ignoreForCompressionOnY;
 
 	public URectangle withHeight(double newHeight) {
 		final URectangle result = new URectangle(width, newHeight, rx, ry, comment, ignoreForCompressionOnX,
-				ignoreForCompressionOnY);
+				ignoreForCompressionOnY, codeLine);
 		result.setDeltaShadow(this.getDeltaShadow());
 		return result;
 	}
 
 	public URectangle withWidth(double newWidth) {
 		final URectangle result = new URectangle(newWidth, height, rx, ry, comment, ignoreForCompressionOnX,
-				ignoreForCompressionOnY);
+				ignoreForCompressionOnY, codeLine);
 		result.setDeltaShadow(this.getDeltaShadow());
 		return result;
 	}
 
-	public URectangle withComment(String comment) {
-		return new URectangle(width, height, rx, ry, comment, ignoreForCompressionOnX, ignoreForCompressionOnY);
+	public URectangle withCommentAndCodeLine(String comment, String codeLine) {
+		return new URectangle(width, height, rx, ry, comment, ignoreForCompressionOnX, ignoreForCompressionOnY,
+				codeLine);
 	}
 
 	public URectangle rounded(double round) {
-		return new URectangle(width, height, round, round, comment, ignoreForCompressionOnX, ignoreForCompressionOnY);
+		return new URectangle(width, height, round, round, comment, ignoreForCompressionOnX, ignoreForCompressionOnY,
+				codeLine);
 	}
 
 	public Shadowable diagonalCorner(double diagonalCorner) {
-		if (ignoreForCompressionOnX || ignoreForCompressionOnY) {
+		if (ignoreForCompressionOnX || ignoreForCompressionOnY)
 			throw new IllegalStateException();
-		}
-		if (diagonalCorner == 0) {
+
+		if (diagonalCorner == 0)
 			return this;
-		}
+
 		final UPath result = new UPath();
 		result.moveTo(diagonalCorner, 0);
 		result.lineTo(width - diagonalCorner, 0);
@@ -91,25 +95,15 @@ public class URectangle extends AbstractShadowable implements Scalable, UShapeSi
 	}
 
 	public final URectangle ignoreForCompressionOnX() {
-		return new URectangle(width, height, rx, ry, comment, true, ignoreForCompressionOnY);
+		return new URectangle(width, height, rx, ry, comment, true, ignoreForCompressionOnY, codeLine);
 	}
 
 	public final URectangle ignoreForCompressionOnY() {
-		return new URectangle(width, height, rx, ry, comment, ignoreForCompressionOnX, true);
-	}
-
-	public UShape getScaled(double scale) {
-		if (scale == 1) {
-			return this;
-		}
-		final AbstractShadowable result = new URectangle(width * scale, height * scale, rx * scale, ry * scale, comment,
-				ignoreForCompressionOnX, ignoreForCompressionOnY);
-		result.setDeltaShadow(this.getDeltaShadow());
-		return result;
+		return new URectangle(width, height, rx, ry, comment, ignoreForCompressionOnX, true, codeLine);
 	}
 
 	public URectangle(double width, double height) {
-		this(width, height, 0, 0, null, false, false);
+		this(width, height, 0, 0, null, false, false, null);
 	}
 
 	public URectangle(Dimension2D dim) {
@@ -117,16 +111,17 @@ public class URectangle extends AbstractShadowable implements Scalable, UShapeSi
 	}
 
 	private URectangle(double width, double height, double rx, double ry, String comment,
-			boolean ignoreForCompressionOnX, boolean ignoreForCompressionOnY) {
-		if (height == 0) {
+			boolean ignoreForCompressionOnX, boolean ignoreForCompressionOnY, String codeLine) {
+		if (height == 0)
 			throw new IllegalArgumentException("height=" + height);
-		}
-		if (width == 0) {
+
+		if (width == 0)
 			throw new IllegalArgumentException("width=" + width);
-		}
+
 		this.ignoreForCompressionOnX = ignoreForCompressionOnX;
 		this.ignoreForCompressionOnY = ignoreForCompressionOnY;
 		this.comment = comment;
+		this.codeLine = codeLine;
 		this.width = width;
 		this.height = height;
 		this.rx = rx;
@@ -166,6 +161,10 @@ public class URectangle extends AbstractShadowable implements Scalable, UShapeSi
 		return comment;
 	}
 
+	public String getCodeLine() {
+		return codeLine;
+	}
+
 	public void drawWhenCompressed(UGraphic ug, CompressionMode mode) {
 		if (mode == CompressionMode.ON_X) {
 			ug.draw(new UEmpty(2, getHeight()));
@@ -183,12 +182,12 @@ public class URectangle extends AbstractShadowable implements Scalable, UShapeSi
 	}
 
 	public boolean isIgnoreForCompressionOn(CompressionMode mode) {
-		if (mode == CompressionMode.ON_X) {
+		if (mode == CompressionMode.ON_X)
 			return ignoreForCompressionOnX;
-		}
-		if (mode == CompressionMode.ON_Y) {
+
+		if (mode == CompressionMode.ON_Y)
 			return ignoreForCompressionOnY;
-		}
+
 		throw new IllegalArgumentException();
 	}
 

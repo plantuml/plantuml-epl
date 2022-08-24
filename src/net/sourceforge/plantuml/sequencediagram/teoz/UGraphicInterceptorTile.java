@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
+import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.UGraphicDelegator;
 import net.sourceforge.plantuml.skin.Context2D;
 import net.sourceforge.plantuml.ugraphic.UChange;
@@ -41,7 +42,7 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UShape;
 
 public class UGraphicInterceptorTile extends UGraphicDelegator implements Context2D {
-	
+
 	private final boolean isBackground;
 
 	public UGraphicInterceptorTile(UGraphic ug, boolean isBackground) {
@@ -51,7 +52,7 @@ public class UGraphicInterceptorTile extends UGraphicDelegator implements Contex
 
 	public void draw(UShape shape) {
 		if (shape instanceof Tile) {
-			final Tile drawable = (Tile) shape;
+			final UDrawable drawable = (UDrawable) shape;
 			drawable.drawU(this);
 		} else {
 			getUg().draw(shape);

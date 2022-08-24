@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.wbs;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,10 +70,10 @@ class ITFComposed extends WBSTextBlock implements ITF {
 
 	public static ITF build2(ISkinParam skinParam, WElement idea) {
 		if (idea.isLeaf()) {
-			return new ITFLeaf(idea.getStyle(), skinParam, idea.getLabel(), idea.getShape());
+			return new ITFLeaf(idea.getStyle(), idea.withBackColor(skinParam), idea.getLabel(), idea.getShape());
 		}
-		final List<ITF> left = new ArrayList<ITF>();
-		final List<ITF> right = new ArrayList<ITF>();
+		final List<ITF> left = new ArrayList<>();
+		final List<ITF> right = new ArrayList<>();
 		for (WElement child : idea.getChildren(Direction.LEFT)) {
 			left.add(build2(skinParam, child));
 		}
@@ -119,8 +119,8 @@ class ITFComposed extends WBSTextBlock implements ITF {
 	public final Dimension2D calculateDimension(StringBounder stringBounder) {
 		final Dimension2D mainDim = main.calculateDimension(stringBounder);
 		final double mainWidth = mainDim.getWidth();
-		final double height = mainDim.getHeight()
-				+ Math.max(getCollHeight(stringBounder, left, marginBottom), getCollHeight(stringBounder, right, marginBottom));
+		final double height = mainDim.getHeight() + Math.max(getCollHeight(stringBounder, left, marginBottom),
+				getCollHeight(stringBounder, right, marginBottom));
 		final double width = Math.max(mainWidth / 2, delta1x + getCollWidth(stringBounder, left))
 				+ Math.max(mainWidth / 2, delta1x + getCollWidth(stringBounder, right));
 		return new Dimension2DDouble(width, height);
@@ -165,7 +165,8 @@ class ITFComposed extends WBSTextBlock implements ITF {
 		return result;
 	}
 
-	final private double getCollHeight(StringBounder stringBounder, Collection<? extends TextBlock> all, double deltay) {
+	final private double getCollHeight(StringBounder stringBounder, Collection<? extends TextBlock> all,
+			double deltay) {
 		double result = 0;
 		for (TextBlock child : all) {
 			result += deltay + child.calculateDimension(stringBounder).getHeight();

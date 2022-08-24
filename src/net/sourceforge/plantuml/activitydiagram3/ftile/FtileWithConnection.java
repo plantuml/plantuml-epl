@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,17 +39,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDecorate;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 
 class FtileWithConnection extends FtileDecorate {
 
-	private final List<Connection> connections = new ArrayList<Connection>();
+	private final List<Connection> connections = new ArrayList<>();
 
 	FtileWithConnection(Ftile ftile, Collection<Connection> connections) {
 		super(ftile);
-		if (connections == null || connections.size() == 0) {
+		if (Objects.requireNonNull(connections).size() == 0) {
 			throw new IllegalArgumentException();
 		}
 		this.connections.addAll(connections);
@@ -61,10 +62,7 @@ class FtileWithConnection extends FtileDecorate {
 	}
 
 	public FtileWithConnection(Ftile ftile, Connection connection) {
-		this(ftile, Arrays.asList(connection));
-		if (connection == null) {
-			throw new IllegalArgumentException();
-		}
+		this(ftile, Arrays.asList(Objects.requireNonNull(connection)));
 	}
 
 	public void drawU(UGraphic ug) {
@@ -75,7 +73,7 @@ class FtileWithConnection extends FtileDecorate {
 	}
 
 	public Collection<Connection> getInnerConnections() {
-		final List<Connection> result = new ArrayList<Connection>(super.getInnerConnections());
+		final List<Connection> result = new ArrayList<>(super.getInnerConnections());
 		result.addAll(connections);
 		return Collections.unmodifiableList(connections);
 	}

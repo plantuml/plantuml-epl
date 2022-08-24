@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,9 +38,32 @@ import java.awt.Color;
 
 public class ColorUtils {
 
-	static int getGrayScale(Color color) {
-		final int grayScale = (int) (color.getRed() * .3 + color.getGreen() * .59 + color.getBlue() * .11);
-		return grayScale;
+	public static int getGrayScale(Color color) {
+		return getGrayScale(color.getRed(), color.getGreen(), color.getBlue());
+	}
+
+	public static int getGrayScale(int red, int green, int blue) {
+		// YIQ equation from http://24ways.org/2010/calculating-color-contrast
+		return getGrayScaleInternal(red, green, blue) / 1000;
+	}
+
+	public static int distance(Color c1, Color c2) {
+		final int diffRed = Math.abs(c1.getRed() - c2.getRed());
+		final int diffGreen = Math.abs(c1.getGreen() - c2.getGreen());
+		final int diffBlue = Math.abs(c1.getBlue() - c2.getBlue());
+		return getGrayScaleInternal(diffRed, diffGreen, diffBlue);
+	}
+
+	private static int getGrayScaleInternal(int red, int green, int blue) {
+		// YIQ equation from http://24ways.org/2010/calculating-color-contrast
+		return red * 299 + green * 587 + blue * 114;
+	}
+
+	public static int getGrayScale(int rgb) {
+		final int red = (rgb & 0x00FF0000) >> 16;
+		final int green = (rgb & 0x0000FF00) >> 8;
+		final int blue = (rgb & 0x000000FF);
+		return getGrayScale(red, green, blue);
 	}
 
 	public static Color getGrayScaleColor(Color color) {
@@ -63,7 +86,50 @@ public class ColorUtils {
 	 * https://www.boronine.com/2012/03/26/Color-Spaces-for-Human-Beings/
 	 * 
 	 */
-	public static synchronized Color getReversed(Color color) {
+	public static Color reverseHsluv(Color color) {
+		final int red = color.getRed();
+		final int green = color.getGreen();
+		final int blue = color.getBlue();
+
+		final double hsluv[] = HUSLColorConverter.rgbToHsluv(new double[] { red / 256.0, green / 256.0, blue / 256.0 });
+
+		final double h = hsluv[0];
+		final double s = hsluv[1];
+		double l = (hsluv[2] + 50) % 100;
+		l += 0.25 * (50 - l);
+
+		final double rgb[] = HUSLColorConverter.hsluvToRgb(new double[] { h, s, l });
+
+		final int red2 = to255(rgb[0]);
+		final int green2 = to255(rgb[1]);
+		final int blue2 = to255(rgb[2]);
+
+		return new Color(red2, green2, blue2);
+	}
+
+	public static Color grayToColor(double coef, Color color) {
+		final int red = color.getRed();
+		final int green = color.getGreen();
+		final int blue = color.getBlue();
+
+		final double hsluv[] = HUSLColorConverter.rgbToHsluv(new double[] { red / 256.0, green / 256.0, blue / 256.0 });
+
+		final double h = hsluv[0];
+		final double s = hsluv[1];
+		double l = hsluv[2];
+
+		l = l + (100 - l) * coef;
+
+		final double rgb[] = HUSLColorConverter.hsluvToRgb(new double[] { h, s, l });
+
+		final int red2 = to255(rgb[0]);
+		final int green2 = to255(rgb[1]);
+		final int blue2 = to255(rgb[2]);
+
+		return new Color(red2, green2, blue2);
+	}
+
+	public static Color getReversed(Color color) {
 		final int red = color.getRed();
 		final int green = color.getGreen();
 		final int blue = color.getBlue();
@@ -95,12 +161,12 @@ public class ColorUtils {
 
 	private static int to255(final double value) {
 		final int result = (int) (255 * value);
-		if (result < 0) {
+		if (result < 0)
 			return 0;
-		}
-		if (result > 255) {
+
+		if (result > 255)
 			return 255;
-		}
+
 		return result;
 	}
 

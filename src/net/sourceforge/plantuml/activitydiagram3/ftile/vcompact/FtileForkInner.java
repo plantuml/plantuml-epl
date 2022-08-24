@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,8 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -46,13 +46,14 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class FtileForkInner extends AbstractFtile {
 
-	private final List<Ftile> forks = new ArrayList<Ftile>();
+	private final List<Ftile> forks = new ArrayList<>();
 
 	public FtileForkInner(List<Ftile> forks) {
 		super(forks.get(0).skinParam());
@@ -60,6 +61,12 @@ class FtileForkInner extends AbstractFtile {
 			this.forks.add(ftile);
 		}
 	}
+	
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return Collections.unmodifiableCollection(forks);
+	}
+
 
 	public Swimlane getSwimlaneIn() {
 		return forks.get(0).getSwimlaneIn();
@@ -74,7 +81,7 @@ class FtileForkInner extends AbstractFtile {
 	}
 
 	public static Set<Swimlane> mergeSwimlanes(List<Ftile> tiles) {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		for (Ftile tile : tiles) {
 			result.addAll(tile.getSwimlanes());
 		}

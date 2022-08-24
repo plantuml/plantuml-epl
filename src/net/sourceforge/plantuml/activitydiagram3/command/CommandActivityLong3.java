@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandActivityLong3 extends CommandMultilines2<ActivityDiagram3> {
 
@@ -72,14 +73,14 @@ public class CommandActivityLong3 extends CommandMultilines2<ActivityDiagram3> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(ActivityDiagram3 diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(ActivityDiagram3 diagram, BlocLines lines) throws NoSuchColorException {
 		lines = lines.removeEmptyColumns();
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
-		final Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
-		// final HtmlColor color = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR", 0));
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
+
 		final BoxStyle style = BoxStyle.fromChar(lines.getLastChar());
 		lines = lines.removeStartingAndEnding(line0.get("DATA", 0), 1);
-		diagram.addActivity(lines.toDisplay(), style, null, colors);
-		return CommandExecutionResult.ok();
+		return diagram.addActivity(lines.toDisplay(), style, null, colors, null);
 	}
 }

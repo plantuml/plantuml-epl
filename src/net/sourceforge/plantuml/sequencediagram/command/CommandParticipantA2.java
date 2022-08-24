@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ public class CommandParticipantA2 extends CommandParticipant {
 		return RegexConcat.build(CommandParticipantA2.class.getName(), RegexLeaf.start(), //
 				getRegexType(), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("CODE", "([%pLN_.@]+)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("as"), //
 				RegexLeaf.spaceOneOrMore(), //

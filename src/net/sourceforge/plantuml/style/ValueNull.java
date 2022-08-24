@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,10 +36,11 @@ package net.sourceforge.plantuml.style;
 
 import java.awt.Font;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ValueNull extends ValueAbstract implements Value {
 
@@ -74,8 +75,8 @@ public class ValueNull extends ValueAbstract implements Value {
 	}
 
 	@Override
-	public HColor asColor(HColorSet set) {
-		return HColorUtils.BLACK;
+	public HColor asColor(ThemeStyle themeStyle, HColorSet set) {
+		return HColors.BLACK;
 	}
 
 	@Override

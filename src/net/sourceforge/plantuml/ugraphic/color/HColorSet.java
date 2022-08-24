@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,10 +39,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 
@@ -51,7 +53,7 @@ public class HColorSet {
 	private final static HColorSet singleton = new HColorSet();
 
 	private final Map<String, String> htmlNames = new HashMap<String, String>();
-	private final Set<String> names = new TreeSet<String>();
+	private final Set<String> names = new TreeSet<>();
 
 	public static HColorSet instance() {
 		return singleton;
@@ -226,42 +228,145 @@ public class HColorSet {
 		names.add(s);
 	}
 
-	public HColor getColorIfValid(String s) {
-		return getColorIfValid(s, null);
+	class Gradient {
+		private final String s1;
+		private final char sep;
+		private final String s2;
+
+		Gradient(String s1, char sep, String s2) {
+			this.s1 = s1;
+			this.sep = sep;
+			this.s2 = s2;
+		}
+
+		boolean isValid() {
+			return isColorValid(s1) && isColorValid(s2);
+		}
+
+		HColorGradient buildInternal() {
+			return HColors.gradient(build(s1), build(s2), sep);
+		}
+
 	}
 
-	public HColor getColorIfValid(String s, HColor background) {
-		if (s == null) {
-			return null;
+	class Automatic {
+		private final String[] colors;
+
+		public Automatic(String[] colors) {
+			this.colors = colors;
 		}
-		final boolean acceptTransparent = background != null;
-		if (acceptTransparent && background == null) {
-			throw new IllegalArgumentException();
+
+		boolean isValid() {
+			for (String color : colors)
+				if (isColorValid(color) == false)
+					return false;
+
+			return true;
 		}
+
+		HColorScheme buildInternal() {
+			if (colors.length == 2)
+				return new HColorScheme(build(colors[0]), build(colors[1]), null);
+
+			return new HColorScheme(build(colors[0]), build(colors[1]), build(colors[2]));
+		}
+
+	}
+
+	private Gradient gradientFromString(String s) {
 		final Matcher2 m = MyPattern.cmpile("[-\\\\|/]").matcher(s);
 		if (m.find()) {
 			final char sep = m.group(0).charAt(0);
 			final int idx = s.indexOf(sep);
 			final String s1 = s.substring(0, idx);
 			final String s2 = s.substring(idx + 1);
-			if (isValid(s1, false) == false || isValid(s2, false) == false) {
-				return null;
-			}
-			return new HColorGradient(build(s1, background), build(s2, background), sep);
+			return new Gradient(s1, sep, s2);
 		}
-		if (isValid(s, acceptTransparent) == false) {
-			return new HColorUserDef();
-		}
-		return build(s, background);
+		return null;
 	}
 
-	private HColor build(String s, HColor background) {
+	private Automatic automaticFromString(String s) {
+		if (s.startsWith("#"))
+			s = s.substring(1);
+
+		if (s.startsWith("?") == false)
+			return null;
+
+		final int idx = s.indexOf(':');
+		if (idx != -1)
+			return new Automatic(s.substring(1).split(":"));
+
+		return null;
+	}
+
+	public HColor getColorOrWhite(String s) {
+		return getColorOrWhite(null, s);
+	}
+
+	public HColor getColorOrWhite(ThemeStyle UNUSED, String s) {
+		if (isColorValid(Objects.requireNonNull(s)) == false)
+			return HColors.WHITE;
+
+		try {
+			return getColor(null, s);
+		} catch (NoSuchColorException e) {
+			assert false;
+			return HColors.WHITE;
+		}
+	}
+
+	public HColor getColorLEGACY(String s) throws NoSuchColorException {
+		return getColor(null, s);
+	}
+
+	public HColor getColor(ThemeStyle UNUSED, String s) throws NoSuchColorException {
+		if (isColorValid(Objects.requireNonNull(s)) == false)
+			throw new NoSuchColorException();
+
+		final Automatic automatic = automaticFromString(s);
+		if (automatic != null)
+			return automatic.buildInternal();
+
+		final Gradient gradient = gradientFromString(s);
+		if (gradient != null)
+			return gradient.buildInternal();
+
+		if (s.equalsIgnoreCase("#transparent") || s.equalsIgnoreCase("transparent"))
+			s = "#00000000";
+
+		return build(s);
+	}
+
+	private boolean isColorValid(String s) {
+		s = removeFirstDieseAndgoLowerCase(s);
+		final Automatic automatic = automaticFromString(s);
+		if (automatic != null)
+			return automatic.isValid();
+
+		final Gradient gradient = gradientFromString(s);
+		if (gradient != null)
+			return gradient.isValid();
+
+		if (s.matches("[0-9A-Fa-f]|[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8}|automatic|transparent"))
+			return true;
+
+		if (htmlNames.containsKey(s))
+			return true;
+
+		return false;
+
+	}
+
+	private HColor build(String s) {
 		s = removeFirstDieseAndgoLowerCase(s);
 		final Color color;
 		if (s.equalsIgnoreCase("transparent") || s.equalsIgnoreCase("background")) {
-			return new HColorBackground(background);
+			return HColors.generalBackground();
 		} else if (s.equalsIgnoreCase("automatic")) {
-			return new HColorAutomatic();
+			return new HColorAutomagic();
+		} else if (s.matches("[0-9A-Fa-f]")) {
+			s = "" + s.charAt(0) + s.charAt(0) + s.charAt(0) + s.charAt(0) + s.charAt(0) + s.charAt(0);
+			color = new Color(Integer.parseInt(s, 16));
 		} else if (s.matches("[0-9A-Fa-f]{3}")) {
 			s = "" + s.charAt(0) + s.charAt(0) + s.charAt(1) + s.charAt(1) + s.charAt(2) + s.charAt(2);
 			color = new Color(Integer.parseInt(s, 16));
@@ -270,20 +375,17 @@ public class HColorSet {
 		} else if (s.matches("[0-9A-Fa-f]{8}")) {
 			color = fromRGBa(s);
 		} else {
-			final String value = htmlNames.get(s);
-			if (value == null) {
-				throw new IllegalArgumentException(s);
-			}
+			final String value = Objects.requireNonNull(htmlNames.get(s));
 			color = new Color(Integer.parseInt(value.substring(1), 16));
 		}
-		return new HColorSimple(color, false);
+		return HColors.simple(color);
 	}
 
 	private Color fromRGBa(String s) {
 		// https://forum.plantuml.net/11606/full-opacity-alpha-compositing-support-for-svg-and-png
-		if (s.length() != 8) {
+		if (s.length() != 8)
 			throw new IllegalArgumentException();
-		}
+
 		final int red = Integer.parseInt(s.substring(0, 2), 16);
 		final int green = Integer.parseInt(s.substring(2, 4), 16);
 		final int blue = Integer.parseInt(s.substring(4, 6), 16);
@@ -291,35 +393,11 @@ public class HColorSet {
 		return new Color(red, green, blue, alpha);
 	}
 
-	private boolean isValid(String s, boolean acceptTransparent) {
-		s = removeFirstDieseAndgoLowerCase(s);
-		if (s.matches("[0-9A-Fa-f]{3}")) {
-			return true;
-		}
-		if (s.matches("[0-9A-Fa-f]{6}")) {
-			return true;
-		}
-		if (s.matches("[0-9A-Fa-f]{8}")) {
-			return true;
-		}
-		if (s.equalsIgnoreCase("automatic")) {
-			return true;
-		}
-		if (acceptTransparent && s.equalsIgnoreCase("transparent")) {
-			return true;
-		}
-		if (htmlNames.containsKey(s)) {
-			return true;
-		}
-		return false;
-
-	}
-
 	private String removeFirstDieseAndgoLowerCase(String s) {
 		s = StringUtils.goLowerCase(s);
-		if (s.startsWith("#")) {
+		if (s.startsWith("#"))
 			s = s.substring(1);
-		}
+
 		return s;
 	}
 

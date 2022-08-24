@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.project.time;
 
+import java.util.Locale;
+
 public class MonthYear implements Comparable<MonthYear> {
 
 	private final int year;
@@ -43,20 +45,20 @@ public class MonthYear implements Comparable<MonthYear> {
 		return new MonthYear(year, month);
 	}
 
-	public String shortName() {
-		return month.shortName();
+	public String shortName(Locale locale) {
+		return month.shortName(locale);
 	}
 
-	public String shortNameYYYY() {
-		return month.shortName() + " " + year;
+	public String shortNameYYYY(Locale locale) {
+		return month.shortName(locale) + " " + year;
 	}
 
-	public String longName() {
-		return month.longName();
+	public String longName(Locale locale) {
+		return month.longName(locale);
 	}
 
-	public String longNameYYYY() {
-		return month.longName() + " " + year;
+	public String longNameYYYY(Locale locale) {
+		return month.longName(locale) + " " + year;
 	}
 
 	private MonthYear(int year, Month month) {

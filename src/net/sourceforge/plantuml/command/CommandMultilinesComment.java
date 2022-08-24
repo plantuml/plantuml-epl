@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,9 +38,9 @@ import net.sourceforge.plantuml.core.Diagram;
 
 public class CommandMultilinesComment extends CommandMultilines<Diagram> {
 
-	public static final String COMMENT_MULTILINE_START = "(?i)^[%s]*/[%q]([^%q]|[%q][^/])*$";
-	public static final String COMMENT_MULTILINE_END = "(?i)^([^%q]|[%q][^/])*[%q]/[%s]*$";
-	public static final String COMMENT_SINGLE_LINE = "(?i)^[%s]*([%q].*||/[%q].*[%q]/[%s]*)$";
+	public static final String COMMENT_MULTILINE_START = "^[%s]*/[%q]([^%q]|[%q][^/])*$";
+	public static final String COMMENT_MULTILINE_END = "^([^%q]|[%q][^/])*[%q]/[%s]*$";
+	public static final String COMMENT_SINGLE_LINE = "^[%s]*([%q].*||/[%q].*[%q]/[%s]*)$";
 	public static final String INNER_COMMENT = "/[%q].*?[%q]/";
 
 	private CommandMultilinesComment() {

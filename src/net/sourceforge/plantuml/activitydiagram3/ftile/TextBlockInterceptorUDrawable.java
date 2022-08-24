@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.HashMap;
 
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -52,12 +52,15 @@ public class TextBlockInterceptorUDrawable extends AbstractTextBlock implements 
 	}
 
 	public void drawU(UGraphic ug) {
-		textBlock.drawU(new UGraphicInterceptorUDrawable2(ug, new HashMap<String, UTranslate>()));
+		new UGraphicInterceptorUDrawable2(ug, emptyHashMap()).draw(textBlock);
 		ug.flushUg();
 	}
 
+	private HashMap<String, UTranslate> emptyHashMap() {
+		return new HashMap<>();
+	}
+
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		// return TextBlockUtils.getMinMax(this, stringBounder).getDimension();
 		throw new UnsupportedOperationException();
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sourceforge.plantuml.OptionFlags;
+import net.sourceforge.plantuml.windowsdot.WindowsDotArchive;
 
 public enum License {
 
@@ -77,7 +78,7 @@ public enum License {
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the MIT License.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the MIT), then the generated images are logically covered");
@@ -109,7 +110,7 @@ public enum License {
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the Eclipse Public License.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the EPL), then the generated images are logically covered");
@@ -149,7 +150,7 @@ public enum License {
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the Eclipse Public License.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the BSD), then the generated images are logically covered");
@@ -177,7 +178,7 @@ public enum License {
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the Apache license.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the Apache), then the generated images are logically covered");
@@ -195,17 +196,15 @@ public enum License {
 		text.add("or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public");
 		text.add("License for more details.");
 		text.add(" ");
-		text.add("You should have received a copy of the GNU General Public");
-		text.add("License along with this library; if not, write to the Free Software");
-		text.add("Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-		text.add("USA.");
+		text.add("You should have received a copy of the GNU General Public License");
+		text.add("along with this library.  If not, see <https://www.gnu.org/licenses/>.");
 		text.add(" ");
 		addSupplementary(licenseInfo, text);
 		text.add("the GPL license.");
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the GPL license.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the GPL), then the generated images are logically covered");
@@ -223,17 +222,15 @@ public enum License {
 		text.add("or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public");
 		text.add("License for more details.");
 		text.add(" ");
-		text.add("You should have received a copy of the GNU General Public");
-		text.add("License along with this library; if not, write to the Free Software");
-		text.add("Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-		text.add("USA.");
+		text.add("You should have received a copy of the GNU General Public License");
+		text.add("along with this library.  If not, see <https://www.gnu.org/licenses/>.");
 		text.add(" ");
 		addSupplementary(licenseInfo, text);
 		text.add("the GPL license.");
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the GPL license.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("also this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the GPL), then the generated images are logically covered");
@@ -251,17 +248,15 @@ public enum License {
 		text.add("or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public");
 		text.add("License for more details.");
 		text.add(" ");
-		text.add("You should have received a copy of the GNU Lesser General Public");
-		text.add("License along with this library; if not, write to the Free Software");
-		text.add("Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-		text.add("USA.");
+		text.add("You should have received a copy of the GNU Lesser General Public License");
+		text.add("along with this library.  If not, see <https://www.gnu.org/licenses/>.");
 		text.add(" ");
 		addSupplementary(licenseInfo, text);
 		text.add("the LGPL license.");
 		text.add(" ");
 		text.add("The generated images can then be used without any reference to the LGPL license.");
 		text.add("It is not even necessary to stipulate that they have been generated with PlantUML,");
-		text.add("although this will be appreciate by PlantUML team.");
+		text.add("although this will be appreciated by the PlantUML team.");
 		text.add(" ");
 		text.add("There is an exception : if the textual description in PlantUML language is also covered");
 		text.add("by a license (like the LGPL), then the generated images are logically covered");
@@ -301,7 +296,7 @@ public enum License {
 
 	private void header2(final List<String> text, LicenseInfo licenseInfo, boolean withQrcode) {
 		text.add(" ");
-		text.add("(C) Copyright 2009-2020, Arnaud Roques");
+		text.add("(C) Copyright 2009-2023, Arnaud Roques");
 		text.add(" ");
 		text.add("Project Info:  https://plantuml.com");
 		text.add(" ");
@@ -341,12 +336,12 @@ public enum License {
 	}
 
 	public List<String> getJavaHeader(List<String> contributors) {
-		final List<String> h = new ArrayList<String>();
+		final List<String> h = new ArrayList<>();
 		h.add("/* ========================================================================");
 		h.add(" * PlantUML : a free UML diagram generator");
 		h.add(" * ========================================================================");
 		h.add(" *");
-		h.add(" * (C) Copyright 2009-2020, Arnaud Roques");
+		h.add(" * (C) Copyright 2009-2023, Arnaud Roques");
 		h.add(" *");
 		h.add(" * Project Info:  https://plantuml.com");
 		h.add(" * ");
@@ -368,10 +363,8 @@ public enum License {
 			h.add(" * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public");
 			h.add(" * License for more details.");
 			h.add(" *");
-			h.add(" * You should have received a copy of the GNU Lesser General Public");
-			h.add(" * License along with this library; if not, write to the Free Software");
-			h.add(" * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-			h.add(" * USA.");
+			h.add(" * You should have received a copy of the GNU General Public License");
+			h.add(" * along with this library.  If not, see <https://www.gnu.org/licenses/>.");
 			h.add(" *");
 		} else if (this == License.GPLV2) {
 			h.add(" * PlantUML is free software; you can redistribute it and/or modify it");
@@ -384,10 +377,8 @@ public enum License {
 			h.add(" * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public");
 			h.add(" * License for more details.");
 			h.add(" *");
-			h.add(" * You should have received a copy of the GNU General Public");
-			h.add(" * License along with this library; if not, write to the Free Software");
-			h.add(" * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-			h.add(" * USA.");
+			h.add(" * You should have received a copy of the GNU General Public License");
+			h.add(" * along with this library.  If not, see <https://www.gnu.org/licenses/>.");
 			h.add(" *");
 		} else if (this == License.APACHE) {
 			h.add(" * Licensed under the Apache License, Version 2.0 (the \"License\");");
@@ -477,7 +468,7 @@ public enum License {
 
 	public List<String> getTextFull() {
 		final LicenseInfo licenseInfo = LicenseInfo.retrieveQuick();
-		final List<String> text = new ArrayList<String>();
+		final List<String> text = new ArrayList<>();
 		header1(text, licenseInfo);
 		header2(text, licenseInfo, false);
 		end3(text, licenseInfo);
@@ -485,41 +476,50 @@ public enum License {
 	}
 
 	public List<String> getText1(LicenseInfo licenseInfo) {
-		final List<String> text = new ArrayList<String>();
+		final List<String> text = new ArrayList<>();
 		header1(text, licenseInfo);
 		return text;
 	}
 
 	public List<String> getText2(LicenseInfo licenseInfo) {
-		final List<String> text = new ArrayList<String>();
+		final List<String> text = new ArrayList<>();
 		header2(text, licenseInfo, true);
 		end3(text, licenseInfo);
 		return text;
 	}
 
 	private void end3(final List<String> text, final LicenseInfo licenseInfo) {
-		if (this == License.GPL) {
+		if (this == License.GPL)
 			addGpl(licenseInfo, text);
-		} else if (this == License.GPLV2) {
+		else if (this == License.GPLV2)
 			addGplV2(licenseInfo, text);
-		} else if (this == License.MIT) {
+		else if (this == License.MIT)
 			addMit(licenseInfo, text);
-		} else if (this == License.EPL) {
+		else if (this == License.EPL)
 			addEpl(licenseInfo, text);
-		} else if (this == License.BSD) {
+		else if (this == License.BSD)
 			addBsd(licenseInfo, text);
-		} else if (this == License.APACHE) {
+		else if (this == License.APACHE)
 			addApache(licenseInfo, text);
-		} else if (this == License.LGPL) {
+		else if (this == License.LGPL)
 			addLgpl(licenseInfo, text);
-		} else {
+		else
 			throw new IllegalStateException();
-		}
+
 		if (OptionFlags.getInstance().isEnableStats()) {
 			text.add(" ");
 			text.add("This version of PlantUML records general local statistics about usage.");
 			text.add("(more info on https://plantuml.com/statistics-report)");
 		}
+		text.add(" ");
+		if (WindowsDotArchive.getInstance().isThereArchive()) {
+			text.add("This distribution bundles a minimal set of GraphViz files and may install them");
+			text.add(" if needed in the local temporary directory.");
+		} else {
+			text.add("This is the IGY distribution (Install GraphViz by Yourself).");
+			text.add("You have to install GraphViz and to setup the GRAPHVIZ_DOT environment variable");
+		}
+		text.add("(see https://plantuml.com/graphviz-dot )");
 		text.add(" ");
 		text.add("Icons provided by OpenIconic :  https://useiconic.com/open");
 		text.add("Archimate sprites provided by Archi :  http://www.archimatetool.com");
@@ -529,6 +529,8 @@ public enum License {
 		text.add("ASCIIMathML (c) David Lippman http://www.pierce.ctc.edu/dlippman");
 		text.add("CafeUndZopfli ported by Eugene Klyuchnikov https://github.com/eustas/CafeUndZopfli");
 		text.add("Brotli (c) by the Brotli Authors https://github.com/google/brotli");
+		text.add("Themes (c) by Brett Schwarz https://github.com/bschwarz/puml-themes");
+		text.add("Twemoji (c) by Twitter at https://twemoji.twitter.com/");
 		text.add(" ");
 	}
 }

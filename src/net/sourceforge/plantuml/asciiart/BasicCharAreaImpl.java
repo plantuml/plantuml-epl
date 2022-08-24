@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,6 +38,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import net.sourceforge.plantuml.StringUtils;
 
 public class BasicCharAreaImpl implements BasicCharArea {
 
@@ -140,7 +142,7 @@ public class BasicCharAreaImpl implements BasicCharArea {
 		for (int x = 0; x < width; x++) {
 			final char c = chars[x][line];
 			if (c != '\0') {
-				sb.append(c);
+				StringUtils.appendInternalToRealBoldNumber(sb, c);
 			}
 		}
 		return sb.toString();
@@ -153,7 +155,7 @@ public class BasicCharAreaImpl implements BasicCharArea {
 	}
 
 	public List<String> getLines() {
-		final List<String> result = new ArrayList<String>(height);
+		final List<String> result = new ArrayList<>(height);
 		for (int y = 0; y < height; y++) {
 			result.add(getLine(y));
 		}

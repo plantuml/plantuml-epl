@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,30 +35,31 @@
 package net.sourceforge.plantuml.ugraphic;
 
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.util.HashSet;
 import java.util.Set;
 
 import net.sourceforge.plantuml.StringUtils;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class UFont {
 
 	private final Font font;
 	private final String family;
 
-	private static final Set<String> names = new HashSet<String>();
+	private static final Set<String> names = new HashSet<>();
 
 	static {
 		for (String name : GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()) {
 			names.add(name.toLowerCase());
 		}
+	}
+
+	public String toStringDebug() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(getPortableFontName());
+		sb.append("/");
+		sb.append(font.getSize());
+		return sb.toString();
 	}
 
 	public UFont(String fontFamily, int fontStyle, int fontSize) {
@@ -110,22 +111,8 @@ public class UFont {
 		this.family = family;
 	}
 
-	public final Font getFont() {
+	public final Font getUnderlayingFont() {
 		return font;
-	}
-
-	@Deprecated
-	public FontConfiguration toFont2(HColor color, boolean useUnderlineForHyperlink, HColor hyperlinkColor,
-			int tabSize) {
-		return new FontConfiguration(this, color, hyperlinkColor, useUnderlineForHyperlink, tabSize);
-	}
-
-	public UFont scaled(double scale) {
-		if (scale == 1) {
-			return this;
-		}
-		final float current = font.getSize2D();
-		return withSize((float) (current * scale));
 	}
 
 	public UFont withSize(float size) {
@@ -180,6 +167,20 @@ public class UFont {
 		return family;
 	}
 
+	// Kludge for testing because font names on some machines (only macOS?) do not end with <DOT><STYLE>
+	// See https://github.com/plantuml/plantuml/issues/720
+	private String getPortableFontName() {
+		final String name = font.getFontName();
+		if (font.isBold() && font.isItalic())
+			return name.endsWith(".bolditalic") ? name : name + ".bolditalic";
+		else if (font.isBold())
+			return name.endsWith(".bold") ? name : name + ".bold";
+		else if (font.isItalic())
+			return name.endsWith(".italic") ? name : name + ".italic";
+		else
+			return name.endsWith(".plain") ? name : name + ".plain";
+	}
+
 	@Override
 	public String toString() {
 		return font.toString()/* + " " + font.getPSName() */;
@@ -196,15 +197,6 @@ public class UFont {
 			return false;
 		}
 		return this.font.equals(((UFont) obj).font);
-	}
-
-	public LineMetrics getLineMetrics(Graphics2D gg, String text) {
-		final FontRenderContext frc = gg.getFontRenderContext();
-		return font.getLineMetrics(text, frc);
-	}
-
-	public FontMetrics getFontMetrics() {
-		return TextBlockUtils.getFontMetrics(getFont());
 	}
 
 }

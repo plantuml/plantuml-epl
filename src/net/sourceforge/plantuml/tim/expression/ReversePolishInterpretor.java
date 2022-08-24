@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -61,7 +61,7 @@ public class ReversePolishInterpretor {
 	public ReversePolishInterpretor(LineLocation location, TokenStack queue, Knowledge knowledge, TMemory memory,
 			TContext context) throws EaterException, EaterExceptionLocated {
 
-		final Deque<TValue> stack = new ArrayDeque<TValue>();
+		final Deque<TValue> stack = new ArrayDeque<>();
 		if (trace)
 			System.err.println("ReversePolishInterpretor::queue=" + queue);
 		for (TokenIterator it = queue.tokenIterator(); it.hasMoreTokens();) {
@@ -95,13 +95,13 @@ public class ReversePolishInterpretor {
 				if (trace)
 					System.err.println("function=" + function);
 				if (function == null) {
-					throw EaterException.unlocated("Unknow built-in function " + token2.getSurface());
+					throw EaterException.unlocated("Unknown built-in function " + token2.getSurface());
 				}
 				if (function.canCover(nb, Collections.<String>emptySet()) == false) {
 					throw EaterException
 							.unlocated("Bad number of arguments for " + function.getSignature().getFunctionName());
 				}
-				final List<TValue> args = new ArrayList<TValue>();
+				final List<TValue> args = new ArrayList<>();
 				for (int i = 0; i < nb; i++) {
 					args.add(0, stack.removeFirst());
 				}

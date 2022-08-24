@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,6 +50,7 @@ import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandBoxStart extends SingleLineCommand2<SequenceDiagram> {
 
@@ -78,10 +79,11 @@ public class CommandBoxStart extends SingleLineCommand2<SequenceDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
-		if (diagram.isBoxPending()) {
-			return CommandExecutionResult.error("Box cannot be nested");
-		}
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
+//		if (diagram.isBoxPending())
+//			return CommandExecutionResult.error("Box cannot be nested");
+
 		final String argTitle = arg.getLazzy("NAME", 0);
 		final String argColor = arg.get("COLOR", 0);
 
@@ -89,11 +91,11 @@ public class CommandBoxStart extends SingleLineCommand2<SequenceDiagram> {
 		Stereotype stereotype = null;
 		if (stereo != null) {
 			final ISkinParam skinParam = diagram.getSkinParam();
-			stereotype = new Stereotype(stereo);
+			stereotype = Stereotype.build(stereo);
 		}
 
-		// final HtmlColor color = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(argColor);
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		final String title = argTitle == null ? "" : argTitle;
 		diagram.boxStart(Display.getWithNewlines(title), colors.getColor(ColorType.BACK), stereotype);
 		return CommandExecutionResult.ok();

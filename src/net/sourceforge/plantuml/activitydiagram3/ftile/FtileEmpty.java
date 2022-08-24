@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,8 +47,7 @@ public class FtileEmpty extends AbstractFtile {
 
 	private final double width;
 	private final double height;
-	private final Swimlane swimlaneIn;
-	private final Swimlane swimlaneOut;
+	private final Swimlane swimlane;
 
 	@Override
 	public Collection<Ftile> getMyChildren() {
@@ -56,24 +55,23 @@ public class FtileEmpty extends AbstractFtile {
 	}
 
 	public FtileEmpty(ISkinParam skinParam, double width, double height) {
-		this(skinParam, width, height, null, null);
+		this(skinParam, width, height, null);
 	}
 
-	public FtileEmpty(ISkinParam skinParam, double width, double height, Swimlane swimlaneIn, Swimlane swimlaneOut) {
+	public FtileEmpty(ISkinParam skinParam, double width, double height, Swimlane swimlane) {
 		super(skinParam);
 		this.width = width;
 		this.height = height;
-		this.swimlaneIn = swimlaneIn;
-		this.swimlaneOut = swimlaneOut;
+		this.swimlane = swimlane;
 
 	}
 
 	public FtileEmpty(ISkinParam skinParam) {
-		this(skinParam, 0, 0, null, null);
+		this(skinParam, 0, 0, null);
 	}
 
 	public FtileEmpty(ISkinParam skinParam, Swimlane swimlane) {
-		this(skinParam, 0, 0, swimlane, swimlane);
+		this(skinParam, 0, 0, swimlane);
 	}
 
 	@Override
@@ -94,20 +92,17 @@ public class FtileEmpty extends AbstractFtile {
 	}
 
 	public Swimlane getSwimlaneIn() {
-		return swimlaneIn;
+		return swimlane;
 	}
 
 	public Swimlane getSwimlaneOut() {
-		return swimlaneOut;
+		return swimlane;
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
-		if (swimlaneIn != null) {
-			result.add(swimlaneIn);
-		}
-		if (swimlaneOut != null) {
-			result.add(swimlaneOut);
+		final Set<Swimlane> result = new HashSet<>();
+		if (swimlane != null) {
+			result.add(swimlane);
 		}
 		return Collections.unmodifiableSet(result);
 	}

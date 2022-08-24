@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -60,7 +60,7 @@ public class UGraphicForSnake extends UGraphicDelegator {
 	}
 
 	static class PendingSnake {
-		private final Snake snake;
+		private Snake snake;
 		private final UGraphic ug;
 		private final double dx;
 		private final double dy;
@@ -79,7 +79,7 @@ public class UGraphicForSnake extends UGraphicDelegator {
 		void removeEndDecorationIfTouches(List<PendingSnake> snakes) {
 			for (PendingSnake other : snakes) {
 				if (moved().touches(other.moved())) {
-					this.snake.removeEndDecoration();
+					this.snake = this.snake.withoutEndDecoration();
 					return;
 				}
 			}

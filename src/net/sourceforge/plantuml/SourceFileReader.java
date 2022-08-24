@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,14 +37,14 @@ package net.sourceforge.plantuml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
 import net.sourceforge.plantuml.preproc.Defines;
-import net.sourceforge.plantuml.preproc.FileWithSuffix;
 import net.sourceforge.plantuml.security.SFile;
 
+@HaxeIgnored
 public class SourceFileReader extends SourceFileReaderAbstract implements ISourceFileReader {
 
 	public SourceFileReader(File file) throws IOException {
@@ -69,11 +69,7 @@ public class SourceFileReader extends SourceFileReaderAbstract implements ISourc
 
 	public SourceFileReader(Defines defines, final File file, File outputDirectory, List<String> config, String charset,
 			FileFormatOption fileFormatOption) throws IOException {
-		this.file = file;
-		this.fileFormatOption = fileFormatOption;
-		if (file.exists() == false) {
-			throw new IllegalArgumentException();
-		}
+		super(file, fileFormatOption, defines, config, charset);
 		FileSystem.getInstance().setCurrentDir(SFile.fromFile(file.getAbsoluteFile().getParentFile()));
 		if (outputDirectory == null) {
 			outputDirectory = file.getAbsoluteFile().getParentFile();
@@ -85,9 +81,6 @@ public class SourceFileReader extends SourceFileReaderAbstract implements ISourc
 		}
 		this.outputDirectory = outputDirectory;
 
-		final Reader reader = getReader(charset);
-		builder = new BlockUmlBuilder(config, charset, defines, reader,
-				SFile.fromFile(file.getAbsoluteFile().getParentFile()), FileWithSuffix.getFileName(file));
 	}
 
 	private File getDirIfDirectory(String newName) throws FileNotFoundException {

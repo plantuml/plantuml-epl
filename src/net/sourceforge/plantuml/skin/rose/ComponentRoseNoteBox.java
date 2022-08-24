@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,10 +35,7 @@
 package net.sourceforge.plantuml.skin.rose;
 
 import net.sourceforge.plantuml.ISkinSimple;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.skin.AbstractTextualComponent;
@@ -55,16 +52,11 @@ final public class ComponentRoseNoteBox extends AbstractTextualComponent {
 	private final SymbolContext symbolContext;
 	private final double roundCorner;
 
-	public ComponentRoseNoteBox(Style style, SymbolContext symbolContext, FontConfiguration font, Display strings,
-			ISkinSimple spriteContainer, double roundCorner, HorizontalAlignment alignment) {
-		super(style, spriteContainer.wrapWidth(), strings, font, alignment, 4, 4, 4, spriteContainer, false, null, null);
-		if (SkinParam.USE_STYLES()) {
-			this.symbolContext = style.getSymbolContext(getIHtmlColorSet());
-			this.roundCorner = style.value(PName.RoundCorner).asInt();
-		} else {
-			this.symbolContext = symbolContext;
-			this.roundCorner = roundCorner;
-		}
+	public ComponentRoseNoteBox(Style style, Display strings, ISkinSimple spriteContainer) {
+		super(style, spriteContainer.wrapWidth(), 4, 4, 4, spriteContainer, strings, false);
+
+		this.symbolContext = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
 	}
 
 	@Override
@@ -95,12 +87,11 @@ final public class ComponentRoseNoteBox extends AbstractTextualComponent {
 
 		int x2 = (int) getTextWidth(stringBounder);
 		final double diffX = area.getDimensionToUse().getWidth() - getPreferredWidth(stringBounder);
-		if (diffX < 0) {
+		if (diffX < 0)
 			throw new IllegalArgumentException();
-		}
-		if (area.getDimensionToUse().getWidth() > getPreferredWidth(stringBounder)) {
+
+		if (area.getDimensionToUse().getWidth() > getPreferredWidth(stringBounder))
 			x2 = (int) (area.getDimensionToUse().getWidth() - 2 * getPaddingX());
-		}
 
 		ug = symbolContext.apply(ug);
 		final URectangle rect = new URectangle(x2, textHeight).rounded(roundCorner);

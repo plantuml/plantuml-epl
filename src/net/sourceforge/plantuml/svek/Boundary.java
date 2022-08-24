@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,8 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
@@ -44,7 +43,7 @@ import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class Boundary extends AbstractTextBlock {
 
@@ -79,7 +78,7 @@ public class Boundary extends AbstractTextBlock {
 		path.moveTo(0, radius);
 		path.lineTo(left, radius);
 		path.setDeltaShadow(symbolContext.getDeltaShadow());
-		ug.apply(new UTranslate(x, y)).apply(new HColorNone().bg()).draw(path);
+		ug.apply(new UTranslate(x, y)).apply(HColors.none().bg()).draw(path);
 
 		// final ULine line1 = ULine.dy(radius * 2);
 		// line1.setDeltaShadow(deltaShadow);

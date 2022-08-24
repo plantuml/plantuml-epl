@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,6 +37,7 @@ package net.sourceforge.plantuml.activitydiagram3.ftile;
 import java.awt.geom.Point2D;
 import java.util.Map;
 
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.UGraphicDelegator;
 import net.sourceforge.plantuml.svek.UGraphicForSnake;
@@ -46,7 +47,8 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class UGraphicInterceptorUDrawable2 extends UGraphicDelegator {
 
@@ -58,7 +60,11 @@ public class UGraphicInterceptorUDrawable2 extends UGraphicDelegator {
 	}
 
 	public void draw(UShape shape) {
-		if (shape instanceof Ftile) {
+		if (shape instanceof Gtile) {
+			final Gtile gtile = (Gtile) shape;
+			// System.err.println("gtile=" + gtile);
+			gtile.drawU(this);
+		} else if (shape instanceof Ftile) {
 			final Ftile ftile = (Ftile) shape;
 			// System.err.println("ftile=" + ftile);
 			ftile.drawU(this);
@@ -84,10 +90,11 @@ public class UGraphicInterceptorUDrawable2 extends UGraphicDelegator {
 	}
 
 	private void drawGoto(FtileGoto ftile) {
+		final HColor gotoColor = HColors.MY_RED;
+
 		final FtileGeometry geom = ftile.calculateDimension(getStringBounder());
 		final Point2D pt = geom.getPointIn();
-		UGraphic ugGoto = getUg().apply(HColorUtils.GREEN).apply(
-				HColorUtils.GREEN.bg());
+		UGraphic ugGoto = getUg().apply(gotoColor).apply(gotoColor.bg());
 		ugGoto = ugGoto.apply(new UTranslate(pt));
 		final UTranslate posNow = getPosition();
 		final UTranslate dest = positions.get(ftile.getName());

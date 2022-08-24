@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.cucadiagram.dot;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -42,10 +41,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.svek.Bibliotekon;
-import net.sourceforge.plantuml.svek.Line;
+import net.sourceforge.plantuml.svek.SvekLine;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -60,14 +60,14 @@ public class Neighborhood {
 	public Neighborhood(ILeaf leaf, List<Link> sametailLinks, List<Link> all) {
 		this.leaf = leaf;
 		this.sametailLinks = sametailLinks;
-		this.allButSametails = new ArrayList<Link>(all);
+		this.allButSametails = new ArrayList<>(all);
 		allButSametails.removeAll(sametailLinks);
 	}
 
 	public void drawU(UGraphic ug, double minX, double minY, Bibliotekon bibliotekon, Dimension2D shapeDim) {
-		final Set<Point2D> contactPoints = new HashSet<Point2D>();
+		final Set<Point2D> contactPoints = new HashSet<>();
 		for (Link link : sametailLinks) {
-			final Line line = bibliotekon.getLine(link);
+			final SvekLine line = bibliotekon.getLine(link);
 			final Point2D contact = line.getStartContactPoint();
 			contactPoints.add(contact);
 		}
@@ -89,15 +89,15 @@ public class Neighborhood {
 		}
 
 		for (Link link : allButSametails) {
-			final Line line = bibliotekon.getLine(link);
+			final SvekLine line = bibliotekon.getLine(link);
 			final Point2D contact = link.getEntity1() == leaf ? line.getStartContactPoint() : line.getEndContactPoint();
 			if (contact == null) {
-				assert false;
+				// assert false;
 				continue;
 			}
 			final Point2D inter = intersection(rect, center, contact);
 			if (inter == null) {
-				assert false;
+				// assert false;
 				continue;
 			}
 			drawLine(ug, inter, contact);

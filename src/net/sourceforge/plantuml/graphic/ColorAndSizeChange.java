@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
@@ -42,23 +43,24 @@ import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 class ColorAndSizeChange implements FontChange {
 
-	static final Pattern2 colorPattern = MyPattern.cmpile("(?i)color\\s*=\\s*[%g]?(#[0-9a-fA-F]{6}|\\w+)[%g]?");
+	static final Pattern2 colorPattern = MyPattern.cmpile("color\\s*=\\s*[%g]?(#[0-9a-fA-F]{6}|\\w+)[%g]?");
 
-	static final Pattern2 sizePattern = MyPattern.cmpile("(?i)size\\s*=\\s*[%g]?(\\d+)[%g]?");
+	static final Pattern2 sizePattern = MyPattern.cmpile("size\\s*=\\s*[%g]?(\\d+)[%g]?");
 
 	private final HColor color;
 	private final Integer size;
 
-	ColorAndSizeChange(String s) {
+	ColorAndSizeChange(ThemeStyle themeStyle, String s) {
 		final Matcher2 matcherColor = colorPattern.matcher(s);
 		if (matcherColor.find()) {
-			color = HColorSet.instance().getColorIfValid(matcherColor.group(1));
+			final String s1 = matcherColor.group(1);
+			color = HColorSet.instance().getColorOrWhite(themeStyle, s1);
 		} else {
 			color = null;
 		}
 		final Matcher2 matcherSize = sizePattern.matcher(s);
 		if (matcherSize.find()) {
-			size = new Integer(matcherSize.group(1));
+			size = Integer.valueOf(matcherSize.group(1));
 		} else {
 			size = null;
 		}

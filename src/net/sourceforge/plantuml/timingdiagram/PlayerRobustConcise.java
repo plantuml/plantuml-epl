@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,13 +42,19 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.command.Position;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.timingdiagram.graphic.Histogram;
 import net.sourceforge.plantuml.timingdiagram.graphic.IntricatedPoint;
 import net.sourceforge.plantuml.timingdiagram.graphic.PDrawing;
@@ -60,9 +65,9 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public final class PlayerRobustConcise extends Player {
 
-	private final Set<ChangeState> changes = new TreeSet<ChangeState>();
-	private final List<TimeConstraint> constraints = new ArrayList<TimeConstraint>();
-	private final List<TimingNote> notes = new ArrayList<TimingNote>();
+	private final Set<ChangeState> changes = new TreeSet<>();
+	private final List<TimeConstraint> constraints = new ArrayList<>();
+	private final List<TimingNote> notes = new ArrayList<>();
 	private final Map<String, String> statesLabel = new LinkedHashMap<String, String>();
 	private final TimingStyle type;
 
@@ -70,20 +75,36 @@ public final class PlayerRobustConcise extends Player {
 	private PDrawing cached;
 	private Colors initialColors;
 
-	public PlayerRobustConcise(TimingStyle type, String full, ISkinParam skinParam, TimingRuler ruler,
-			boolean compact) {
-		super(full, skinParam, ruler, compact);
+	public PlayerRobustConcise(TimingStyle type, String full, ISkinParam skinParam, TimingRuler ruler, boolean compact,
+			Stereotype stereotype) {
+		super(full, skinParam, ruler, compact, stereotype);
 		this.type = type;
 		this.suggestedHeight = 0;
 	}
 
+	@Override
+	protected StyleSignature getStyleSignature() {
+		if (type == TimingStyle.CONCISE)
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram, SName.concise)
+					.withTOBECHANGED(stereotype);
+		if (type == TimingStyle.ROBUST)
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram, SName.robust)
+					.withTOBECHANGED(stereotype);
+		throw new IllegalStateException();
+	}
+
 	private PDrawing buildPDrawing() {
-		if (type == TimingStyle.CONCISE) {
-			return new Ribbon(ruler, skinParam, notes, isCompact(), getTitle(), suggestedHeight);
-		}
+		final Style style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder());
+		if (type == TimingStyle.CONCISE)
+			return new Ribbon(ruler, skinParam, notes, isCompact(), getTitle(), suggestedHeight, style);
+
 		if (type == TimingStyle.ROBUST) {
-			return new Histogram(ruler, skinParam, statesLabel.values(), isCompact(), getTitle(), suggestedHeight);
+			final Style style0 = StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
+			return new Histogram(ruler, skinParam, statesLabel.values(), isCompact(), getTitle(), suggestedHeight,
+					style, style0);
 		}
+
 		throw new IllegalStateException();
 	}
 
@@ -91,9 +112,9 @@ public final class PlayerRobustConcise extends Player {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
-				if (isCompact() == false) {
-					new PlayerFrame(getTitle()).drawFrameTitle(ug);
-				}
+				if (isCompact() == false)
+					new PlayerFrame(getTitle(), skinParam).drawFrameTitle(ug);
+
 				ug = ug.apply(getTranslateForTimeDrawing(ug.getStringBounder())).apply(UTranslate.dy(specialVSpace));
 				getTimeDrawing().getPart1(fullAvailableWidth).drawU(ug);
 			}
@@ -122,28 +143,28 @@ public final class PlayerRobustConcise extends Player {
 	}
 
 	private double getTitleHeight(StringBounder stringBounder) {
-		if (isCompact()) {
+		if (isCompact())
 			return 6;
-		}
+
 		return getTitle().calculateDimension(stringBounder).getHeight() + 6;
 	}
 
 	private PDrawing getTimeDrawing() {
-		if (cached == null) {
+		if (cached == null)
 			cached = computeTimeDrawing();
-		}
+
 		return cached;
 	}
 
 	private PDrawing computeTimeDrawing() {
 		final PDrawing result = buildPDrawing();
 		result.setInitialState(initialState, initialColors);
-		for (ChangeState change : changes) {
+		for (ChangeState change : changes)
 			result.addChange(change);
-		}
-		for (TimeConstraint constraint : constraints) {
+
+		for (TimeConstraint constraint : constraints)
 			result.addConstraint(constraint);
-		}
+
 		return result;
 	}
 
@@ -152,9 +173,9 @@ public final class PlayerRobustConcise extends Player {
 	}
 
 	public final void setState(TimeTick now, String comment, Colors color, String... states) {
-		for (int i = 0; i < states.length; i++) {
+		for (int i = 0; i < states.length; i++)
 			states[i] = decodeState(states[i]);
-		}
+
 		if (now == null) {
 			this.initialState = states[0];
 			this.initialColors = color;
@@ -166,17 +187,17 @@ public final class PlayerRobustConcise extends Player {
 
 	private String decodeState(String code) {
 		final String label = statesLabel.get(code);
-		if (label == null) {
+		if (label == null)
 			return code;
-		}
+
 		return label;
 	}
 
 	public final IntricatedPoint getTimeProjection(StringBounder stringBounder, TimeTick tick) {
 		final IntricatedPoint point = getTimeDrawing().getTimeProjection(stringBounder, tick);
-		if (point == null) {
+		if (point == null)
 			return null;
-		}
+
 		final UTranslate translation = getTranslateForTimeDrawing(stringBounder);
 		return point.translated(translation);
 	}
@@ -186,7 +207,12 @@ public final class PlayerRobustConcise extends Player {
 	}
 
 	public final void addNote(TimeTick now, Display note, Position position) {
-		this.notes.add(new TimingNote(now, this, note, position, skinParam));
+
+		final StyleSignatureBasic signature = StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram,
+				SName.note);
+		final Style style = signature.getMergedStyle(skinParam.getCurrentStyleBuilder());
+
+		this.notes.add(new TimingNote(now, this, note, position, skinParam, style));
 	}
 
 	public final void defineState(String stateCode, String label) {

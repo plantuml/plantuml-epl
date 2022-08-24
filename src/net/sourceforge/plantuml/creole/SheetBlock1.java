@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,15 +34,17 @@
  */
 package net.sourceforge.plantuml.creole;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.LineBreakStrategy;
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.atom.Atom;
 import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -50,6 +52,7 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -67,15 +70,30 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 	private Map<Atom, Position> positions;
 	private MinMax minMax;
 	private final LineBreakStrategy maxWidth;
-	private final double padding;
+	private final ClockwiseTopRightBottomLeft padding;
+	private final double marginX1;
+	private final double marginX2;
 
+	@HaxeIgnored
 	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, double padding) {
+		this(sheet, maxWidth, ClockwiseTopRightBottomLeft.same(padding), 0, 0);
+	}
+
+	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, ClockwiseTopRightBottomLeft padding) {
+		this(sheet, maxWidth, padding, 0, 0);
+	}
+
+	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, double padding, double marginX1, double marginX2) {
+		this(sheet, maxWidth, ClockwiseTopRightBottomLeft.same(padding), marginX1, marginX2);
+	}
+
+	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, ClockwiseTopRightBottomLeft padding, double marginX1,
+			double marginX2) {
 		this.sheet = sheet;
-		this.maxWidth = maxWidth;
+		this.maxWidth = Objects.requireNonNull(maxWidth);
 		this.padding = padding;
-		if (maxWidth == null) {
-			throw new IllegalArgumentException();
-		}
+		this.marginX1 = marginX1;
+		this.marginX2 = marginX2;
 	}
 
 	@Override
@@ -84,37 +102,37 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 	}
 
 	public HorizontalAlignment getCellAlignment() {
-		if (stripes.size() != 1) {
+		if (stripes.size() != 1)
 			return HorizontalAlignment.LEFT;
-		}
+
 		final Stripe simple = stripes.get(0);
-		if (simple instanceof StripeSimple) {
+		if (simple instanceof StripeSimple)
 			return ((StripeSimple) simple).getCellAlignment();
-		}
+
 		return HorizontalAlignment.LEFT;
 	}
 
 	private void initMap(StringBounder stringBounder) {
-		if (positions != null) {
+		if (positions != null)
 			return;
-		}
-		stripes = new ArrayList<Stripe>();
-		for (Stripe stripe : sheet) {
+
+		stripes = new ArrayList<>();
+		for (Stripe stripe : sheet)
 			stripes.addAll(new Fission(stripe, maxWidth).getSplitted(stringBounder));
-		}
-		positions = new LinkedHashMap<Atom, Position>();
-		widths = new LinkedHashMap<Stripe, Double>();
-		heights = new LinkedHashMap<Stripe, Double>();
+
+		positions = new LinkedHashMap<>();
+		widths = new LinkedHashMap<>();
+		heights = new LinkedHashMap<>();
 		minMax = MinMax.getEmpty(true);
 		double y = 0;
 		for (Stripe stripe : stripes) {
-			if (stripe.getAtoms().size() == 0) {
+			if (stripe.getAtoms().size() == 0)
 				continue;
-			}
+
 			final Sea sea = new Sea(stringBounder);
-			for (Atom atom : stripe.getAtoms()) {
+			for (Atom atom : stripe.getAtoms())
 				sea.add(atom);
-			}
+
 			sea.doAlign();
 			sea.translateMinYto(y);
 			sea.exportAllPositions(positions);
@@ -126,21 +144,22 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 			y += height;
 		}
 		final int coef;
-		if (sheet.getHorizontalAlignment() == HorizontalAlignment.CENTER) {
+		if (sheet.getHorizontalAlignment() == HorizontalAlignment.CENTER)
 			coef = 2;
-		} else if (sheet.getHorizontalAlignment() == HorizontalAlignment.RIGHT) {
+		else if (sheet.getHorizontalAlignment() == HorizontalAlignment.RIGHT)
 			coef = 1;
-		} else {
+		else
 			coef = 0;
-		}
+
 		if (coef != 0) {
 			double maxWidth = 0;
-			for (Double v : widths.values()) {
-				if (v > maxWidth) {
+			for (Double v : widths.values())
+				if (v > maxWidth)
 					maxWidth = v;
-				}
-			}
+
 			for (Map.Entry<Stripe, Double> ent : widths.entrySet()) {
+				// final double diff = maxWidth - ent.getValue() + this.marginX1 +
+				// this.marginX2;
 				final double diff = maxWidth - ent.getValue();
 				if (diff > 0) {
 					for (Atom atom : ent.getKey().getAtoms()) {
@@ -156,7 +175,7 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		initMap(stringBounder);
-		return Dimension2DDouble.delta(minMax.getDimension(), 2 * padding);
+		return Dimension2DDouble.delta(minMax.getDimension(), padding.getBottom() + padding.getTop());
 	}
 
 	@Override
@@ -166,16 +185,15 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 
 	public void drawU(UGraphic ug) {
 		initMap(ug.getStringBounder());
-		if (padding > 0) {
-			ug = ug.apply(new UTranslate(padding, padding));
-		}
-		for (Stripe stripe : stripes) {
+		if (padding.getLeft() > 0 || padding.getTop() > 0)
+			ug = ug.apply(new UTranslate(padding.getLeft(), padding.getTop()));
+
+		for (Stripe stripe : stripes)
 			for (Atom atom : stripe.getAtoms()) {
 				final Position position = positions.get(atom);
 				atom.drawU(position.translate(ug));
 				// position.drawDebug(ug);
 			}
-		}
 	}
 
 	public double getStartingAltitude(StringBounder stringBounder) {
@@ -183,11 +201,11 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 	}
 
 	public double getStartingX(StringBounder stringBounder, double y) {
-		return 0;
+		return -marginX1;
 	}
 
 	public double getEndingX(StringBounder stringBounder, double y) {
-		return calculateDimension(stringBounder).getWidth();
+		return calculateDimension(stringBounder).getWidth() + marginX2;
 	}
 
 }

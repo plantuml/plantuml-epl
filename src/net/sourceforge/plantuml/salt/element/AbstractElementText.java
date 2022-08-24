@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.salt.element;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinSimple;
@@ -42,6 +42,7 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
+import net.sourceforge.plantuml.graphic.Splitter;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UFont;
@@ -55,7 +56,7 @@ abstract class AbstractElementText extends AbstractElement {
 	private final int charLength;
 
 	public AbstractElementText(String text, UFont font, boolean manageLength, ISkinSimple spriteContainer) {
-		config = FontConfiguration.blackBlueTrue(font);
+		config = blackBlueTrue(font);
 		if (manageLength) {
 			this.charLength = getCharNumber(text);
 			text = StringUtils.trin(text);
@@ -67,6 +68,7 @@ abstract class AbstractElementText extends AbstractElement {
 
 	private int getCharNumber(String text) {
 		text = text.replaceAll("<&[-\\w]+>", "00");
+		text = Splitter.purgeAllTag(text);
 		return text.length();
 	}
 
@@ -95,7 +97,8 @@ abstract class AbstractElementText extends AbstractElement {
 		// double max = 0;
 		// for (int i = 32; i < 127; i++) {
 		// final char c = (char) i;
-		// final double w = Display.create(Arrays.asList("" + c), config, HorizontalAlignment.LEFT)
+		// final double w = Display.create(Arrays.asList("" + c), config,
+		// HorizontalAlignment.LEFT)
 		// .calculateDimension(stringBounder).getWidth();
 		// if (w > max) {
 		// Log.println("c="+c+" "+max);

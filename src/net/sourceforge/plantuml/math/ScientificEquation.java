@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,18 +35,18 @@
 package net.sourceforge.plantuml.math;
 
 import java.awt.Color;
-import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import net.sourceforge.plantuml.SvgString;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.MutableImage;
+import net.sourceforge.plantuml.ugraphic.UImageSvg;
 
 public interface ScientificEquation {
 
 	public Dimension2D getDimension();
 
-	public SvgString getSvg(double scale, Color foregroundColor, Color backgroundColor)
+	public UImageSvg getSvg(double scale, Color foregroundColor, Color backgroundColor)
 			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, InstantiationException, IOException;
 

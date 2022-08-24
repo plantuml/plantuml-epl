@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -126,10 +126,10 @@ public enum FontStyle {
 			return null;
 		}
 		final String color = m.group(1);
-		if (HColorSet.instance().getColorIfValid(color) != null) {
-			return HColorSet.instance().getColorIfValid(color);
+		if (color == null) {
+			return null;
 		}
-		return null;
+		return HColorSet.instance().getColorOrWhite(color);
 	}
 
 	public String getDeactivationPattern() {

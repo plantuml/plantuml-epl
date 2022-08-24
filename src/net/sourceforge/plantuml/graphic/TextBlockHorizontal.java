@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,17 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class TextBlockHorizontal extends AbstractTextBlock implements TextBlock {
 
-	private final List<TextBlock> blocks = new ArrayList<TextBlock>();
+	private final List<TextBlock> blocks = new ArrayList<>();
 	private final VerticalAlignment alignment;
 
 	TextBlockHorizontal(TextBlock b1, TextBlock b2, VerticalAlignment alignment) {

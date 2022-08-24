@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,16 +34,15 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
+import java.util.Objects;
+
 public class TickInPlayer {
 
 	private final Player player;
 	private final TimeTick tick;
 
 	public TickInPlayer(Player player, TimeTick tick) {
-		if (player == null) {
-			throw new IllegalArgumentException();
-		}
-		this.player = player;
+		this.player = Objects.requireNonNull(player);
 		this.tick = tick;
 	}
 

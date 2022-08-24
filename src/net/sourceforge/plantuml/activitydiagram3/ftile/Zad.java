@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,11 +39,11 @@ import java.util.List;
 
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class Zad {
 
-	private final List<MinMax> rectangles = new ArrayList<MinMax>();
+	private final List<MinMax> rectangles = new ArrayList<>();
 
 	public void add(MinMax rect) {
 		// System.err.println("add " + rect);
@@ -52,10 +52,10 @@ public class Zad {
 	}
 
 	public void drawDebug(UGraphic ug) {
-		ug = ug.apply(HColorUtils.BLUE.bg()).apply(HColorUtils.RED_LIGHT);
+		ug = ug.apply(HColors.BLUE.bg()).apply(HColors.RED_LIGHT);
 		for (MinMax minMax : rectangles) {
 			System.err.println("minmax=" + minMax);
-			minMax.drawGrey(ug);
+			minMax.drawGray(ug);
 		}
 
 	}

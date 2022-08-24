@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,9 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
@@ -45,8 +44,7 @@ import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UShape;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class EntityImageAssociationPoint extends AbstractEntityImage {
 
@@ -62,7 +60,7 @@ public class EntityImageAssociationPoint extends AbstractEntityImage {
 
 	final public void drawU(UGraphic ug) {
 		final UShape circle = new UEllipse(SIZE, SIZE);
-		ug.apply(new HColorNone()).apply(HColorUtils.BLACK.bg()).draw(circle);
+		ug.apply(HColors.none()).apply(HColors.BLACK.bg()).draw(circle);
 	}
 
 	public ShapeType getShapeType() {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,12 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 abstract class USymbolSimpleAbstract extends USymbol {
@@ -45,9 +47,7 @@ abstract class USymbolSimpleAbstract extends USymbol {
 	@Override
 	public TextBlock asSmall(TextBlock name, final TextBlock label, final TextBlock stereotype,
 			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
-		if (stereotype == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(stereotype);
 		final TextBlock stickman = getDrawing(symbolContext);
 		return new AbstractTextBlock() {
 
@@ -65,9 +65,9 @@ abstract class USymbolSimpleAbstract extends USymbol {
 				final double labelY = dimStickMan.getHeight() + dimStereo.getHeight();
 
 				// Actor bug?
-				// final UGraphic ug2 = UGraphicStencil.create(ug, getRectangleStencil(dimLabel), new UStroke());
-				// label.drawU(ug2.apply(new UTranslate(labelX, labelY)));
-				label.drawU(ug.apply(new UTranslate(labelX, labelY)));
+				final UGraphic ug2 = UGraphicStencil.create(ug, dimLabel);
+				label.drawU(ug2.apply(new UTranslate(labelX, labelY)));
+				// label.drawU(ug.apply(new UTranslate(labelX, labelY)));
 
 				final double stereoX = (dimTotal.getWidth() - dimStereo.getWidth()) / 2;
 				stereotype.drawU(ug.apply(UTranslate.dx(stereoX)));

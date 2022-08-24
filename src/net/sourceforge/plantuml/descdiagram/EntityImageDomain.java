@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,6 @@
  */
 package net.sourceforge.plantuml.descdiagram;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
@@ -44,6 +42,7 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -73,14 +72,14 @@ public class EntityImageDomain extends AbstractEntityImage {
 	public EntityImageDomain(ILeaf entity, ISkinParam skinParam, char typeLetter) {
 		super(entity, skinParam);
 		final Stereotype stereotype = entity.getStereotype();
-		FontConfiguration fc = new FontConfiguration(getSkinParam(), FontParam.DESIGNED_DOMAIN, stereotype);
+		FontConfiguration fc = FontConfiguration.create(getSkinParam(), FontParam.DESIGNED_DOMAIN, stereotype);
 		this.name = TextBlockUtils.withMargin(entity.getDisplay().create(fc, HorizontalAlignment.CENTER, skinParam), 2,
 				2);
 		if (stereotype == null || stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR) == null) {
 			this.stereo = null;
 		} else {
 			this.stereo = Display.create(stereotype.getLabels(skinParam.guillemet())).create(
-					new FontConfiguration(getSkinParam(), FontParam.DESIGNED_DOMAIN_STEREOTYPE, stereotype),
+					FontConfiguration.create(getSkinParam(), FontParam.DESIGNED_DOMAIN_STEREOTYPE, stereotype),
 					HorizontalAlignment.CENTER, skinParam);
 		}
 		this.tag = new BoxedCharacter(typeLetter, 8, UFont.byDefault(8), stereotype.getHtmlColor(), null, fc.getColor());
@@ -128,7 +127,7 @@ public class EntityImageDomain extends AbstractEntityImage {
 		final URectangle rect = new URectangle(widthTotal, heightTotal);
 
 		ug = ug.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.domainBorder));
-		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
+		HColor backcolor = getEntity().getColors().getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.domainBackground);
 		}

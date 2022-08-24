@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,28 +38,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class StdlibDiagramFactory extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public StdlibDiagramFactory(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class StdlibDiagramFactory extends PSystemCommandFactory {
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandStdlib());
 		return cmds;
 	}
 
 	@Override
-	public StdlibDiagram createEmptyDiagram() {
-		return new StdlibDiagram(skinParam);
+	public StdlibDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new StdlibDiagram(style, source, skinParam);
 	}
 
 }

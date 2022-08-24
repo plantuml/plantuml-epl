@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -115,8 +115,12 @@ public class TranslatedCharArea implements UmlCharArea {
 		charArea.print(ps);
 	}
 
-	public void drawStringsLR(Collection<? extends CharSequence> strings, int x, int y) {
-		charArea.drawStringsLR(strings, x + dx, y + dy);
+	public void drawStringsLRSimple(Collection<? extends CharSequence> strings, int x, int y) {
+		charArea.drawStringsLRSimple(strings, x + dx, y + dy);
+	}
+
+	public void drawStringsLRUnicode(Collection<? extends CharSequence> strings, int x, int y) {
+		charArea.drawStringsLRUnicode(strings, x + dx, y + dy);
 	}
 
 	public void fillRect(char c, int x, int y, int width, int height) {

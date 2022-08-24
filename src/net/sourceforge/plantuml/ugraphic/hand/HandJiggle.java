@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 
 public class HandJiggle {
-	private final Collection<Point2D> points = new ArrayList<Point2D>();
+	private final Collection<Point2D> points = new ArrayList<>();
 
 	private double startX;
 	private double startY;
@@ -63,8 +63,8 @@ public class HandJiggle {
 		points.add(new Point2D.Double(startX, startY));
 	}
 
-	public HandJiggle(Point2D start, double defaultVariation, Random rnd) {
-		this(start.getX(), start.getY(), defaultVariation, rnd);
+	public static HandJiggle create(Point2D start, double defaultVariation, Random rnd) {
+		return new HandJiggle(start.getX(), start.getY(), defaultVariation, rnd);
 	}
 
 	public void lineTo(Point2D end) {

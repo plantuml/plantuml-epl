@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,12 +37,16 @@ package net.sourceforge.plantuml.preproc2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.preproc.ReadLine;
 import net.sourceforge.plantuml.preproc.ReadLineReader;
 import net.sourceforge.plantuml.preproc.ReadLineSimple;
@@ -57,13 +61,13 @@ public class PreprocessorUtils {
 		final Pattern p = Pattern.compile("%(\\w+)%");
 
 		final Matcher m = p.matcher(s);
-		final StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer(); // Can't be switched to StringBuilder in order to support Java 8
 		while (m.find()) {
 			final String var = m.group(1);
 			final String value = getenv(var);
-			if (value != null) {
+			if (value != null)
 				m.appendReplacement(sb, Matcher.quoteReplacement(value));
-			}
+
 		}
 		m.appendTail(sb);
 		s = sb.toString();
@@ -72,13 +76,13 @@ public class PreprocessorUtils {
 
 	public static String getenv(String var) {
 		final String env = System.getProperty(var);
-		if (StringUtils.isNotEmpty(env)) {
+		if (StringUtils.isNotEmpty(env))
 			return StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(env);
-		}
+
 		final String getenv = System.getenv(var);
-		if (StringUtils.isNotEmpty(getenv)) {
+		if (StringUtils.isNotEmpty(getenv))
 			return StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(getenv);
-		}
+
 		return null;
 	}
 
@@ -91,9 +95,9 @@ public class PreprocessorUtils {
 	public static ReadLine getReaderStdlibInclude(StringLocated s, String filename) {
 		Log.info("Loading sdlib " + filename);
 		InputStream is = getStdlibInputStream(filename);
-		if (is == null) {
+		if (is == null)
 			return null;
-		}
+
 		final String description = "<" + filename + ">";
 		try {
 			if (StartDiagramExtractReader.containsStartDiagram(is, s, description)) {
@@ -101,37 +105,37 @@ public class PreprocessorUtils {
 				return StartDiagramExtractReader.build(is, s, description);
 			}
 			is = getStdlibInputStream(filename);
-			if (is == null) {
+			if (is == null)
 				return null;
-			}
+
 			return ReadLineReader.create(new InputStreamReader(is), description);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			return new ReadLineSimple(s, e.toString());
 		}
 	}
 
-	public static ReadLine getReaderIncludeUrl2(final SURL url, StringLocated s, String suf, String charset)
+	public static ReadLine getReaderIncludeUrl(final SURL url, StringLocated s, String suf, Charset charset)
 			throws EaterException {
 		try {
-			if (StartDiagramExtractReader.containsStartDiagram(url, s, charset)) {
+			if (StartDiagramExtractReader.containsStartDiagram(url, s, charset))
 				return StartDiagramExtractReader.build(url, s, suf, charset);
-			}
-			final InputStream is = url.openStream();
-			if (is == null) {
-				throw EaterException.located("Cannot open URL");
-			}
-			if (charset == null) {
-				Log.info("Using default charset");
-				return ReadLineReader.create(new InputStreamReader(is), url.toString(), s.getLocation());
-			}
-			Log.info("Using charset " + charset);
-			return ReadLineReader.create(new InputStreamReader(is, charset), url.toString(), s.getLocation());
+
+			return getReaderInclude(url, s.getLocation(), charset);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 			throw EaterException.located("Cannot open URL " + e.getMessage());
 		}
 
+	}
+
+	public static ReadLine getReaderInclude(SURL url, LineLocation lineLocation, Charset charset)
+			throws EaterException, UnsupportedEncodingException {
+		final InputStream is = url.openStream();
+		if (is == null)
+			throw EaterException.located("Cannot open URL");
+
+		return ReadLineReader.create(new InputStreamReader(is, charset), url.toString(), lineLocation);
 	}
 
 }

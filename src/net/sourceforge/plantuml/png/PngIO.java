@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.sourceforge.plantuml.Log;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
 
 public class PngIO {
@@ -55,20 +55,14 @@ public class PngIO {
 	}
 
 	public static void write(RenderedImage image, SFile file, String metadata, int dpi) throws IOException {
-		OutputStream os = null;
-		try {
-			os = file.createBufferedOutputStream();
+		try (OutputStream os = file.createBufferedOutputStream()) {
 			write(image, os, metadata, dpi);
-		} finally {
-			if (os != null) {
-				os.close();
-			}
 		}
 		Log.debug("File is " + file);
 		Log.debug("File size " + file.length());
 		if (file.length() == 0) {
 			Log.error("File size is zero: " + file);
-			ImageIO.write(image, "png", file);
+			SImageIO.write(image, "png", file);
 		}
 	}
 
@@ -78,10 +72,10 @@ public class PngIO {
 
 	public static void write(RenderedImage image, OutputStream os, String metadata, int dpi, String debugData)
 			throws IOException {
-		if (forceImageIO == false && metadata != null && checkPNGMetadata()) {
-			PngIOMetadata.writeWithMetadata(image, os, metadata, dpi, debugData);
+		if (metadata == null) {
+			SImageIO.write(image, "png", os);
 		} else {
-			ImageIO.write(image, "png", os);
+			PngIOMetadata.writeWithMetadata(image, os, metadata, dpi, debugData);
 		}
 	}
 
@@ -122,24 +116,5 @@ public class PngIO {
 //		}
 //		pngw.end();
 //	}
-
-	public static boolean forceImageIO = false;
-
-	static boolean checkPNGMetadata() {
-		try {
-			final Class cl = Class.forName("com.sun.imageio.plugins.png.PNGMetadata");
-			if (cl == null) {
-				Log.info("Cannot load com.sun.imageio.plugins.png.PNGMetadata");
-				forceImageIO = true;
-				return false;
-			}
-			Log.info("Ok for com.sun.imageio.plugins.png.PNGMetadata");
-			return true;
-		} catch (Exception e) {
-			Log.info("Error loading com.sun.imageio.plugins.png.PNGMetadata " + e);
-			forceImageIO = true;
-			return false;
-		}
-	}
 
 }

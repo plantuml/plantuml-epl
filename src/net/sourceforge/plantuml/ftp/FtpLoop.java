@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,6 +53,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileUtils;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SecurityUtils;
 
 class FtpLoop implements Runnable {
@@ -326,7 +327,7 @@ class FtpLoop implements Runnable {
 		try {
 			runInternal();
 		} catch (Throwable t) {
-			t.printStackTrace();
+			Logme.error(t);
 		}
 
 	}

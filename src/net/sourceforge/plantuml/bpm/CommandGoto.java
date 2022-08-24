@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -52,7 +52,7 @@ public class CommandGoto extends SingleLineCommand2<BpmDiagram> {
 		return RegexConcat.build(CommandGoto.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("goto"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("ID", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("ID", "([%pLN_.@]+)"), //
 				RegexLeaf.end());
 	}
 

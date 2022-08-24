@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,13 @@
  */
 package net.sourceforge.plantuml.tim;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.plantuml.DefinitionsContainer;
 import net.sourceforge.plantuml.StringLocated;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
 import net.sourceforge.plantuml.preproc.ImportedFiles;
@@ -50,13 +52,13 @@ public class TimLoader {
 	private boolean preprocessorError;
 	private List<StringLocated> resultList;
 
-	public TimLoader(ImportedFiles importedFiles, Defines defines, String charset,
+	public TimLoader(ImportedFiles importedFiles, Defines defines, Charset charset,
 			DefinitionsContainer definitionsContainer) {
 		this.context = new TContext(importedFiles, defines, charset, definitionsContainer);
 		try {
 			defines.copyTo(global);
 		} catch (EaterException e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 	}
 

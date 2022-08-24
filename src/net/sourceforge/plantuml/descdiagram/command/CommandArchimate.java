@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -52,10 +52,11 @@ import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagram;
-import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandArchimate extends SingleLineCommand2<DescriptionDiagram> {
 
@@ -118,7 +119,8 @@ public class CommandArchimate extends SingleLineCommand2<DescriptionDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(DescriptionDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(DescriptionDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String codeRaw = arg.getLazzy("CODE", 0);
 
 		final String idShort = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw);
@@ -126,25 +128,26 @@ public class CommandArchimate extends SingleLineCommand2<DescriptionDiagram> {
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
 		final String icon = arg.getLazzy("STEREOTYPE", 0);
 
-		final IEntity entity = diagram.getOrCreateLeaf(ident, code, LeafType.DESCRIPTION, USymbol.ARCHIMATE);
+		final IEntity entity = diagram.getOrCreateLeaf(ident, code, LeafType.DESCRIPTION, USymbols.ARCHIMATE);
 
 		final String displayRaw = arg.getLazzy("DISPLAY", 0);
 
 		String display = displayRaw;
-		if (display == null) {
+		if (display == null)
 			display = code.getName();
-		}
+
 		display = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(display);
 
 		entity.setDisplay(Display.getWithNewlines(display));
-		entity.setUSymbol(USymbol.ARCHIMATE);
-		if (icon != null) {
-			entity.setStereotype(new Stereotype("<<$archimate/" + icon + ">>", diagram.getSkinParam()
-					.getCircledCharacterRadius(), diagram.getSkinParam().getFont(null, false,
-					FontParam.CIRCLED_CHARACTER), diagram.getSkinParam().getIHtmlColorSet()));
-		}
+		entity.setUSymbol(USymbols.ARCHIMATE);
+		if (icon != null)
+			entity.setStereotype(
+					Stereotype.build("<<$archimate/" + icon + ">>", diagram.getSkinParam().getCircledCharacterRadius(),
+							diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+							diagram.getSkinParam().getIHtmlColorSet()));
 
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		entity.setColors(colors);
 
 		return CommandExecutionResult.ok();

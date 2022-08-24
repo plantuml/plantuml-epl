@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.cucadiagram.ILeaf;
 
 public class MDAPackageImpl implements MDAPackage {
 
-	private final Collection<MDAEntity> entities = new ArrayList<MDAEntity>();
+	private final Collection<MDAEntity> entities = new ArrayList<>();
 	private final IGroup group;
 
 	public MDAPackageImpl(IGroup group) {

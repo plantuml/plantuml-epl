@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,22 @@
  */
 package net.sourceforge.plantuml.utils;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.sourceforge.plantuml.log.Logme;
 
 public class Cypher {
 
@@ -48,12 +57,31 @@ public class Cypher {
 
 	private final SecureRandom rnd = new SecureRandom();
 	private final Map<String, String> convert = new HashMap<String, String>();
-	private final Set<String> except = new HashSet<String>();
+	private final Set<String> except = new HashSet<>();
+	private final List<String> words = new ArrayList<>();
+
+	public Cypher() {
+		final InputStream is = Cypher.class.getResourceAsStream("words.txt");
+		if (is != null)
+			try {
+				final BufferedReader br = new BufferedReader(new InputStreamReader(is));
+				String s;
+				while ((s = br.readLine()) != null) {
+					if (s.matches("[a-z]+"))
+						words.add(s);
+				}
+				is.close();
+			} catch (Exception e) {
+				Logme.error(e);
+			}
+
+		Collections.shuffle(words, rnd);
+	}
 
 	public synchronized String cypher(String s) {
 
 		final Matcher m = p.matcher(s);
-		final StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer(); // Can't be switched to StringBuilder in order to support Java 8
 		while (m.find()) {
 			final String word = m.group(0);
 			m.appendReplacement(sb, changeWord(word));
@@ -77,12 +105,7 @@ public class Cypher {
 			len = 4;
 		}
 		while (true) {
-			final StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < len; i++) {
-				final char letter = (char) ('a' + rnd.nextInt(26));
-				sb.append(letter);
-			}
-			res = sb.toString();
+			res = buildRandomWord(len);
 			if (convert.containsValue(res) == false) {
 				convert.put(word, res);
 				return res;
@@ -90,8 +113,29 @@ public class Cypher {
 		}
 	}
 
+	private String buildRandomWord(int len) {
+		for (Iterator<String> it = words.iterator(); it.hasNext();) {
+			final String s = it.next();
+			if (s.length() == len) {
+				it.remove();
+				return s;
+			}
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			final char letter = (char) ('a' + rnd.nextInt(26));
+			sb.append(letter);
+		}
+		return sb.toString();
+	}
+
 	public void addException(String word) {
-		except.add(word.toLowerCase());
+		word = word.toLowerCase();
+		if (words.contains(word)) {
+			System.err.println("CypherWarning:" + word);
+			words.remove(word);
+		}
+		except.add(word);
 	}
 
 }

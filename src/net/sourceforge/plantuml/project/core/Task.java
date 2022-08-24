@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,30 +34,27 @@
  */
 package net.sourceforge.plantuml.project.core;
 
-import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.project.Load;
-import net.sourceforge.plantuml.project.lang.ComplementColors;
-import net.sourceforge.plantuml.project.lang.Subject;
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.lang.CenterBorderColor;
+import net.sourceforge.plantuml.project.time.Day;
+import net.sourceforge.plantuml.project.time.DayOfWeek;
+import net.sourceforge.plantuml.style.StyleBuilder;
 
-public interface Task extends Subject, Moment {
+public interface Task extends Moment {
 
 	public TaskCode getCode();
-
-	public Wink getStart();
-
-	public Wink getEnd();
 
 	public Load getLoad();
 
 	public void setLoad(Load load);
 
-	public void setStart(Wink start);
+	public void setStart(Day start);
 
-	public void setEnd(Wink end);
+	public void setEnd(Day end);
 
-	public void setColors(ComplementColors colors);
+	public void setColors(CenterBorderColor... colors);
 
 	public void addResource(Resource resource, int percentage);
 
@@ -69,12 +66,16 @@ public interface Task extends Subject, Moment {
 
 	public void setUrl(Url url);
 
-	public double getHeight();
+	public void putInSameRowAs(Task row);
 
-	public double getY();
+	public Task getRow();
 
-	public void setY(double y);
+	public void addPause(Day pause);
 
-	public double getY(Direction direction);
+	public void addPause(DayOfWeek pause);
+
+	public void setNote(Display note);
+
+	public StyleBuilder getStyleBuilder();
 
 }

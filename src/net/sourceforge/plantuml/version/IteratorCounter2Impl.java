@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -64,7 +64,7 @@ public class IteratorCounter2Impl implements IteratorCounter2 {
 	}
 
 	public IteratorCounter2 cloneMe() {
-		return new IteratorCounter2Impl(data, nb, new ArrayList<StringLocated>(trace));
+		return new IteratorCounter2Impl(data, nb, new ArrayList<>(trace));
 	}
 
 	public int currentNum() {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.skin;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -54,21 +56,21 @@ public class ArrowConfiguration {
 	private final double thickness;
 	private final boolean reverseDefine;
 
+	private final int inclination;
+
 	private ArrowConfiguration(ArrowBody body, ArrowDressing dressing1, ArrowDressing dressing2,
-			ArrowDecoration decoration1, ArrowDecoration decoration2, HColor color, boolean isSelf,
-			double thickness, boolean reverseDefine) {
-		if (body == null || dressing1 == null || dressing2 == null) {
-			throw new IllegalArgumentException();
-		}
+			ArrowDecoration decoration1, ArrowDecoration decoration2, HColor color, boolean isSelf, double thickness,
+			boolean reverseDefine, int inclination) {
 		this.reverseDefine = reverseDefine;
 		this.thickness = thickness;
-		this.body = body;
-		this.dressing1 = dressing1;
-		this.dressing2 = dressing2;
+		this.body = Objects.requireNonNull(body);
+		this.dressing1 = Objects.requireNonNull(dressing1);
+		this.dressing2 = Objects.requireNonNull(dressing2);
 		this.decoration1 = decoration1;
 		this.decoration2 = decoration2;
 		this.color = color;
 		this.isSelf = isSelf;
+		this.inclination = inclination;
 	}
 
 	@Override
@@ -82,20 +84,21 @@ public class ArrowConfiguration {
 	}
 
 	public static ArrowConfiguration withDirectionNormal() {
-		return new ArrowConfiguration(ArrowBody.NORMAL, ArrowDressing.create(), ArrowDressing.create().withHead(
-				ArrowHead.NORMAL), ArrowDecoration.NONE, ArrowDecoration.NONE, null, false, 1, false);
+		return new ArrowConfiguration(ArrowBody.NORMAL, ArrowDressing.create(),
+				ArrowDressing.create().withHead(ArrowHead.NORMAL), ArrowDecoration.NONE, ArrowDecoration.NONE, null,
+				false, 1, false, 0);
 	}
 
 	public static ArrowConfiguration withDirectionBoth() {
 		return new ArrowConfiguration(ArrowBody.NORMAL, ArrowDressing.create().withHead(ArrowHead.NORMAL),
 				ArrowDressing.create().withHead(ArrowHead.NORMAL), ArrowDecoration.NONE, ArrowDecoration.NONE, null,
-				false, 1, false);
+				false, 1, false, 0);
 	}
 
-	public static ArrowConfiguration withDirectionSelf() {
-		return new ArrowConfiguration(ArrowBody.NORMAL, ArrowDressing.create().withHead(ArrowHead.NORMAL),
+	public static ArrowConfiguration withDirectionSelf(boolean reverseDefine) {
+		return new ArrowConfiguration(ArrowBody.NORMAL, ArrowDressing.create(),
 				ArrowDressing.create().withHead(ArrowHead.NORMAL), ArrowDecoration.NONE, ArrowDecoration.NONE, null,
-				true, 1, false);
+				true, 1, reverseDefine, 0);
 	}
 
 	public static ArrowConfiguration withDirectionReverse() {
@@ -104,65 +107,65 @@ public class ArrowConfiguration {
 
 	public ArrowConfiguration reverse() {
 		return new ArrowConfiguration(body, dressing2, dressing1, decoration2, decoration1, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration self() {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, true, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withBody(ArrowBody type) {
 		return new ArrowConfiguration(type, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withHead(ArrowHead head) {
 		final ArrowDressing newDressing1 = addHead(dressing1, head);
 		final ArrowDressing newDressing2 = addHead(dressing2, head);
 		return new ArrowConfiguration(body, newDressing1, newDressing2, decoration1, decoration2, color, isSelf,
-				thickness, reverseDefine);
+				thickness, reverseDefine, inclination);
 	}
 
 	private static ArrowDressing addHead(ArrowDressing dressing, ArrowHead head) {
-		if (dressing.getHead() == ArrowHead.NONE) {
+		if (dressing.getHead() == ArrowHead.NONE)
 			return dressing;
-		}
+
 		return dressing.withHead(head);
 	}
 
 	public ArrowConfiguration withHead1(ArrowHead head) {
 		return new ArrowConfiguration(body, dressing1.withHead(head), dressing2, decoration1, decoration2, color,
-				isSelf, thickness, reverseDefine);
+				isSelf, thickness, reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withHead2(ArrowHead head) {
 		return new ArrowConfiguration(body, dressing1, dressing2.withHead(head), decoration1, decoration2, color,
-				isSelf, thickness, reverseDefine);
+				isSelf, thickness, reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withPart(ArrowPart part) {
-		if (dressing2.getHead() != ArrowHead.NONE) {
+		if (dressing2.getHead() != ArrowHead.NONE)
 			return new ArrowConfiguration(body, dressing1, dressing2.withPart(part), decoration1, decoration2, color,
-					isSelf, thickness, reverseDefine);
-		}
+					isSelf, thickness, reverseDefine, inclination);
+
 		return new ArrowConfiguration(body, dressing1.withPart(part), dressing2, decoration1, decoration2, color,
-				isSelf, thickness, reverseDefine);
+				isSelf, thickness, reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withDecoration1(ArrowDecoration decoration1) {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withDecoration2(ArrowDecoration decoration2) {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration withColor(HColor color) {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public final ArrowDecoration getDecoration1() {
@@ -174,15 +177,15 @@ public class ArrowConfiguration {
 	}
 
 	public final ArrowDirection getArrowDirection() {
-		if (isSelf) {
+		if (isSelf)
 			return ArrowDirection.SELF;
-		}
-		if (this.dressing1.getHead() == ArrowHead.NONE && this.dressing2.getHead() != ArrowHead.NONE) {
+
+		if (this.dressing1.getHead() == ArrowHead.NONE && this.dressing2.getHead() != ArrowHead.NONE)
 			return ArrowDirection.LEFT_TO_RIGHT_NORMAL;
-		}
-		if (this.dressing1.getHead() != ArrowHead.NONE && this.dressing2.getHead() == ArrowHead.NONE) {
+
+		if (this.dressing1.getHead() != ArrowHead.NONE && this.dressing2.getHead() == ArrowHead.NONE)
 			return ArrowDirection.RIGHT_TO_LEFT_REVERSE;
-		}
+
 		return ArrowDirection.BOTH_DIRECTION;
 	}
 
@@ -199,9 +202,9 @@ public class ArrowConfiguration {
 	}
 
 	public ArrowHead getHead() {
-		if (dressing2 != null && dressing2.getHead() != ArrowHead.NONE) {
+		if (dressing2 != null && dressing2.getHead() != ArrowHead.NONE)
 			return dressing2.getHead();
-		}
+
 		return dressing1.getHead();
 	}
 
@@ -210,9 +213,9 @@ public class ArrowConfiguration {
 	}
 
 	public final ArrowPart getPart() {
-		if (dressing2.getHead() != ArrowHead.NONE) {
+		if (dressing2.getHead() != ArrowHead.NONE)
 			return dressing2.getPart();
-		}
+
 		return dressing1.getPart();
 	}
 
@@ -233,9 +236,9 @@ public class ArrowConfiguration {
 	}
 
 	public UGraphic applyStroke(UGraphic ug) {
-		if (isDotted()) {
+		if (isDotted())
 			return ug.apply(new UStroke(2, 2, thickness));
-		}
+
 		return ug.apply(new UStroke(thickness));
 	}
 
@@ -245,16 +248,33 @@ public class ArrowConfiguration {
 
 	public ArrowConfiguration withThickness(double thickness) {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				reverseDefine);
+				reverseDefine, inclination);
 	}
 
 	public ArrowConfiguration reverseDefine() {
 		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
-				!reverseDefine);
+				!reverseDefine, inclination);
 	}
 
 	public final boolean isReverseDefine() {
 		return reverseDefine;
+	}
+
+	public ArrowConfiguration withInclination(int inclination) {
+		return new ArrowConfiguration(body, dressing1, dressing2, decoration1, decoration2, color, isSelf, thickness,
+				reverseDefine, inclination);
+	}
+
+	public final int getInclination1() {
+		if (dressing2.getHead() == ArrowHead.NONE)
+			return inclination;
+		return 0;
+	}
+
+	public final int getInclination2() {
+		if (dressing1.getHead() == ArrowHead.NONE)
+			return inclination;
+		return 0;
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,26 +35,23 @@
 package net.sourceforge.plantuml.ugraphic.color;
 
 import java.awt.Color;
+import java.util.Objects;
 
 public class ColorMapperTransparentWrapper extends AbstractColorMapper implements ColorMapper {
 
 	private final ColorMapper mapper;
 
 	public ColorMapperTransparentWrapper(ColorMapper mapper) {
-		if (mapper == null) {
-			throw new IllegalArgumentException();
-		}
-		this.mapper = mapper;
+		this.mapper = Objects.requireNonNull(mapper);
 	}
 
 	public Color toColor(HColor color) {
-		if (color == null) {
+		if (color == null)
 			return null;
-		}
-		if (color instanceof HColorBackground) {
-			final HColor back = ((HColorBackground) color).getBack();
-			return mapper.toColor(back);
-		}
+
+		if (color instanceof HColorNone)
+			return null;
+
 		return mapper.toColor(color);
 	}
 

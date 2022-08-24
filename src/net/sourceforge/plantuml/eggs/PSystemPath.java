@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,18 +41,20 @@ import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 
 public class PSystemPath extends AbstractPSystem {
 
 	private final GraphicsPath path;
 
-	public PSystemPath(String s) {
+	public PSystemPath(UmlSource source, String s) {
+		super(source);
 		this.path = new GraphicsPath(new ColorMapperIdentity(), s);
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat)
 			throws IOException {
 		return path.writeImage(os);
 	}

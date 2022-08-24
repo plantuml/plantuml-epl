@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,9 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -92,7 +94,7 @@ public class SequenceDiagramTxtMaker implements FileMaker {
 			// }
 		}
 		drawableSet = initializer.createDrawableSet(dummyStringBounder);
-		// final List<Newpage> newpages = new ArrayList<Newpage>();
+		// final List<Newpage> newpages = new ArrayList<>();
 		// for (Event ev : drawableSet.getAllEvents()) {
 		// if (ev instanceof Newpage) {
 		// newpages.add((Newpage) ev);
@@ -112,20 +114,20 @@ public class SequenceDiagramTxtMaker implements FileMaker {
 		if (title.isWhite()) {
 			ug2 = ug;
 		} else {
-			ug2 = (UGraphicTxt) ug.apply(UTranslate.dy(title.as().size() + 1));
+			ug2 = (UGraphicTxt) ug.apply(UTranslate.dy(title.asList().size() + 1));
 		}
 		drawableSet.drawU22(ug2, 0, fullDimension.getWidth(), page, diagram.isShowFootbox());
 		if (title.isWhite() == false) {
 			final int widthTitle = StringUtils.getWcWidth(title);
 			final UmlCharArea charArea = ug.getCharArea();
-			charArea.drawStringsLR(title.as(), (int) ((fullDimension.getWidth() - widthTitle) / 2), 0);
+			charArea.drawStringsLRSimple(title.asList(), (int) ((fullDimension.getWidth() - widthTitle) / 2), 0);
 		}
 
 	}
 
 	public ImageData createOne(OutputStream os, int index, boolean isWithMetadata) throws IOException {
 		if (fileFormat == FileFormat.UTXT) {
-			final PrintStream ps = SecurityUtils.createPrintStream(os, true, "UTF-8");
+			final PrintStream ps = SecurityUtils.createPrintStream(os, true, UTF_8);
 			ug.getCharArea().print(ps);
 		} else {
 			final PrintStream ps = SecurityUtils.createPrintStream(os);

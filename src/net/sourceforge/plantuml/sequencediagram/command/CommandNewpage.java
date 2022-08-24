@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -58,7 +58,7 @@ public class CommandNewpage extends SingleLineCommand2<SequenceDiagram> {
 				new RegexOptional( //
 						new RegexConcat( //
 								new RegexLeaf("(?:[%s]*:[%s]*|[%s]+)"), //
-								new RegexLeaf("LABEL", "(.*[\\p{L}0-9_.].*)") //
+								new RegexLeaf("LABEL", "(.*[%pLN_.].*)") //
 						)), RegexLeaf.end()); //
 	}
 

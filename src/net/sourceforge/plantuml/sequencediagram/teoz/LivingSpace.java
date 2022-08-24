@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinParam;
@@ -59,15 +59,15 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 public class LivingSpace {
 
 	private final Participant p;
-	private final Rose skin;
 	private final ISkinParam skinParam;
 	private final ComponentType headType;
 	private final ComponentType tailType;
-	private final boolean useContinueLineBecauseOfDelay;
 	private final MutingLine mutingLine;
 	private final Rose rose = new Rose();
-	private final LiveBoxes liveBoxes;
+	private final LiveBoxes liveboxes;
 
+	// private final Rose skin;
+	// private final boolean useContinueLineBecauseOfDelay;
 	// private final LivingSpaceImpl previous;
 	// private LivingSpace next;
 
@@ -75,7 +75,6 @@ public class LivingSpace {
 	private Real posC;
 	private Real posD;
 
-	private final EventsHistory eventsHistory;
 	private boolean create = false;
 	private double createY = 0;
 
@@ -83,11 +82,11 @@ public class LivingSpace {
 
 	public int getLevelAt(Tile tile, EventsHistoryMode mode) {
 		// assert mode == EventsHistoryMode.IGNORE_FUTURE_DEACTIVATE;
-		return eventsHistory.getLevelAt(tile.getEvent(), mode);
+		return liveboxes.getLevelAt(tile.getEvent(), mode);
 	}
 
 	public void addStepForLivebox(Event event, double y) {
-		eventsHistory.addStepForLivebox(event, y);
+		liveboxes.addStep(event, y);
 	}
 
 	@Override
@@ -104,9 +103,8 @@ public class LivingSpace {
 
 	public LivingSpace(Participant p, ParticipantEnglober englober, Rose skin, ISkinParam skinParam, Real position,
 			List<Event> events) {
-		this.eventsHistory = new EventsHistory(p, events);
 		this.p = p;
-		this.skin = skin;
+		// this.skin = skin;
 		this.skinParam = skinParam;
 		this.englober = englober;
 		this.posB = position;
@@ -139,9 +137,9 @@ public class LivingSpace {
 		}
 		// this.stairs2.addStep2(0, p.getInitialLife());
 		// this.stairs2.addStep2(0, 0);
-		this.useContinueLineBecauseOfDelay = useContinueLineBecauseOfDelay(events);
-		this.mutingLine = new MutingLine(skin, skinParam, events);
-		this.liveBoxes = new LiveBoxes(eventsHistory, skin, skinParam, p);
+		// this.useContinueLineBecauseOfDelay = useContinueLineBecauseOfDelay(events);
+		this.mutingLine = new MutingLine(skin, skinParam, events, p);
+		this.liveboxes = new LiveBoxes(p, events, skin, skinParam);
 	}
 
 	private boolean useContinueLineBecauseOfDelay(List<Event> events) {
@@ -157,10 +155,9 @@ public class LivingSpace {
 		return false;
 	}
 
-	public void drawLineAndLiveBoxes(UGraphic ug, double height, Context2D context) {
-
+	public void drawLineAndLiveboxes(UGraphic ug, double height, Context2D context) {
 		mutingLine.drawLine(ug, context, createY, height);
-		liveBoxes.drawBoxes(ug, context, createY, height);
+		liveboxes.drawBoxes(ug, context, createY, height);
 	}
 
 	// public void addDelayTile(DelayTile tile) {
@@ -173,7 +170,7 @@ public class LivingSpace {
 			return;
 		}
 		final Component comp = rose.createComponent(p.getUsedStyles(), headType, null,
-				p.getSkinParamBackcolored(skinParam), p.getDisplay(skinParam.forceSequenceParticipantUnderlined()));
+				skinParam, p.getDisplay(skinParam.forceSequenceParticipantUnderlined()));
 		final Dimension2D dim = comp.getPreferredDimension(ug.getStringBounder());
 		if (horizontalAlignment == HorizontalAlignment.RIGHT) {
 			ug = ug.apply(UTranslate.dx(-dim.getWidth()));
@@ -211,7 +208,7 @@ public class LivingSpace {
 	}
 
 	public Real getPosC2(StringBounder stringBounder) {
-		final double delta = liveBoxes.getMaxPosition(stringBounder);
+		final double delta = liveboxes.getMaxPosition(stringBounder);
 		return getPosC(stringBounder).addFixed(delta);
 	}
 
@@ -223,7 +220,7 @@ public class LivingSpace {
 		return posD;
 	}
 
-	public Real getPosB() {
+	public Real getPosB(StringBounder stringBounder) {
 		return posB;
 	}
 
@@ -242,11 +239,34 @@ public class LivingSpace {
 
 	public void delayOn(double y, double height) {
 		mutingLine.delayOn(y, height);
-		liveBoxes.delayOn(y, height);
+		liveboxes.delayOn(y, height);
 	}
 
 	public ParticipantEnglober getEnglober() {
 		return englober;
+	}
+
+	private double marginBefore;
+	private double marginAfter;
+
+	public void ensureMarginBefore(double margin) {
+		if (margin < 0)
+			throw new IllegalArgumentException();
+		this.marginBefore = Math.max(marginBefore, margin);
+	}
+
+	public void ensureMarginAfter(double margin) {
+		if (margin < 0)
+			throw new IllegalArgumentException();
+		this.marginAfter = Math.max(marginAfter, margin);
+	}
+
+	public Real getPosA(StringBounder stringBounder) {
+		return getPosB(stringBounder).addFixed(-marginBefore);
+	}
+
+	public Real getPosE(StringBounder stringBounder) {
+		return getPosD(stringBounder).addFixed(marginAfter);
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,16 +40,20 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.project.Failable;
 import net.sourceforge.plantuml.project.GanttDiagram;
 
-public class ComplementClose implements ComplementPattern {
-
-	public static final Complement CLOSE = new Complement() {
-	};
+public class ComplementClose implements Something {
 
 	public IRegex toRegex(String suffix) {
-		return new RegexLeaf("CLOSED" + suffix, "(closed?)");
+		return new RegexLeaf("CLOSED" + suffix, "(closed?(?: for \\[([^\\[\\]]+?)\\])?)");
 	}
 
-	public Failable<Complement> getComplement(GanttDiagram system, RegexResult arg, String suffix) {
-		return Failable.<Complement> ok(CLOSE);
+	public Failable<String> getMe(GanttDiagram project, RegexResult arg, String suffix) {
+		final String value = arg.get("CLOSED" + suffix, 0);
+		final int x = value.indexOf('[');
+		if (x > 0) {
+			final int y = value.lastIndexOf(']');
+			final String s = value.substring(x + 1, y);
+			return Failable.ok(s);
+		}
+		return Failable.ok("");
 	}
 }

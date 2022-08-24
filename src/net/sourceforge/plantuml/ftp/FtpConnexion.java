@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -56,7 +56,7 @@ public class FtpConnexion {
 	private final String user;
 	private final Map<String, String> incoming = new HashMap<String, String>();
 	private final Map<String, byte[]> outgoing = new HashMap<String, byte[]>();
-	private final Set<String> futureOutgoing = new HashSet<String>();
+	private final Set<String> futureOutgoing = new HashSet<>();
 
 	private FileFormat fileFormat;
 
@@ -78,7 +78,7 @@ public class FtpConnexion {
 	}
 
 	public synchronized Collection<String> getFiles() {
-		final List<String> result = new ArrayList<String>(incoming.keySet());
+		final List<String> result = new ArrayList<>(incoming.keySet());
 		result.addAll(outgoing.keySet());
 		result.addAll(futureOutgoing);
 		return Collections.unmodifiableCollection(result);

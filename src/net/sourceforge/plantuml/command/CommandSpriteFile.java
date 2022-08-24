@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,18 +44,18 @@ import net.sourceforge.plantuml.FileSystem;
 import net.sourceforge.plantuml.FileUtils;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Log;
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.security.ImageIO;
 import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.sprite.SpriteImage;
 import net.sourceforge.plantuml.sprite.SpriteSvg;
 
-public class CommandSpriteFile extends SingleLineCommand2<UmlDiagram> {
+public class CommandSpriteFile extends SingleLineCommand2<TitledDiagram> {
 
 	public CommandSpriteFile() {
 		super(getRegexConcat());
@@ -66,50 +66,50 @@ public class CommandSpriteFile extends SingleLineCommand2<UmlDiagram> {
 				new RegexLeaf("sprite"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("\\$?"), //
-				new RegexLeaf("NAME", "([-\\p{L}0-9_]+)"), //
+				new RegexLeaf("NAME", "([-%pLN_]+)"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("FILE", "(.*)"), RegexLeaf.end());
+				new RegexLeaf("FILE", "([^<>%g#]*)"), RegexLeaf.end());
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(UmlDiagram system, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(TitledDiagram system, LineLocation location, RegexResult arg) {
 		final String src = arg.get("FILE", 0);
 		final Sprite sprite;
 		try {
 			if (src.startsWith("jar:")) {
 				final String inner = src.substring(4) + ".png";
 				final InputStream is = SpriteImage.getInternalSprite(inner);
-				if (is == null) {
+				if (is == null)
 					return CommandExecutionResult.error("No such internal sprite: " + inner);
-				}
-				sprite = new SpriteImage(ImageIO.read(is));
+
+				sprite = new SpriteImage(SImageIO.read(is));
 			} else if (src.contains("~")) {
 				final int idx = src.lastIndexOf("~");
 				final SFile f = FileSystem.getInstance().getFile(src.substring(0, idx));
-				if (f.exists() == false) {
+				if (f.exists() == false)
 					return CommandExecutionResult.error("Cannot read: " + src);
-				}
+
 				final String name = src.substring(idx + 1);
 				sprite = getImageFromZip(f, name);
-				if (sprite == null) {
+				if (sprite == null)
 					return CommandExecutionResult.error("Cannot read: " + src);
-				}
+
 			} else {
 				final SFile f = FileSystem.getInstance().getFile(src);
-				if (f.exists() == false) {
+				if (f.exists() == false)
 					return CommandExecutionResult.error("Cannot read: " + src);
-				}
+
 				if (isSvg(f.getName())) {
 					final String tmp = FileUtils.readSvg(f);
-					if (tmp == null) {
+					if (tmp == null)
 						return CommandExecutionResult.error("Cannot read: " + src);
-					}
+
 					sprite = new SpriteSvg(tmp);
 				} else {
 					final BufferedImage tmp = f.readRasterImageFromFile();
-					if (tmp == null) {
+					if (tmp == null)
 						return CommandExecutionResult.error("Cannot read: " + src);
-					}
+
 					sprite = new SpriteImage(tmp);
 				}
 			}
@@ -138,7 +138,7 @@ public class CommandSpriteFile extends SingleLineCommand2<UmlDiagram> {
 					if (isSvg(name)) {
 						return new SpriteSvg(FileUtils.readSvg(zis));
 					} else {
-						return new SpriteImage(ImageIO.read(zis));
+						return new SpriteImage(SImageIO.read(zis));
 					}
 				}
 				ze = zis.getNextEntry();

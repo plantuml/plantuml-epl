@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -68,29 +68,22 @@ public class ClusterDecoration {
 	}
 
 	private static USymbol guess(USymbol symbol, PackageStyle style) {
-		if (symbol != null) {
+		if (symbol != null)
 			return symbol;
-		}
+
 		return style.toUSymbol();
 	}
 
-	public final static int marginTitleX1 = 3;
-	public final static int marginTitleX2 = 3;
-	public final static int marginTitleX3 = 7;
-	public final static int marginTitleY0 = 0;
-	public final static int marginTitleY1 = 3;
-	public final static int marginTitleY2 = 3;
-
 	public void drawU(UGraphic ug, HColor backColor, HColor borderColor, double shadowing, double roundCorner,
-			HorizontalAlignment titleAlignment, HorizontalAlignment stereoAlignment) {
+			HorizontalAlignment titleAlignment, HorizontalAlignment stereoAlignment, double diagonalCorner) {
 		final SymbolContext biColor = new SymbolContext(backColor, borderColor);
-		if (symbol == null) {
+		if (symbol == null)
 			throw new UnsupportedOperationException();
-		}
+
 		final SymbolContext symbolContext = biColor.withShadow(shadowing).withStroke(defaultStroke)
-				.withCorner(roundCorner, 0);
-		symbol.asBig(title, titleAlignment, stereo, maxX - minX, maxY - minY, symbolContext, stereoAlignment).drawU(
-				ug.apply(new UTranslate(minX, minY)));
+				.withCorner(roundCorner, diagonalCorner);
+		symbol.asBig(title, titleAlignment, stereo, maxX - minX, maxY - minY, symbolContext, stereoAlignment)
+				.drawU(ug.apply(new UTranslate(minX, minY)));
 	}
 
 }

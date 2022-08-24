@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,11 +39,10 @@ import java.io.OutputStream;
 
 import net.sourceforge.plantuml.EnsureVisible;
 import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.TikzFontDistortion;
-import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
-public class UGraphicNull extends AbstractUGraphic<String> implements EnsureVisible, UGraphic2 {
+public class UGraphicNull extends AbstractUGraphic<String> implements EnsureVisible {
 
 	@Override
 	protected AbstractCommonUGraphic copyUGraphic() {
@@ -55,14 +54,11 @@ public class UGraphicNull extends AbstractUGraphic<String> implements EnsureVisi
 	}
 
 	public UGraphicNull() {
-		super(new ColorMapperIdentity(), "foo");
+		super(HColors.BLACK, new ColorMapperIdentity(), FileFormat.PNG.getDefaultStringBounder(), "foo");
 	}
 
-	public StringBounder getStringBounder() {
-		return FileFormat.PNG.getDefaultStringBounder(TikzFontDistortion.getDefault());
-	}
-
-	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
 	}
 
 	public void ensureVisible(double x, double y) {

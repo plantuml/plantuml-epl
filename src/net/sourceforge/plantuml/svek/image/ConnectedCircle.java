@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -42,13 +42,13 @@ import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ConnectedCircle implements UDrawable {
 
 	private final double radius;
-	private final List<Double> angles = new ArrayList<Double>();
-	private final List<Point2D> points = new ArrayList<Point2D>();
+	private final List<Double> angles = new ArrayList<>();
+	private final List<Point2D> points = new ArrayList<>();
 
 	public ConnectedCircle(double radius) {
 		this.radius = radius;
@@ -62,7 +62,7 @@ public class ConnectedCircle implements UDrawable {
 			final UEllipse part = new UEllipse(2 * radius, 2 * radius, angle - delta, 2 * delta);
 			ug.draw(part);
 		}
-		ug = ug.apply(HColorUtils.GREEN).apply(HColorUtils.GREEN.bg());
+		ug = ug.apply(HColors.GREEN).apply(HColors.GREEN.bg());
 		for (Point2D pt : points) {
 			final UTranslate tr = new UTranslate(pt);
 			// ug.apply(tr).draw(new UEllipse(2, 2));

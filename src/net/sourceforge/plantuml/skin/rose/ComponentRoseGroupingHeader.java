@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,11 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -55,7 +55,6 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
 
 public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 
@@ -69,49 +68,35 @@ public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 	private final SymbolContext symbolContextCorner;
 	private final double roundCorner;
 
-	public ComponentRoseGroupingHeader(Style style, Style styleHeader, HColor background,
-			SymbolContext symbolContext, FontConfiguration bigFont, FontConfiguration smallFont2, Display strings,
-			ISkinSimple spriteContainer, double roundCorner) {
-		super(styleHeader, LineBreakStrategy.NONE, strings.get(0), bigFont, HorizontalAlignment.LEFT, 15, 30, 1,
-				spriteContainer, null, null);
+	public ComponentRoseGroupingHeader(Style style, Style styleHeader, Display strings, ISkinSimple spriteContainer) {
+		super(styleHeader, LineBreakStrategy.NONE, 15, 30, 1, spriteContainer, strings.get(0));
 
-		if (SkinParam.USE_STYLES()) {
-			this.roundCorner = style.value(PName.RoundCorner).asInt();
-			this.background = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
-			this.symbolContext = style.getSymbolContext(getIHtmlColorSet());
-			this.symbolContextCorner = styleHeader.getSymbolContext(getIHtmlColorSet());
-			bigFont = style.getFontConfiguration(getIHtmlColorSet());
-			smallFont2 = style.getFontConfiguration(getIHtmlColorSet());
-		} else {
-			this.roundCorner = roundCorner;
-			this.background = background;
-			this.symbolContext = symbolContext;
-			this.symbolContextCorner = symbolContext;
-		}
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
+		this.background = style.value(PName.BackGroundColor).asColor(spriteContainer.getThemeStyle(),
+				getIHtmlColorSet());
+		this.symbolContext = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.symbolContextCorner = styleHeader.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+
+		final FontConfiguration smallFont2 = style.getFontConfiguration(spriteContainer.getThemeStyle(),
+				getIHtmlColorSet());
+
 		if (strings.size() == 1 || strings.get(1) == null) {
 			this.commentTextBlock = null;
 		} else {
 			final Display display = Display.getWithNewlines("[" + strings.get(1) + "]");
-			// final FontConfiguration smallFont2 = bigFont.forceFont(smallFont, null);
 			this.commentTextBlock = display.create(smallFont2, HorizontalAlignment.LEFT, spriteContainer);
 		}
-		if (this.background == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(this.background);
 	}
 
-	// new FontConfiguration(smallFont, bigFont.getColor(),
-	// bigFont.getHyperlinkColor(),
-	// bigFont.useUnderlineForHyperlink());
-
 	private double getSuppHeightForComment(StringBounder stringBounder) {
-		if (commentTextBlock == null) {
+		if (commentTextBlock == null)
 			return 0;
-		}
+
 		final double height = commentTextBlock.calculateDimension(stringBounder).getHeight();
-		if (height > 15) {
+		if (height > 15)
 			return height - 15;
-		}
+
 		return 0;
 
 	}
@@ -136,9 +121,6 @@ public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 
 	@Override
 	protected void drawBackgroundInternalU(UGraphic ug, Area area) {
-		if (background instanceof HColorBackground) {
-			return;
-		}
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
 		ug = symbolContext.applyStroke(ug).apply(symbolContext.getForeColor());
 		final URectangle rect = new URectangle(dimensionToUse.getWidth(), dimensionToUse.getHeight())
@@ -151,14 +133,10 @@ public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 	protected void drawInternalU(UGraphic ug, Area area) {
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
 		final StringBounder stringBounder = ug.getStringBounder();
-		final int textWidth = (int) getTextWidth(stringBounder);
-		final int textHeight = (int) getTextHeight(stringBounder);
+		final double textWidth = getTextWidth(stringBounder);
+		final double textHeight = getTextHeight(stringBounder);
 
-		if (SkinParam.USE_STYLES()) {
-			symbolContextCorner.apply(ug).draw(getCorner(textWidth, textHeight));
-		} else {
-			symbolContextCorner.applyColors(ug).draw(getCorner(textWidth, textHeight));
-		}
+		symbolContextCorner.apply(ug).draw(getCorner(textWidth, textHeight));
 
 		ug = symbolContext.applyStroke(ug).apply(symbolContext.getForeColor());
 		final URectangle rect = new URectangle(dimensionToUse.getWidth(), dimensionToUse.getHeight())
@@ -170,8 +148,8 @@ public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 		getTextBlock().drawU(ug.apply(new UTranslate(getMarginX1(), getMarginY())));
 
 		if (commentTextBlock != null) {
-			final int x1 = getMarginX1() + textWidth;
-			final int y2 = getMarginY() + 1;
+			final double x1 = getMarginX1() + textWidth;
+			final double y2 = getMarginY() + 1;
 
 			commentTextBlock.drawU(ug.apply(new UTranslate(x1 + commentMargin, y2)));
 		}
@@ -197,6 +175,9 @@ public class ComponentRoseGroupingHeader extends AbstractTextualComponent {
 
 			polygon.lineTo(0, height);
 			polygon.lineTo(0, roundCorner / 2);
+
+			polygon.arcTo(roundCorner / 2, roundCorner / 2, 0, 0, 1, roundCorner / 2, 0);
+
 		}
 		return polygon;
 	}

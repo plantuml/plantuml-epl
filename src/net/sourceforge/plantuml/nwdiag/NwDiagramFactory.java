@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,21 +37,31 @@ package net.sourceforge.plantuml.nwdiag;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommandFootboxIgnored;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class NwDiagramFactory extends UmlDiagramFactory {
+public class NwDiagramFactory extends PSystemCommandFactory {
+
+	public NwDiagramFactory(DiagramType type) {
+		super(type);
+	}
 
 	@Override
-	public NwDiagram createEmptyDiagram() {
-		return new NwDiagram();
+	public NwDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new NwDiagram(style, source);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
-		addCommonCommands1(cmds);
+		final List<Command> cmds = new ArrayList<>();
+		CommonCommands.addCommonCommands1(cmds);
 		cmds.add(new CommandNwDiagInit());
 		cmds.add(new CommandComment());
 		cmds.add(new CommandElement());
@@ -60,6 +70,7 @@ public class NwDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandLink());
 		cmds.add(new CommandProperty());
 		cmds.add(new CommandEndSomething());
+		cmds.add(new CommandFootboxIgnored());
 		return cmds;
 	}
 

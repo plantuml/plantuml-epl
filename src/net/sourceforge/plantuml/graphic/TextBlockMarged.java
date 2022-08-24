@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,13 +34,14 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.WithPorts;
+import net.sourceforge.plantuml.ugraphic.UEmpty;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -74,8 +75,14 @@ class TextBlockMarged extends AbstractTextBlock implements TextBlock, WithPorts 
 	}
 
 	public void drawU(UGraphic ug) {
-		final UTranslate translate = new UTranslate(left, top);
-		textBlock.drawU(ug.apply(translate));
+		// ug.apply(HColorUtils.BLUE).draw(new
+		// URectangle(calculateDimension(ug.getStringBounder())));
+		final Dimension2D dim = calculateDimension(ug.getStringBounder());
+		if (dim.getWidth() > 0) {
+			ug.draw(new UEmpty(dim));
+			final UTranslate translate = new UTranslate(left, top);
+			textBlock.drawU(ug.apply(translate));
+		}
 	}
 
 	@Override
@@ -88,6 +95,7 @@ class TextBlockMarged extends AbstractTextBlock implements TextBlock, WithPorts 
 		return translate.apply(parent);
 	}
 
+	@Override
 	public Ports getPorts(StringBounder stringBounder) {
 		return ((WithPorts) textBlock).getPorts(stringBounder).translateY(top);
 	}

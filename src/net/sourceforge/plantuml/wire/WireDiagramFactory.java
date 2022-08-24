@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,11 +37,15 @@ package net.sourceforge.plantuml.wire;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.CommonCommands;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class WireDiagramFactory extends UmlDiagramFactory {
+public class WireDiagramFactory extends PSystemCommandFactory {
 
 	public WireDiagramFactory() {
 		super(DiagramType.WIRE);
@@ -50,22 +54,22 @@ public class WireDiagramFactory extends UmlDiagramFactory {
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
-		addCommonCommands1(cmds);
+		final List<Command> cmds = new ArrayList<>();
+		CommonCommands.addCommonCommands1(cmds);
 		cmds.add(new CommandComponent());
-		cmds.add(new CommandContainer());
-		cmds.add(new CommandContainerEnd());
-		cmds.add(new CommandPin());
-		cmds.add(new CommandPinSpace());
-		cmds.add(new CommandVspace());
+		cmds.add(new CommandSpot());
+		cmds.add(new CommandGoto());
+		cmds.add(new CommandMove());
+		cmds.add(new CommandWLink());
 		cmds.add(new CommandNewColumn());
+		cmds.add(new CommandPrint());
 
 		return cmds;
 	}
 
 	@Override
-	public WireDiagram createEmptyDiagram() {
-		return new WireDiagram();
+	public WireDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new WireDiagram(style, source);
 	}
 
 }

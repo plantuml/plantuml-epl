@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,7 +53,7 @@ public class CommandNetwork extends SingleLineCommand2<NwDiagram> {
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("network"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_]+)?"), //
+				new RegexLeaf("NAME", "([-.%pLN_]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("\\{"), RegexLeaf.end());
 	}

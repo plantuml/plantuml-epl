@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ public class SyntaxResult {
 	private UmlDiagramType umlDiagramType;
 	private boolean isError;
 	private String description;
-	private Collection<String> errors = new TreeSet<String>();
+	private Collection<String> errors = new TreeSet<>();
 	private boolean hasCmapData;
 	private PSystemError systemError;
 	private LineLocation lineLocation;

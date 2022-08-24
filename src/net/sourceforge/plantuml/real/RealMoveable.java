@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,6 +36,8 @@ package net.sourceforge.plantuml.real;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.sourceforge.plantuml.log.Logme;
+
 abstract class RealMoveable extends AbstractReal implements Real {
 
 	public static final AtomicInteger CPT = new AtomicInteger();
@@ -53,7 +55,7 @@ abstract class RealMoveable extends AbstractReal implements Real {
 	abstract void move(double delta);
 
 	final public void printCreationStackTrace() {
-		creationPoint.printStackTrace();
+		Logme.error(creationPoint);
 	}
 
 	final public Real addFixed(double delta) {

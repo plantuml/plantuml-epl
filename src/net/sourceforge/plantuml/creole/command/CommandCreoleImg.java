@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,14 +44,18 @@ import net.sourceforge.plantuml.graphic.Splitter;
 
 public class CommandCreoleImg implements Command {
 
-	private final Pattern2 pattern;
+	@Override
+	public String startingChars() {
+		return "<";
+	}
 
-	private CommandCreoleImg(String p) {
-		this.pattern = MyPattern.cmpile(p);
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + Splitter.imgPatternNoSrcColon + ")");
+
+	private CommandCreoleImg() {
 	}
 
 	public static Command create() {
-		return new CommandCreoleImg("^(?i)(" + Splitter.imgPatternNoSrcColon + ")");
+		return new CommandCreoleImg();
 	}
 
 	public int matchingSize(String line) {

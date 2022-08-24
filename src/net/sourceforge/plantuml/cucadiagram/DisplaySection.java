@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,6 +41,7 @@ import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.Style;
 
 public class DisplaySection {
 
@@ -52,16 +53,16 @@ public class DisplaySection {
 
 	public DisplaySection withPage(int page, int lastpage) {
 		final DisplaySection result = new DisplaySection();
-		for (Map.Entry<HorizontalAlignment, Display> ent : this.map.entrySet()) {
+		for (Map.Entry<HorizontalAlignment, Display> ent : this.map.entrySet())
 			result.map.put(ent.getKey(), ent.getValue().withPage(page, lastpage));
-		}
+
 		return result;
 	}
 
 	public Display getDisplay() {
-		if (map.size() == 0) {
+		if (map.size() == 0)
 			return null;
-		}
+
 		return map.values().iterator().next();
 	}
 
@@ -70,31 +71,31 @@ public class DisplaySection {
 	}
 
 	public final HorizontalAlignment getHorizontalAlignment() {
-		if (map.size() == 0) {
+		if (map.size() == 0)
 			return HorizontalAlignment.CENTER;
-		}
+
 		return map.keySet().iterator().next();
 	}
 
 	public boolean isNull() {
-		if (map.size() == 0) {
+		if (map.size() == 0)
 			return true;
-		}
+
 		final Display display = map.values().iterator().next();
 		return Display.isNull(display);
 	}
 
-	public TextBlock createRibbon(FontConfiguration fontConfiguration, ISkinSimple spriteContainer) {
-		if (map.size() == 0) {
+	public TextBlock createRibbon(FontConfiguration fontConfiguration, ISkinSimple spriteContainer, Style style) {
+		if (map.size() == 0)
 			return null;
-		}
+
 		final Display display = map.values().iterator().next();
-		if (Display.isNull(display) || display.size() == 0) {
+		if (Display.isNull(display) || display.size() == 0)
 			return null;
-		}
-		// if (SkinParam.USE_STYLES()) {
-		// throw new UnsupportedOperationException();
-		// }
+
+		if (style != null)
+			return style.createTextBlockBordered(display, spriteContainer.getIHtmlColorSet(), spriteContainer, null);
+
 		return display.create(fontConfiguration, getHorizontalAlignment(), spriteContainer);
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,11 +41,11 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 class MiddleCircleCircled extends Extremity {
 
-	private final HColor diagramBackColor = HColorUtils.WHITE;
+	private final HColor diagramBackColor;
 	private final double angle;
 	private final MiddleCircleCircledMode mode;
 	private final double radius1 = 6;
@@ -55,10 +55,11 @@ class MiddleCircleCircled extends Extremity {
 	private final UEllipse bigcircle = new UEllipse(2 * radius2, 2 * radius2);
 	private final HColor backColor;
 
-	public MiddleCircleCircled(double angle, MiddleCircleCircledMode mode, HColor backColor) {
+	public MiddleCircleCircled(double angle, MiddleCircleCircledMode mode, HColor backColor, HColor diagramBackColor) {
 		this.angle = angle;
 		this.mode = mode;
 		this.backColor = backColor;
+		this.diagramBackColor = diagramBackColor;
 	}
 
 	@Override
@@ -78,11 +79,11 @@ class MiddleCircleCircled extends Extremity {
 		final double d = 0;
 		if (mode == MiddleCircleCircledMode.MODE1 || mode == MiddleCircleCircledMode.BOTH) {
 			final UEllipse arc1 = new UEllipse(2 * radius2, 2 * radius2, angle, 90);
-			ug.apply(new UTranslate(-radius2 + d, -radius2 + d)).draw(arc1);
+			ug.apply(HColors.none().bg()).apply(new UTranslate(-radius2 + d, -radius2 + d)).draw(arc1);
 		}
 		if (mode == MiddleCircleCircledMode.MODE2 || mode == MiddleCircleCircledMode.BOTH) {
 			final UEllipse arc2 = new UEllipse(2 * radius2, 2 * radius2, angle + 180, 90);
-			ug.apply(new UTranslate(-radius2 + d, -radius2 + d)).draw(arc2);
+			ug.apply(HColors.none().bg()).apply(new UTranslate(-radius2 + d, -radius2 + d)).draw(arc2);
 		}
 		ug.apply(new UTranslate(-radius1, -radius1)).draw(circle);
 	}

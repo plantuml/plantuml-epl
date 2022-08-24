@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.prefs.Preferences;
 
 import net.sourceforge.plantuml.Log;
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
+import net.sourceforge.plantuml.log.Logme;
 
+@HaxeIgnored
 public class NumberAnalyzedDated extends NumberAnalyzed {
 
 	private final AtomicLong created = new AtomicLong();
@@ -108,7 +111,7 @@ public class NumberAnalyzedDated extends NumberAnalyzed {
 					Long.parseLong(st.nextToken(), 36), Long.parseLong(st.nextToken(), 36), Long.parseLong(
 							st.nextToken(), 36), st.nextToken());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 			Log.info("Error reading " + value);
 			return null;
 		}

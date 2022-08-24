@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -33,6 +33,9 @@
  * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.openiconic;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
 public class SvgPosition {
 
@@ -85,5 +88,9 @@ public class SvgPosition {
 		final double x = 2 * centerX - tobeMirrored.getXDouble();
 		final double y = 2 * centerY - tobeMirrored.getYDouble();
 		return new SvgPosition(x, y);
+	}
+
+	public Point2D affine(AffineTransform at) {
+		return at.transform(new Point2D.Double(getXDouble(), getYDouble()), null);
 	}
 }

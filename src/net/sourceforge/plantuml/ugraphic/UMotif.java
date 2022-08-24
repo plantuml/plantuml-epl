@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.posimo.DotPath;
 
 public class UMotif {
 
-	private final List<Point2D> points = new ArrayList<Point2D>();
+	private final List<Point2D> points = new ArrayList<>();
 
 	public UMotif(int... data) {
 		assert data.length % 2 == 0;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,8 +57,15 @@ public class Parser {
 		return new CreoleParser(fontConfiguration, horizontalAlignment, skinParam, creoleMode, stereotype);
 	}
 
+	public static boolean isCodeStart(String line) {
+		return line.equals("<code>");
+	}
+
+	public static boolean isCodeEnd(String line) {
+		return line.equals("</code>");
+	}
+
 	public static boolean isTreeStart(String line) {
-		// return false;
 		return line.startsWith("|_");
 	}
 

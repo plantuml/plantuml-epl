@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.posimo;
 
+import java.util.Objects;
+
 public class Path {
 
 	private final Label label;
@@ -48,15 +50,12 @@ public class Path {
 	}
 
 	public Path(Block start, Block end, Label label, int length, boolean invis) {
-		if (start == null || end == null) {
-			throw new IllegalArgumentException();
-		}
 		if (length < 1) {
 			throw new IllegalArgumentException("length=" + length);
 		}
 		this.invis = invis;
-		this.start = start;
-		this.end = end;
+		this.start = Objects.requireNonNull(start);
+		this.end = Objects.requireNonNull(end);
 		this.label = label;
 		this.length = length;
 	}

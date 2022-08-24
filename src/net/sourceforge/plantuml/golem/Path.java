@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,7 @@ import java.util.List;
 
 public class Path {
 
-	private final List<TileArea> all = new ArrayList<TileArea>();
+	private final List<TileArea> all = new ArrayList<>();
 
 	public static Path build(TileArea start, TileArea dest) {
 		return new Path(start, dest);

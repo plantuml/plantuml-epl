@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,10 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
@@ -83,10 +82,9 @@ public class EntityImageDegenerated implements IEntityImage {
 
 	public void drawU(UGraphic ug) {
 		orig.drawU(ug.apply(new UTranslate(delta, delta)));
-		if (SkinParam.USE_STYLES()) {
-			final Dimension2D dim = calculateDimension(ug.getStringBounder());
-			ug.apply(new UTranslate(dim.getWidth() - delta, dim.getHeight() - delta)).draw(new UEmpty(delta, delta));
-		}
+
+		final Dimension2D dim = calculateDimension(ug.getStringBounder());
+		ug.apply(new UTranslate(dim.getWidth() - delta, dim.getHeight() - delta)).draw(new UEmpty(delta, delta));
 
 	}
 

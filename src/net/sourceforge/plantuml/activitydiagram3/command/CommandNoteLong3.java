@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -49,6 +49,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandNoteLong3 extends CommandMultilines2<ActivityDiagram3> {
 
@@ -62,19 +63,22 @@ public class CommandNoteLong3 extends CommandMultilines2<ActivityDiagram3> {
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?note$";
+		return "^end[%s]?note$";
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(final ActivityDiagram3 diagram, BlocLines lines) {
-		// final List<? extends CharSequence> in = StringUtils.removeEmptyColumns2(lines.subList(1, lines.size() - 1));
+	protected CommandExecutionResult executeNow(final ActivityDiagram3 diagram, BlocLines lines)
+			throws NoSuchColorException {
+		// final List<? extends CharSequence> in =
+		// StringUtils.removeEmptyColumns2(lines.subList(1, lines.size() - 1));
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		lines = lines.subExtract(1, 1);
 		lines = lines.removeEmptyColumns();
 		final NotePosition position = NotePosition.defaultLeft(line0.get("POSITION", 0));
 		final NoteType type = NoteType.defaultType(line0.get("TYPE", 0));
 		final Display note = lines.toDisplay();
-		final Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
 		return diagram.addNote(note, position, type, colors);
 	}
 

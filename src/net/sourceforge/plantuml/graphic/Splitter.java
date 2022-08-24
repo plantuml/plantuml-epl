@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,12 +39,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
+import net.sourceforge.plantuml.emoji.Emoji;
 import net.sourceforge.plantuml.sprite.SpriteUtils;
 
 public class Splitter {
@@ -70,6 +71,7 @@ public class Splitter {
 			"\\}?" + //
 			")?";
 
+	public static final String emojiPattern = Emoji.pattern();
 	public static final String openiconPattern = "\\<&([-\\w]+)" + scale + "\\>";
 	public static final String spritePattern2 = "\\<\\$(" + SpriteUtils.SPRITE_NAME + ")" + scale + "\\>";
 
@@ -85,7 +87,7 @@ public class Splitter {
 	private static final Pattern2 tagOrText;
 
 	static {
-		final StringBuilder sb = new StringBuilder("(?i)");
+		final StringBuilder sb = new StringBuilder();
 
 		for (FontStyle style : EnumSet.allOf(FontStyle.class)) {
 			sb.append(style.getActivationPattern());
@@ -122,10 +124,10 @@ public class Splitter {
 		sb.append(svgAttributePattern);
 
 		htmlTag = sb.toString();
-		tagOrText = MyPattern.cmpile(htmlTag + "|.+?(?=" + htmlTag + ")|.+$", Pattern.CASE_INSENSITIVE);
+		tagOrText = MyPattern.cmpile(htmlTag + "|.+?(?=" + htmlTag + ")|.+$");
 	}
 
-	private final List<String> splitted = new ArrayList<String>();
+	private final List<String> splitted = new ArrayList<>();
 
 	public Splitter(String s) {
 		final Matcher2 matcher = tagOrText.matcher(s);
@@ -140,11 +142,15 @@ public class Splitter {
 		return splitted;
 	}
 
-	public List<HtmlCommand> getHtmlCommands(boolean newLineAlone) {
+	public static String purgeAllTag(String s) {
+		return s.replaceAll(htmlTag, "");
+	}
+
+	public List<HtmlCommand> getHtmlCommands(ThemeStyle themeStyle, boolean newLineAlone) {
 		final HtmlCommandFactory factory = new HtmlCommandFactory();
-		final List<HtmlCommand> result = new ArrayList<HtmlCommand>();
+		final List<HtmlCommand> result = new ArrayList<>();
 		for (String s : getSplittedInternal()) {
-			final HtmlCommand cmd = factory.getHtmlCommand(s);
+			final HtmlCommand cmd = factory.getHtmlCommand(themeStyle, s);
 			if (newLineAlone && cmd instanceof Text) {
 				result.addAll(splitText((Text) cmd));
 			} else {
@@ -156,7 +162,7 @@ public class Splitter {
 
 	private Collection<Text> splitText(Text cmd) {
 		String s = cmd.getText();
-		final Collection<Text> result = new ArrayList<Text>();
+		final Collection<Text> result = new ArrayList<>();
 		while (true) {
 			final int x = s.indexOf(Text.TEXT_BS_BS_N.getText());
 			if (x == -1) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
@@ -50,28 +49,25 @@ import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class FtileCircleStart extends AbstractFtile {
 
 	private static final int SIZE = 20;
 
-	private final HColor backColor;
+	private HColor backColor;
+	private HColor borderColor;
 	private final Swimlane swimlane;
 	private double shadowing;
 
 	public FtileCircleStart(ISkinParam skinParam, HColor backColor, Swimlane swimlane, Style style) {
 		super(skinParam);
-		this.backColor = backColor;
 		this.swimlane = swimlane;
-		if (SkinParam.USE_STYLES()) {
-			this.shadowing = style.value(PName.Shadowing).asDouble();
-		} else {
-			if (skinParam().shadowing(null)) {
-				this.shadowing = 3;
-			}
-		}
-
+		this.backColor = backColor;
+		this.borderColor = HColors.none();
+		this.shadowing = style.value(PName.Shadowing).asDouble();
+		this.backColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(), getIHtmlColorSet());
+		this.borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), getIHtmlColorSet());
 	}
 
 	@Override
@@ -80,9 +76,9 @@ public class FtileCircleStart extends AbstractFtile {
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		if (swimlane == null) {
+		if (swimlane == null)
 			return Collections.emptySet();
-		}
+
 		return Collections.singleton(swimlane);
 	}
 
@@ -97,7 +93,7 @@ public class FtileCircleStart extends AbstractFtile {
 	public void drawU(UGraphic ug) {
 		final UEllipse circle = new UEllipse(SIZE, SIZE);
 		circle.setDeltaShadow(shadowing);
-		ug.apply(new HColorNone()).apply(backColor.bg()).draw(circle);
+		ug.apply(borderColor).apply(backColor.bg()).draw(circle);
 	}
 
 	@Override

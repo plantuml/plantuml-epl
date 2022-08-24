@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.creole.command;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
@@ -41,41 +42,43 @@ import net.sourceforge.plantuml.creole.Parser;
 import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 import net.sourceforge.plantuml.graphic.Splitter;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class CommandCreoleOpenIcon implements Command {
 
-	private final Pattern2 pattern;
-	private final HColorSet colorSet;
-
-	private CommandCreoleOpenIcon(HColorSet colorSet, String p) {
-		this.pattern = MyPattern.cmpile(p);
-		this.colorSet = colorSet;
+	@Override
+	public String startingChars() {
+		return "<";
 	}
 
-	public static Command create(HColorSet colorSet) {
-		return new CommandCreoleOpenIcon(colorSet, "^(?i)(" + Splitter.openiconPattern + ")");
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + Splitter.openiconPattern + ")");
+
+	private CommandCreoleOpenIcon() {
+	}
+
+	public static Command create() {
+		return new CommandCreoleOpenIcon();
 	}
 
 	public int matchingSize(String line) {
 		final Matcher2 m = pattern.matcher(line);
-		if (m.find() == false) {
+		if (m.find() == false)
 			return 0;
-		}
+
 		return m.group(1).length();
 	}
 
 	public String executeAndGetRemaining(String line, StripeSimple stripe) {
 		final Matcher2 m = pattern.matcher(line);
-		if (m.find() == false) {
+		if (m.find() == false)
 			throw new IllegalStateException();
-		}
+
 		final String src = m.group(2);
 		final double scale = Parser.getScale(m.group(3), 1);
 		final String colorName = Parser.getColor(m.group(3));
 		HColor color = null;
 		if (colorName != null) {
-			color = colorSet.getColorIfValid(colorName);
+			final ISkinSimple skinParam = stripe.getSkinParam();
+			color = skinParam.getIHtmlColorSet().getColorOrWhite(skinParam.getThemeStyle(), colorName);
 		}
 		stripe.addOpenIcon(src, scale, color);
 		return line.substring(m.group(1).length());

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,46 +34,63 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
-
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UStroke;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class EntityImageAssociation extends AbstractEntityImage {
 
 	final private static int SIZE = 12;
+	private final SName sname;
 
-	public EntityImageAssociation(ILeaf entity, ISkinParam skinParam) {
+	public EntityImageAssociation(ILeaf entity, ISkinParam skinParam, SName sname) {
 		super(entity, skinParam);
+		this.sname = sname;
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		return new Dimension2DDouble(SIZE * 2, SIZE * 2);
 	}
 
+	private Style getStyle() {
+		return getStyleSignature().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+	}
+
+	private StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, sname, SName.diamond);
+	}
+
 	final public void drawU(UGraphic ug) {
 		final UPolygon diams = new UPolygon();
-		if (getSkinParam().shadowing(getEntity().getStereotype())) {
-			diams.setDeltaShadow(5);
-		}
+
 		diams.addPoint(SIZE, 0);
 		diams.addPoint(SIZE * 2, SIZE);
 		diams.addPoint(SIZE, SIZE * 2);
 		diams.addPoint(0, SIZE);
 		diams.addPoint(SIZE, 0);
 
-		ug.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder))
-				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(),
-				ColorParam.classBackground).bg()).apply(new UStroke(1.5)).draw(diams);
+		final Style style = getStyle();
+		final HColor borderColor = style.value(PName.LineColor).asColor(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		final HColor backgroundColor = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		final double shadow = style.value(PName.Shadowing).asDouble();
+		final UStroke stroke = style.getStroke();
+
+		diams.setDeltaShadow(shadow);
+		ug.apply(borderColor).apply(backgroundColor.bg()).apply(stroke).draw(diams);
 	}
 
 	public ShapeType getShapeType() {

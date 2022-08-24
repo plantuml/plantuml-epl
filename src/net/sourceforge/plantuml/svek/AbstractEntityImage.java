@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.svek;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -47,16 +49,11 @@ public abstract class AbstractEntityImage extends AbstractTextBlock implements I
 	private final ISkinParam skinParam;
 
 	public AbstractEntityImage(IEntity entity, ISkinParam skinParam) {
-		if (entity == null) {
-			throw new IllegalArgumentException("entity null");
-		}
-		if (skinParam == null) {
-			throw new IllegalArgumentException("skinParam null");
-		}
-		this.entity = entity;
-		this.skinParam = skinParam;
+		this.entity = Objects.requireNonNull(entity);
+		this.skinParam = Objects.requireNonNull(skinParam);
 	}
 
+	@Override
 	public boolean isHidden() {
 		return entity.isHidden();
 	}
@@ -69,18 +66,21 @@ public abstract class AbstractEntityImage extends AbstractTextBlock implements I
 		return skinParam;
 	}
 
+	@Override
 	public final HColor getBackcolor() {
-		return skinParam.getBackgroundColor(false);
+		return skinParam.getBackgroundColor();
 	}
 
 	protected final Stereotype getStereo() {
 		return entity.getStereotype();
 	}
 
+	@Override
 	public Margins getShield(StringBounder stringBounder) {
 		return Margins.NONE;
 	}
 
+	@Override
 	public double getOverscanX(StringBounder stringBounder) {
 		return 0;
 	}

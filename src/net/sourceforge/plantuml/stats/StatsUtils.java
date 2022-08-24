@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -51,6 +51,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import net.sourceforge.plantuml.Log;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.stats.api.Stats;
@@ -91,13 +92,13 @@ public class StatsUtils {
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 		if (prefs.getInt("VERSION", 0) != VERSION) {
 			try {
 				prefs.clear();
 			} catch (BackingStoreException e1) {
-				e1.printStackTrace();
+				Logme.error(e1);
 			}
 			prefs.putInt("VERSION", VERSION);
 		}
@@ -153,7 +154,7 @@ public class StatsUtils {
 				htmlOutput(stats);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 	}
 
@@ -165,27 +166,14 @@ public class StatsUtils {
 	}
 
 	static void htmlOutput(Stats stats) throws FileNotFoundException {
-		PrintWriter pw = null;
-		try {
-			pw = SecurityUtils.createPrintWriter("plantuml-stats.html");
+		try (PrintWriter pw = SecurityUtils.createPrintWriter("plantuml-stats.html")) {
 			pw.print(new HtmlConverter(stats).toHtml());
-		} finally {
-			if (pw != null) {
-				pw.close();
-			}
 		}
 	}
 
-	static void xmlOutput(Stats stats)
-			throws FileNotFoundException, TransformerException, ParserConfigurationException, IOException {
-		OutputStream os = null;
-		try {
-			os = SecurityUtils.createFileOutputStream("plantuml-stats.xml");
+	static void xmlOutput(Stats stats) throws TransformerException, ParserConfigurationException, IOException {
+		try (OutputStream os = SecurityUtils.createFileOutputStream("plantuml-stats.xml")) {
 			new XmlConverter(stats).createXml(os);
-		} finally {
-			if (os != null) {
-				os.close();
-			}
 		}
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,21 +34,18 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.geom.Dimension2D;
 import java.util.Collection;
 import java.util.Set;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.activitydiagram3.PositionedNote;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.creole.Parser;
 import net.sourceforge.plantuml.creole.Sheet;
@@ -60,12 +57,12 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
-import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.image.Opale;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -79,11 +76,12 @@ public class FtileWithNotes extends AbstractFtile {
 
 	private TextBlock left;
 	private TextBlock right;
+	private final VerticalAlignment verticalAlignment;
 
 	private final double suppSpace = 20;
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.note);
+	public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.note);
 	}
 
 	public Set<Swimlane> getSwimlanes() {
@@ -98,40 +96,32 @@ public class FtileWithNotes extends AbstractFtile {
 		return tile.getSwimlaneOut();
 	}
 
-	public FtileWithNotes(Ftile tile, Collection<PositionedNote> notes, ISkinParam skinParam) {
+	public FtileWithNotes(Ftile tile, Collection<PositionedNote> notes, ISkinParam skinParam,
+			VerticalAlignment verticalAlignment) {
 		super(tile.skinParam());
+		this.verticalAlignment = verticalAlignment;
 		this.tile = tile;
-
-		final Rose rose = new Rose();
 
 		for (PositionedNote note : notes) {
 			ISkinParam skinParam2 = skinParam;
-			if (note.getColors() != null) {
+			if (note.getColors() != null)
 				skinParam2 = note.getColors().mute(skinParam2);
-			}
-			final HColor noteBackgroundColor;
-			final HColor borderColor;
-			final FontConfiguration fc;
-			final double shadowing;
 
-			if (SkinParam.USE_STYLES()) {
-				final Style style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder())
-						.eventuallyOverride(note.getColors());
-				noteBackgroundColor = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
-				borderColor = style.value(PName.LineColor).asColor(getIHtmlColorSet());
-				fc = style.getFontConfiguration(getIHtmlColorSet());
-				shadowing = style.value(PName.Shadowing).asDouble();
-			} else {
-				noteBackgroundColor = rose.getHtmlColor(skinParam2, ColorParam.noteBackground);
-				borderColor = rose.getHtmlColor(skinParam2, ColorParam.noteBorder);
-				fc = new FontConfiguration(skinParam, FontParam.NOTE, null);
-				shadowing = skinParam.shadowing(null) ? 4 : 0;
-			}
+			final Style style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder())
+					.eventuallyOverride(note.getColors());
+			final HColor noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
+					getIHtmlColorSet());
+			final HColor borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+					getIHtmlColorSet());
+			final FontConfiguration fc = style.getFontConfiguration(skinParam.getThemeStyle(), getIHtmlColorSet());
+			final double shadowing = style.value(PName.Shadowing).asDouble();
+			final LineBreakStrategy wrapWidth = style.wrapWidth();
+			final UStroke stroke = style.getStroke();
 
 			final Sheet sheet = Parser
 					.build(fc, skinParam.getDefaultTextAlignment(HorizontalAlignment.LEFT), skinParam, CreoleMode.FULL)
 					.createSheet(note.getDisplay());
-			final SheetBlock1 sheet1 = new SheetBlock1(sheet, LineBreakStrategy.NONE, skinParam.getPadding());
+			final SheetBlock1 sheet1 = new SheetBlock1(sheet, wrapWidth, skinParam.getPadding());
 			final SheetBlock2 sheet2 = new SheetBlock2(sheet1, new Stencil() {
 				// -6 and 15 value comes from Opale: this is very ugly!
 				public double getStartingX(StringBounder stringBounder, double y) {
@@ -143,7 +133,7 @@ public class FtileWithNotes extends AbstractFtile {
 				}
 			}, new UStroke());
 
-			final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, sheet2, false);
+			final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, sheet2, false, stroke);
 			final TextBlock opaleMarged = TextBlockUtils.withMargin(opale, 10, 10);
 			if (note.getNotePosition() == NotePosition.LEFT) {
 				if (left == null) {
@@ -173,7 +163,11 @@ public class FtileWithNotes extends AbstractFtile {
 		final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 		final Dimension2D dimTile = tile.calculateDimension(stringBounder);
 		final double xDelta = left.calculateDimension(stringBounder).getWidth();
-		final double yDelta = (dimTotal.getHeight() - dimTile.getHeight()) / 2;
+		final double yDelta;
+		if (verticalAlignment == VerticalAlignment.TOP)
+			yDelta = 0;
+		else
+			yDelta = (dimTotal.getHeight() - dimTile.getHeight()) / 2;
 		return new UTranslate(xDelta, yDelta);
 	}
 
@@ -181,7 +175,11 @@ public class FtileWithNotes extends AbstractFtile {
 		final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 		final Dimension2D dimLeft = left.calculateDimension(stringBounder);
 		final double xDelta = 0;
-		final double yDelta = (dimTotal.getHeight() - dimLeft.getHeight()) / 2;
+		final double yDelta;
+		if (verticalAlignment == VerticalAlignment.TOP)
+			yDelta = 0;
+		else
+			yDelta = (dimTotal.getHeight() - dimLeft.getHeight()) / 2;
 		return new UTranslate(xDelta, yDelta);
 	}
 
@@ -189,7 +187,11 @@ public class FtileWithNotes extends AbstractFtile {
 		final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 		final Dimension2D dimRight = right.calculateDimension(stringBounder);
 		final double xDelta = dimTotal.getWidth() - dimRight.getWidth();
-		final double yDelta = (dimTotal.getHeight() - dimRight.getHeight()) / 2;
+		final double yDelta;
+		if (verticalAlignment == VerticalAlignment.TOP)
+			yDelta = 0;
+		else
+			yDelta = (dimTotal.getHeight() - dimRight.getHeight()) / 2;
 		return new UTranslate(xDelta, yDelta);
 	}
 

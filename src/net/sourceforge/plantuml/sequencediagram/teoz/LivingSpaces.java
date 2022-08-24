@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -61,8 +61,8 @@ public class LivingSpaces {
 		LivingSpace previous = null;
 		for (LivingSpace current : all.values()) {
 			if (previous != null) {
-				final Real point1 = previous.getPosD(stringBounder);
-				final Real point2 = current.getPosB();
+				final Real point1 = previous.getPosE(stringBounder);
+				final Real point2 = current.getPosA(stringBounder);
 				point2.ensureBiggerThan(point1.addFixed(10));
 			}
 			previous = current;
@@ -107,7 +107,7 @@ public class LivingSpaces {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final double headHeight = getHeadHeight(stringBounder);
 		for (LivingSpace livingSpace : values()) {
-			final double x = livingSpace.getPosB().getCurrentValue();
+			final double x = livingSpace.getPosB(stringBounder).getCurrentValue();
 			double y = 0;
 			if (verticalAlignment == VerticalAlignment.BOTTOM) {
 				final Dimension2D dimHead = livingSpace.getHeadPreferredDimension(stringBounder);
@@ -135,7 +135,7 @@ public class LivingSpaces {
 			// }
 			// System.err.println("drawing lines " + livingSpace);
 			final double x = livingSpace.getPosC(ug.getStringBounder()).getCurrentValue();
-			livingSpace.drawLineAndLiveBoxes(ug.apply(UTranslate.dx(x)), height, context);
+			livingSpace.drawLineAndLiveboxes(ug.apply(UTranslate.dx(x)), height, context);
 		}
 	}
 

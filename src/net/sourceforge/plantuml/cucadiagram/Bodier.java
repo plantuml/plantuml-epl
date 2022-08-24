@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,22 +38,25 @@ import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public interface Bodier {
 
 	public void setLeaf(ILeaf leaf);
 
-	public List<Member> getFieldsToDisplay();
+	public Display getFieldsToDisplay();
 
-	public List<Member> getMethodsToDisplay();
+	public Display getMethodsToDisplay();
 
-	public void addFieldOrMethod(String s);
+	public boolean addFieldOrMethod(String s) throws NoSuchColorException;
 
 	public TextBlock getBody(FontParam fontParam, ISkinParam skinParam, boolean showMethods, boolean showFields,
-			Stereotype stereotype);
+			Stereotype stereotype, Style style, FontConfiguration fontConfiguration);
 
-	public List<String> getRawBody();
+	public List<CharSequence> getRawBody();
 
 	public void muteClassToObject();
 

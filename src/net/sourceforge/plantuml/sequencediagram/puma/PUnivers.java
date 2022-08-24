@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,8 +39,8 @@ import java.util.Collection;
 
 public class PUnivers {
 
-	private final Collection<PSegment> all = new ArrayList<PSegment>();
-	private final Collection<FixedLink> links = new ArrayList<FixedLink>();
+	private final Collection<PSegment> all = new ArrayList<>();
+	private final Collection<FixedLink> links = new ArrayList<>();
 
 	public PSegment createPSegment(double minsize) {
 		final PSegment result = new PSegment(minsize);

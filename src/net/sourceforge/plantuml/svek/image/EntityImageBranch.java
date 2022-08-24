@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,22 +34,22 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
+import java.util.EnumMap;
+import java.util.Map;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
-import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UGroupType;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -62,8 +62,8 @@ public class EntityImageBranch extends AbstractEntityImage {
 		super(entity, skinParam);
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.activity, SName.diamond);
+	public StyleSignatureBasic getDefaultStyleDefinition() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.activity, SName.diamond);
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -72,33 +72,27 @@ public class EntityImageBranch extends AbstractEntityImage {
 
 	final public void drawU(UGraphic ug) {
 		final UPolygon diams = new UPolygon();
-		double shadowing = 0;
 		diams.addPoint(SIZE, 0);
 		diams.addPoint(SIZE * 2, SIZE);
 		diams.addPoint(SIZE, SIZE * 2);
 		diams.addPoint(0, SIZE);
 		diams.addPoint(SIZE, 0);
 
-		HColor border = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.activityDiamondBorder,
-				ColorParam.activityBorder);
-		HColor back = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.activityDiamondBackground,
-				ColorParam.activityBackground);
-		UStroke stroke = new UStroke(1.5);
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-			border = style.value(PName.LineColor).asColor(getSkinParam().getIHtmlColorSet());
-			back = style.value(PName.BackGroundColor).asColor(getSkinParam().getIHtmlColorSet());
-			stroke = style.getStroke();
-			shadowing = style.value(PName.Shadowing).asDouble();
-		} else {
-			if (getSkinParam().shadowing(getEntity().getStereotype())) {
-				shadowing = 5;
-			}
+		final Style style = getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+		final HColor border = style.value(PName.LineColor).asColor(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		final HColor back = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		final UStroke stroke = style.getStroke();
+		final double shadowing = style.value(PName.Shadowing).asDouble();
 
-		}
 		diams.setDeltaShadow(shadowing);
-
+		final Map<UGroupType, String> typeIDent = new EnumMap<>(UGroupType.class);
+		typeIDent.put(UGroupType.CLASS, "elem " + getEntity().getCode() + " selected");
+		typeIDent.put(UGroupType.ID, "elem_" + getEntity().getCode());
+		ug.startGroup(typeIDent);
 		ug.apply(border).apply(back.bg()).apply(stroke).draw(diams);
+		ug.closeGroup();
 	}
 
 	public ShapeType getShapeType() {

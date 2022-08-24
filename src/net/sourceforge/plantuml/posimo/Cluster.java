@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.posimo;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,8 +47,8 @@ public class Cluster implements Clusterable {
 	private static int CPT = 1;
 
 	private final Cluster parent;
-	private final Collection<Block> blocs = new ArrayList<Block>();
-	private final Collection<Cluster> children = new ArrayList<Cluster>();
+	private final Collection<Block> blocs = new ArrayList<>();
+	private final Collection<Cluster> children = new ArrayList<>();
 	private final int uid = CPT++;
 	private double x;
 	private double y;
@@ -76,7 +76,7 @@ public class Cluster implements Clusterable {
 	}
 
 	public Collection<Block> getRecursiveContents() {
-		final Collection<Block> result = new ArrayList<Block>();
+		final Collection<Block> result = new ArrayList<>();
 		addContentRecurse(result);
 		return Collections.unmodifiableCollection(result);
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.ugraphic;
 
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+
 public class UEmpty implements UShape {
 
 	private final double width;
@@ -45,6 +47,10 @@ public class UEmpty implements UShape {
 		}
 		this.width = width;
 		this.height = height;
+	}
+
+	public UEmpty(Dimension2D dim) {
+		this(dim.getWidth(), dim.getHeight());
 	}
 
 	public double getWidth() {

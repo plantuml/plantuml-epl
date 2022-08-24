@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,17 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UGroupType;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public abstract class UGraphicDelegator implements UGraphic {
 
@@ -73,16 +79,18 @@ public abstract class UGraphicDelegator implements UGraphic {
 		return ug.getColorMapper();
 	}
 
+	@Override
 	public void startUrl(Url url) {
 		ug.startUrl(url);
 	}
 
+	@Override
 	public void closeUrl() {
 		ug.closeUrl();
 	}
 
-	public void startGroup(String groupId) {
-		ug.startGroup(groupId);
+	public void startGroup(Map<UGroupType, String> typeIdents) {
+		ug.startGroup(typeIdents);
 	}
 
 	public void closeGroup() {
@@ -97,4 +105,13 @@ public abstract class UGraphicDelegator implements UGraphic {
 		ug.flushUg();
 	}
 
+	@Override
+	public HColor getDefaultBackground() {
+		return ug.getDefaultBackground();
+	}
+
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
+		ug.writeToStream(os, metadata, dpi);
+	}
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,10 @@
  */
 package net.sourceforge.plantuml.creole;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.creole.atom.Atom;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -49,10 +50,7 @@ public class Sea {
 	private final StringBounder stringBounder;
 
 	public Sea(StringBounder stringBounder) {
-		if (stringBounder == null) {
-			throw new IllegalArgumentException();
-		}
-		this.stringBounder = stringBounder;
+		this.stringBounder = Objects.requireNonNull(stringBounder);
 	}
 
 	public void add(Atom atom) {

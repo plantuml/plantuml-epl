@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,13 +41,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import net.sourceforge.plantuml.EmptyImageBuilder;
+import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.png.PngIO;
 import net.sourceforge.plantuml.ugraphic.UChange;
 import net.sourceforge.plantuml.ugraphic.UMotif;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 import net.sourceforge.plantuml.ugraphic.g2d.UGraphicG2d;
 
 public class GraphicsPath {
@@ -67,14 +69,15 @@ public class GraphicsPath {
 	}
 
 	private BufferedImage createImage() {
-		final EmptyImageBuilder builder = new EmptyImageBuilder(null, 50, 50, Color.WHITE);
+		final StringBounder stringBounder = FileFormat.PNG.getDefaultStringBounder();
+		final EmptyImageBuilder builder = new EmptyImageBuilder(null, 50, 50, Color.WHITE, stringBounder);
 		final BufferedImage im = builder.getBufferedImage();
 		final Graphics2D g2d = builder.getGraphics2D();
 
-		final UGraphicG2d ug = new UGraphicG2d(colorMapper, g2d, 1.0);
+		final UGraphicG2d ug = new UGraphicG2d(HColors.WHITE, colorMapper, stringBounder, g2d, 1.0);
 		ug.setBufferedImage(im);
 		final UMotif motif = new UMotif(path);
-		motif.drawHorizontal(ug.apply((UChange) HColorUtils.BLACK), 20, 20, 1);
+		motif.drawHorizontal(ug.apply((UChange) HColors.BLACK), 20, 20, 1);
 
 		g2d.dispose();
 		return im;

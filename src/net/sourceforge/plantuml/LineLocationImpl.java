@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,10 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Objects;
+
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
+
 public class LineLocationImpl implements LineLocation {
 
 	private final String desc;
@@ -49,12 +53,10 @@ public class LineLocationImpl implements LineLocation {
 		this(desc, parent, -1);
 	}
 
+	@HaxeIgnored
 	private LineLocationImpl(String desc, LineLocation parent, int position) {
-		if (desc == null) {
-			throw new IllegalArgumentException();
-		}
 		this.parent = parent;
-		this.desc = desc;
+		this.desc = Objects.requireNonNull(desc);
 		this.position = position;
 	}
 

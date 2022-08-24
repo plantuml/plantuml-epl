@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,12 +35,11 @@
 package net.sourceforge.plantuml.command.note.sequence;
 
 import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -65,6 +64,7 @@ import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteStyle;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class FactorySequenceNoteOnArrowCommand implements SingleMultiFactoryCommand<SequenceDiagram> {
 
@@ -105,7 +105,7 @@ public final class FactorySequenceNoteOnArrowCommand implements SingleMultiFacto
 
 			@Override
 			protected CommandExecutionResult executeArg(final SequenceDiagram system, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				return executeInternal(system, arg, BlocLines.getWithNewlines(arg.get("NOTE", 0)));
 			}
 
@@ -118,10 +118,11 @@ public final class FactorySequenceNoteOnArrowCommand implements SingleMultiFacto
 
 			@Override
 			public String getPatternEnd() {
-				return "(?i)^[%s]*end[%s]?note$";
+				return "^[%s]*end[%s]?note$";
 			}
 
-			protected CommandExecutionResult executeNow(final SequenceDiagram diagram, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final SequenceDiagram diagram, BlocLines lines)
+					throws NoSuchColorException {
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
@@ -131,26 +132,28 @@ public final class FactorySequenceNoteOnArrowCommand implements SingleMultiFacto
 		};
 	}
 
-	private CommandExecutionResult executeInternal(SequenceDiagram diagram, final RegexResult line0, BlocLines lines) {
+	private CommandExecutionResult executeInternal(SequenceDiagram diagram, final RegexResult line0, BlocLines lines)
+			throws NoSuchColorException {
 		final EventWithDeactivate m = diagram.getLastEventWithDeactivate();
 		if (m instanceof AbstractMessage || m instanceof GroupingLeaf) {
 			final NotePosition position = NotePosition.valueOf(StringUtils.goUpperCase(line0.get("POSITION", 0)));
 			Url url = null;
 			if (line0.get("URL", 0) != null) {
-				final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+				final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 				url = urlBuilder.getUrl(line0.get("URL", 0));
 			}
 
 			final NoteStyle style = NoteStyle.getNoteStyle(line0.get("STYLE", 0));
 			final Display display = diagram.manageVariable(lines.toDisplay());
 			final String backcolor0 = line0.get("COLOR", 0);
-			Colors colors = Colors.empty().add(ColorType.BACK, HColorSet.instance().getColorIfValid(backcolor0));
+			Colors colors = Colors.empty().add(ColorType.BACK, backcolor0 == null ? null
+					: HColorSet.instance().getColor(diagram.getSkinParam().getThemeStyle(), backcolor0));
 			final Note note = new Note(display, position, style, diagram.getSkinParam().getCurrentStyleBuilder());
 			final String stereotypeString = line0.get("STEREO", 0);
 			if (stereotypeString != null) {
-				final Stereotype stereotype = new Stereotype(stereotypeString);
-				colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), FontParam.NOTE,
-						ColorParam.noteBackground, ColorParam.noteBorder);
+				final Stereotype stereotype = Stereotype.build(stereotypeString);
+				colors = colors.applyStereotypeForNote(stereotype, diagram.getSkinParam(), ColorParam.noteBackground,
+						ColorParam.noteBorder);
 				note.setStereotype(stereotype);
 			}
 			note.setUrl(url);

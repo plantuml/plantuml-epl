@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -67,7 +67,7 @@ public class MDADiagramImpl implements MDADiagram {
 		return null;
 	}
 
-	private final Collection<MDAPackage> packages = new ArrayList<MDAPackage>();
+	private final Collection<MDAPackage> packages = new ArrayList<>();
 
 	private MDADiagramImpl(ClassDiagram classDiagram) {
 		final EntityFactory entityFactory = classDiagram.getEntityFactory();

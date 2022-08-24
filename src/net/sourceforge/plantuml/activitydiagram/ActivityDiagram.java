@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,11 +36,14 @@ package net.sourceforge.plantuml.activitydiagram;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.core.DiagramDescription;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -59,14 +62,13 @@ public class ActivityDiagram extends CucaDiagram {
 	private IEntity lastEntityBrancheConsulted;
 	private ConditionalContext currentContext;
 
-	public ActivityDiagram(ISkinSimple skinParam) {
-		super(skinParam);
+	public ActivityDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		super(style, source, UmlDiagramType.ACTIVITY, skinParam);
 		setNamespaceSeparator(null);
 	}
 
 	public ILeaf getOrCreateLeaf(Ident ident, Code code, LeafType type, USymbol symbol) {
-		checkNotNull(ident);
-		return getOrCreateLeafDefault(ident, code, type, symbol);
+		return getOrCreateLeafDefault(Objects.requireNonNull(ident), code, type, symbol);
 	}
 
 	private String getAutoBranch() {
@@ -133,15 +135,13 @@ public class ActivityDiagram extends CucaDiagram {
 
 	@Override
 	public ILeaf createLeaf(Ident idNewLong, Code code, Display display, LeafType type, USymbol symbol) {
-		checkNotNull(idNewLong);
-		final ILeaf result = super.createLeaf(idNewLong, code, display, type, symbol);
+		final ILeaf result = super.createLeaf(Objects.requireNonNull(idNewLong), code, display, type, symbol);
 		updateLasts(result);
 		return result;
 	}
 
 	public IEntity createNote(Ident idNewLong, Code code, Display display) {
-		checkNotNull(idNewLong);
-		return super.createLeaf(idNewLong, code, display, LeafType.NOTE, null);
+		return super.createLeaf(Objects.requireNonNull(idNewLong), code, display, LeafType.NOTE, null);
 	}
 
 	final protected List<String> getDotStrings() {
@@ -160,11 +160,6 @@ public class ActivityDiagram extends CucaDiagram {
 	@Deprecated
 	public IEntity getLastEntityBrancheConsulted() {
 		return lastEntityBrancheConsulted;
-	}
-
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.ACTIVITY;
 	}
 
 	public final ConditionalContext getCurrentContext() {

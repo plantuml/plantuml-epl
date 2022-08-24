@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -33,8 +33,11 @@
  * Original Author:  Arnaud Roques
  */
 /*******************************************************************************
- * Copyright (c) 2013, 2015 EclipseSource.
+ * Copyright (c) 2016 EclipseSource.
  *
+ * Distributed under MIT license
+ * See https://github.com/ralfstx/minimal-json/blob/master/LICENSE
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -114,8 +117,8 @@ public class JsonObject extends JsonValue implements Iterable<Member> {
    * Creates a new empty JsonObject.
    */
   public JsonObject() {
-    names = new ArrayList<String>();
-    values = new ArrayList<JsonValue>();
+    names = new ArrayList<>();
+    values = new ArrayList<>();
     table = new HashIndexTable();
   }
 
@@ -137,8 +140,8 @@ public class JsonObject extends JsonValue implements Iterable<Member> {
       names = Collections.unmodifiableList(object.names);
       values = Collections.unmodifiableList(object.values);
     } else {
-      names = new ArrayList<String>(object.names);
-      values = new ArrayList<JsonValue>(object.values);
+      names = new ArrayList<>(object.names);
+      values = new ArrayList<>(object.values);
     }
     table = new HashIndexTable();
     updateHashIndex();

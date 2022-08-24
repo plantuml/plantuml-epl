@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,9 +38,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.sourceforge.plantuml.log.Logme;
+
 class RealMax extends AbstractReal implements Real {
 
-	private final List<Real> all = new ArrayList<Real>();
+	private final List<Real> all = new ArrayList<>();
 	private final Throwable creationPoint;
 
 	RealMax(Collection<Real> reals) {
@@ -92,7 +94,7 @@ class RealMax extends AbstractReal implements Real {
 	}
 
 	public void printCreationStackTrace() {
-		creationPoint.printStackTrace();
+		Logme.error(creationPoint);
 	}
 
 }

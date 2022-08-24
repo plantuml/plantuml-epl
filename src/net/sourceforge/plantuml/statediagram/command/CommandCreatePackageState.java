@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,7 +37,7 @@ package net.sourceforge.plantuml.statediagram.command;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
@@ -59,6 +59,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.statediagram.StateDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreatePackageState extends SingleLineCommand2<StateDiagram> {
 
@@ -67,13 +68,12 @@ public class CommandCreatePackageState extends SingleLineCommand2<StateDiagram> 
 	}
 
 	private static IRegex getRegexConcat() {
-		return RegexConcat.build(CommandCreatePackageState.class.getName(),
-				RegexLeaf.start(), //
+		return RegexConcat.build(CommandCreatePackageState.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("state"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexOr(//
 						new RegexConcat(//
-								new RegexLeaf("CODE1", "([\\p{L}0-9_.]+)"), //
+								new RegexLeaf("CODE1", "([%pLN_.]+)"), //
 								RegexLeaf.spaceOneOrMore(), //
 								new RegexLeaf("as"), //
 								RegexLeaf.spaceOneOrMore(), //
@@ -82,8 +82,8 @@ public class CommandCreatePackageState extends SingleLineCommand2<StateDiagram> 
 								new RegexOptional(new RegexConcat( //
 										new RegexLeaf("DISPLAY2", "[%g]([^%g]+)[%g]"), RegexLeaf.spaceOneOrMore(), //
 										new RegexLeaf("as"), RegexLeaf.spaceOneOrMore() //
-										)), //
-								new RegexLeaf("CODE2", "([\\p{L}0-9_.]+)"))), //
+								)), //
+								new RegexLeaf("CODE2", "([%pLN_.]+)"))), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -100,52 +100,50 @@ public class CommandCreatePackageState extends SingleLineCommand2<StateDiagram> 
 	}
 
 	private String getNotNull(RegexResult arg, String v1, String v2) {
-		if (arg.get(v1, 0) == null) {
+		if (arg.get(v1, 0) == null)
 			return arg.get(v2, 0);
-		}
+
 		return arg.get(v1, 0);
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final IGroup currentPackage = diagram.getCurrentGroup();
 		final String idShort = getNotNull(arg, "CODE1", "CODE2");
 		final Ident idNewLong = diagram.buildLeafIdentSpecial(idShort);
 		final Code code = diagram.V1972() ? idNewLong : diagram.buildCode(idShort);
 		String display = getNotNull(arg, "DISPLAY1", "DISPLAY2");
-		if (display == null) {
+		if (display == null)
 			display = code.getName();
-		}
+
 		diagram.gotoGroup(idNewLong, code, Display.getWithNewlines(display), GroupType.STATE, currentPackage,
 				NamespaceStrategy.SINGLE);
 		final IEntity p = diagram.getCurrentGroup();
 		final String stereotype = arg.get("STEREOTYPE", 0);
-		if (stereotype != null) {
-			p.setStereotype(new Stereotype(stereotype));
-		}
+		if (stereotype != null)
+			p.setStereotype(Stereotype.build(stereotype));
+
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			p.addUrl(url);
 		}
 
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
+		final String s = arg.get("LINECOLOR", 1);
 
-		final HColor lineColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR", 1));
-		if (lineColor != null) {
+		final HColor lineColor = s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s);
+		if (lineColor != null)
 			colors = colors.add(ColorType.LINE, lineColor);
-		}
-		if (arg.get("LINECOLOR", 0) != null) {
-			colors = colors.addLegacyStroke(arg.get("LINECOLOR", 0));
-		}
-		p.setColors(colors);
 
-		// p.setSpecificColorTOBEREMOVED(ColorType.BACK,
-		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
-		// p.setSpecificColorTOBEREMOVED(ColorType.LINE,
-		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR", 1)));
-		// p.applyStroke(arg.get("LINECOLOR", 0));
+		if (arg.get("LINECOLOR", 0) != null)
+			colors = colors.addLegacyStroke(arg.get("LINECOLOR", 0));
+
+		p.setColors(colors);
 		return CommandExecutionResult.ok();
 	}
 

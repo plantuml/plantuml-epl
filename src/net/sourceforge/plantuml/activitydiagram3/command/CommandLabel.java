@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,7 +53,7 @@ public class CommandLabel extends SingleLineCommand2<ActivityDiagram3> {
 		return RegexConcat.build(CommandLabel.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("label"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("NAME", "([%pLN_.]+)"), //
 				new RegexLeaf(";?"), //
 				RegexLeaf.end());
 	}

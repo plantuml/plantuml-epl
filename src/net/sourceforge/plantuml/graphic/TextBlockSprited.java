@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,8 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -55,8 +54,8 @@ public class TextBlockSprited extends AbstractTextBlock {
 		final double heightCircledCharacter = sprite.calculateDimension(stringBounder).getHeight();
 
 		final Dimension2D dim = parent.calculateDimension(stringBounder);
-		return new Dimension2DDouble(dim.getWidth() + widthCircledCharacter, Math.max(heightCircledCharacter,
-				dim.getHeight()));
+		return new Dimension2DDouble(dim.getWidth() + widthCircledCharacter,
+				Math.max(heightCircledCharacter, dim.getHeight()));
 	}
 
 	private double getCircledCharacterWithAndMargin(StringBounder stringBounder) {

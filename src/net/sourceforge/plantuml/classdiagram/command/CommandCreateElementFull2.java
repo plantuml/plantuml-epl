@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.classdiagram.ClassDiagram;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
@@ -58,8 +58,10 @@ import net.sourceforge.plantuml.cucadiagram.Stereotag;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementFull;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> {
 
@@ -143,17 +145,18 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 
 	@Override
 	final protected boolean isForbidden(CharSequence line) {
-		if (line.toString().matches("^[\\p{L}0-9_.]+$")) {
+		if (line.toString().matches("^[\\p{L}0-9_.]+$"))
 			return true;
-		}
+
 		return false;
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) {
-		if (mode == Mode.NORMAL_KEYWORD && diagram.isAllowMixing() == false) {
+	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
+		if (mode == Mode.NORMAL_KEYWORD && diagram.isAllowMixing() == false)
 			return CommandExecutionResult.error("Use 'allowmixing' if you want to mix classes and other UML elements.");
-		}
+
 		String codeRaw = arg.getLazzy("CODE", 0);
 		final String displayRaw = arg.getLazzy("DISPLAY", 0);
 		final char codeChar = getCharEncoding(codeRaw);
@@ -181,48 +184,57 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 		} else if (symbol.equalsIgnoreCase("port")) {
 			type = LeafType.PORT;
 			usymbol = null;
+		} else if (symbol.equalsIgnoreCase("portin")) {
+			type = LeafType.PORTIN;
+			usymbol = null;
+		} else if (symbol.equalsIgnoreCase("portout")) {
+			type = LeafType.PORTOUT;
+			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("usecase")) {
 			type = LeafType.USECASE;
+			usymbol = null;
+		} else if (symbol.equalsIgnoreCase("usecase/")) {
+			type = LeafType.USECASE_BUSINESS;
 			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("state")) {
 			type = LeafType.STATE;
 			usymbol = null;
 		} else {
 			type = LeafType.DESCRIPTION;
-			usymbol = USymbol.fromString(symbol, diagram.getSkinParam());
-			if (usymbol == null) {
+			usymbol = USymbols.fromString(symbol, diagram.getSkinParam());
+			if (usymbol == null)
 				throw new IllegalStateException();
-			}
 		}
 
 		final String idShort = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw);
 		final Ident ident = diagram.buildLeafIdent(idShort);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
 		String display = displayRaw;
-		if (display == null) {
+		if (display == null)
 			display = code.getName();
-		}
+
 		display = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(display);
 		final String stereotype = arg.getLazzy("STEREOTYPE", 0);
 		final IEntity entity = diagram.getOrCreateLeaf(ident, code, type, usymbol);
 		entity.setDisplay(Display.getWithNewlines(display));
 		entity.setUSymbol(usymbol);
-		if (stereotype != null) {
-			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
-					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
-					.getIHtmlColorSet()));
-		}
+		if (stereotype != null)
+			entity.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+					diagram.getSkinParam().getIHtmlColorSet()));
+
 		CommandCreateClassMultilines.addTags(entity, arg.get("TAGS", 0));
 
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			entity.addUrl(url);
 		}
+		final String s = arg.get("COLOR", 0);
 
-		entity.setSpecificColorTOBEREMOVED(ColorType.BACK,
-				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
+		entity.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		return CommandExecutionResult.ok();
 	}
 

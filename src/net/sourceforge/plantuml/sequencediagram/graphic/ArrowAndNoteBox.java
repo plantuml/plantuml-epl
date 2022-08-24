@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 class ArrowAndNoteBox extends Arrow implements InGroupable {
 
 	private final Arrow arrow;
-	private final List<NoteBox> noteBoxes = new ArrayList<NoteBox>();
+	private final List<NoteBox> noteBoxes = new ArrayList<>();
 
 	public ArrowAndNoteBox(StringBounder stringBounder, Arrow arrow, List<NoteBox> noteBoxes) {
 		super(arrow.getStartingY(), arrow.getSkin(), arrow.getArrowComponent(), arrow.getUrl());

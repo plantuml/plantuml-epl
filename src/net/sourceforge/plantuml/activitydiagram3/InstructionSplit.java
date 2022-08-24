@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,19 +36,27 @@ package net.sourceforge.plantuml.activitydiagram3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileSplit;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtiles;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.Rainbow;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
 
-public class InstructionSplit implements Instruction {
+public class InstructionSplit extends AbstractInstruction implements Instruction {
 
-	private final List<InstructionList> splits = new ArrayList<InstructionList>();
+	private final List<InstructionList> splits = new ArrayList<>();
 	private final Instruction parent;
 	private final LinkRendering inlinkRendering;
 	private final Swimlane swimlaneIn;
@@ -59,12 +67,10 @@ public class InstructionSplit implements Instruction {
 		this.swimlaneIn = swimlane;
 
 		this.splits.add(new InstructionList(swimlane));
-		this.inlinkRendering = inlinkRendering;
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 	}
 
+	@Override
 	public boolean containsBreak() {
 		for (InstructionList split : splits) {
 			if (split.containsBreak()) {
@@ -78,12 +84,33 @@ public class InstructionSplit implements Instruction {
 		return splits.get(splits.size() - 1);
 	}
 
-	public void add(Instruction ins) {
-		getLast().add(ins);
+	@Override
+	public CommandExecutionResult add(Instruction ins) {
+		return getLast().add(ins);
 	}
 
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		final List<Gtile> all = new ArrayList<>();
+		for (InstructionList list : splits) {
+			Gtile tmp = list.createGtile(skinParam, stringBounder);
+			tmp = Gtiles.withIncomingArrow(tmp, 20);
+			tmp = Gtiles.withOutgoingArrow(tmp, 20);
+			all.add(tmp);
+		}
+
+		return new GtileSplit(all, swimlaneIn, getInLinkRenderingColor(skinParam).getColor());
+	}
+
+	private Rainbow getInLinkRenderingColor(ISkinParam skinParam) {
+		Rainbow color;
+		color = Rainbow.build(skinParam);
+		return color;
+	}
+
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
-		final List<Ftile> all = new ArrayList<Ftile>();
+		final List<Ftile> all = new ArrayList<>();
 		for (InstructionList list : splits) {
 			all.add(list.createFtile(factory));
 		}
@@ -110,26 +137,32 @@ public class InstructionSplit implements Instruction {
 
 	}
 
+	@Override
 	final public boolean kill() {
 		return getLast().kill();
 	}
 
+	@Override
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
 	}
 
+	@Override
 	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
 		return getLast().addNote(note, position, type, colors, swimlaneNote);
 	}
 
+	@Override
 	public Set<Swimlane> getSwimlanes() {
 		return InstructionList.getSwimlanes2(splits);
 	}
 
+	@Override
 	public Swimlane getSwimlaneIn() {
 		return parent.getSwimlaneOut();
 	}
 
+	@Override
 	public Swimlane getSwimlaneOut() {
 		return swimlaneOut;
 		// return getLast().getSwimlaneOut();

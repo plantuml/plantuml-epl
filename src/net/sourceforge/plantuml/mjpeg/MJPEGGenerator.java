@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -55,7 +55,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
 
 /**
@@ -489,7 +489,7 @@ public class MJPEGGenerator {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Graphics2D g = bi.createGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
-		ImageIO.write(bi, "jpg", baos);
+		SImageIO.write(bi, "jpg", baos);
 		baos.close();
 		bi = null;
 		g = null;

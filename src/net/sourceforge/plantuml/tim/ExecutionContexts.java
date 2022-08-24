@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,9 +39,9 @@ import java.util.LinkedList;
 
 public abstract class ExecutionContexts {
 
-	private final Deque<ExecutionContextIf> allIfs = new LinkedList<ExecutionContextIf>();
-	private final Deque<ExecutionContextWhile> allWhiles = new LinkedList<ExecutionContextWhile>();
-	private final Deque<ExecutionContextForeach> allForeachs = new LinkedList<ExecutionContextForeach>();
+	private final Deque<ExecutionContextIf> allIfs = new LinkedList<>();
+	private final Deque<ExecutionContextWhile> allWhiles = new LinkedList<>();
+	private final Deque<ExecutionContextForeach> allForeachs = new LinkedList<>();
 
 	public void addIf(ExecutionContextIf value) {
 		allIfs.addLast(value);

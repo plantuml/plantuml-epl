@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,10 +34,9 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.real.Real;
 import net.sourceforge.plantuml.real.RealUtils;
 import net.sourceforge.plantuml.sequencediagram.Event;
@@ -47,10 +46,12 @@ import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.Context2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class LifeEventTile extends AbstractTile implements TileWithUpdateStairs {
+public class LifeEventTile extends AbstractTile {
 
 	private final LifeEvent lifeEvent;
 	private final TileArguments tileArguments;
@@ -58,22 +59,25 @@ public class LifeEventTile extends AbstractTile implements TileWithUpdateStairs 
 	private final Rose skin;
 	private final ISkinParam skinParam;
 
-	public void updateStairs(StringBounder stringBounder, double y) {
-		// System.err.println("LifeEventTile::updateStairs " + lifeEvent + " " + livingSpace.getParticipant() + " y=" + y);
+	@Override
+	final protected void callbackY_internal(double y) {
+		// System.err.println("LifeEventTile::updateStairs " + lifeEvent + " " +
+		// livingSpace.getParticipant() + " y=" + y);
 		livingSpace.addStepForLivebox(getEvent(), y);
 	}
 
 	public Event getEvent() {
 		return lifeEvent;
 	}
-	
+
 	@Override
-	public double getYPoint(StringBounder stringBounder) {
+	public double getContactPointRelative() {
 		return 0;
 	}
 
 	public LifeEventTile(LifeEvent lifeEvent, TileArguments tileArguments, LivingSpace livingSpace, Rose skin,
 			ISkinParam skinParam) {
+		super(tileArguments.getStringBounder());
 		this.lifeEvent = lifeEvent;
 		this.tileArguments = tileArguments;
 		this.livingSpace = livingSpace;
@@ -81,9 +85,15 @@ public class LifeEventTile extends AbstractTile implements TileWithUpdateStairs 
 		this.skinParam = skinParam;
 	}
 
+	private StyleSignatureBasic getStyleSignature() {
+		return ComponentType.DESTROY.getStyleSignature();
+	}
+
 	public void drawU(UGraphic ug) {
 		if (isDestroyWithoutMessage()) {
-			final Component cross = skin.createComponent(null, ComponentType.DESTROY, null, skinParam, null);
+			final Style style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			final Component cross = skin.createComponent(new Style[] { style }, ComponentType.DESTROY, null, skinParam,
+					null);
 			final Dimension2D dimCross = cross.getPreferredDimension(ug.getStringBounder());
 			final double x = livingSpace.getPosC(ug.getStringBounder()).getCurrentValue();
 			cross.drawU(ug.apply(UTranslate.dx(x - dimCross.getWidth() / 2)), null, (Context2D) ug);
@@ -94,29 +104,30 @@ public class LifeEventTile extends AbstractTile implements TileWithUpdateStairs 
 		return lifeEvent.getMessage() == null && lifeEvent.getType() == LifeEventType.DESTROY;
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
+	public double getPreferredHeight() {
 //		if (lifeEvent.isActivate()) {
 //			return 20;
 //		}
 		if (isDestroyWithoutMessage()) {
 			final Component cross = skin.createComponent(null, ComponentType.DESTROY, null, skinParam, null);
-			final Dimension2D dimCross = cross.getPreferredDimension(stringBounder);
+			final Dimension2D dimCross = cross.getPreferredDimension(getStringBounder());
 			return dimCross.getHeight();
 		}
 		return 0;
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 	}
 
-	public Real getMinX(StringBounder stringBounder) {
+	public Real getMinX() {
 		// return tileArguments.getLivingSpace(lifeEvent.getParticipant()).getPosB();
-		return livingSpace.getPosB();
+		return livingSpace.getPosB(getStringBounder());
 	}
 
-	public Real getMaxX(StringBounder stringBounder) {
-		// final LivingSpace livingSpace2 = tileArguments.getLivingSpace(lifeEvent.getParticipant());
-		return RealUtils.max(livingSpace.getPosD(stringBounder), livingSpace.getPosC2(stringBounder));
+	public Real getMaxX() {
+		// final LivingSpace livingSpace2 =
+		// tileArguments.getLivingSpace(lifeEvent.getParticipant());
+		return RealUtils.max(livingSpace.getPosD(getStringBounder()), livingSpace.getPosC2(getStringBounder()));
 	}
 
 }

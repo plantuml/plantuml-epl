@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -103,7 +103,7 @@ public abstract class Log {
 		// }
 	}
 
-	// private static final ThreadLocal<String> header2 = new ThreadLocal<String>();
+	// private static final ThreadLocal<String> header2 = new ThreadLocal<>();
 	//
 	public static void header(String s) {
 		// header2.set(s);

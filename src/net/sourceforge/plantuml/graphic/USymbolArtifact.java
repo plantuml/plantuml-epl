@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,30 +34,28 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolArtifact extends USymbol {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.ARTIFACT;
+	public SName getSName() {
+		return SName.artifact;
 	}
 
-	private void drawArtifact(UGraphic ug, double widthTotal, double heightTotal, boolean shadowing, double roundCorner) {
+	private void drawArtifact(UGraphic ug, double widthTotal, double heightTotal, double shadowing,
+			double roundCorner) {
 
 		final URectangle form = new URectangle(widthTotal, heightTotal).rounded(roundCorner);
-		if (shadowing) {
-			form.setDeltaShadow(4);
-		}
+		form.setDeltaShadow(shadowing);
 
 		ug.draw(form);
 
@@ -88,10 +86,6 @@ class USymbolArtifact extends USymbol {
 		return new Margin(10, 10 + 10, 10 + 3, 10);
 	}
 
-	public boolean manageHorizontalLine() {
-		return true;
-	}
-
 	@Override
 	public TextBlock asSmall(TextBlock name, final TextBlock label, final TextBlock stereotype,
 			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
@@ -99,9 +93,9 @@ class USymbolArtifact extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawArtifact(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawArtifact(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
@@ -118,13 +112,14 @@ class USymbolArtifact extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext,
+			final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawArtifact(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawArtifact(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;

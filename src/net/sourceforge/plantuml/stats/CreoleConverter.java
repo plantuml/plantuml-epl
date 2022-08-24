@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -56,7 +56,7 @@ public class CreoleConverter {
 	}
 
 	public List<String> toCreole() {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		result.add("<b><size:16>Statistics</b>");
 		printTableCreole(result, stats.getLastSessions());
 		result.add(" ");

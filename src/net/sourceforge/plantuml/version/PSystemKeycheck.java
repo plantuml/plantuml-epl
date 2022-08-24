@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,57 +37,50 @@ package net.sourceforge.plantuml.version;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainDiagram;
 import net.sourceforge.plantuml.SignatureUtils;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
 import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.ugraphic.AffineTransformType;
 import net.sourceforge.plantuml.ugraphic.PixelImage;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class PSystemKeycheck extends AbstractPSystem {
+public class PSystemKeycheck extends PlainDiagram {
 
 	final private String key;
 	final private String sig;
 
-	public PSystemKeycheck(String sig, String key) {
+	public PSystemKeycheck(UmlSource source, String sig, String key) {
+		super(source);
 		this.sig = sig;
 		this.key = key;
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, getMetadata(),
-				null, 1.0, HColorUtils.WHITE);
-
-		imageBuilder.setUDrawable(new UDrawable() {
+	protected UDrawable getRootDrawable(FileFormatOption fileFormatOption) {
+		return new UDrawable() {
 			public void drawU(UGraphic ug) {
 				try {
 					drawInternal(ug);
 				} catch (Exception e) {
-					e.printStackTrace();
+					Logme.error(e);
 				}
 			}
-		});
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
+		};
 	}
 
 	public DiagramDescription getDescription() {
@@ -102,7 +95,7 @@ public class PSystemKeycheck extends AbstractPSystem {
 			License.addLicenseInfo(strings, info);
 			strings.add(" ");
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 			strings.add("<i>Error:</i> " + e);
 		}
 
@@ -111,7 +104,7 @@ public class PSystemKeycheck extends AbstractPSystem {
 	}
 
 	private ArrayList<String> header() {
-		final ArrayList<String> strings = new ArrayList<String>();
+		final ArrayList<String> strings = new ArrayList<>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
 		strings.add("(" + License.getCurrent() + " source distribution)");
 //		if (OptionFlags.ALLOW_INCLUDE) {
@@ -135,8 +128,7 @@ public class PSystemKeycheck extends AbstractPSystem {
 				Version.versionString() + "\n" + SignatureUtils.toHexString(PLSSignature.signature()), Color.BLACK,
 				Color.WHITE);
 		if (im != null) {
-			final UImage flash = new UImage(new PixelImage(im, AffineTransformType.TYPE_NEAREST_NEIGHBOR))
-					.scale(4);
+			final UImage flash = new UImage(new PixelImage(im, AffineTransformType.TYPE_NEAREST_NEIGHBOR)).scale(4);
 			ug.draw(flash);
 			ug = ug.apply(UTranslate.dy(flash.getHeight()));
 		}

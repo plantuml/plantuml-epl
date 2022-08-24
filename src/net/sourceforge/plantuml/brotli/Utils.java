@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 /* Copyright 2015 Google Inc. All Rights Reserved.
 
+   https://github.com/google/brotli/blob/master/LICENSE
+
    Distributed under MIT license.
    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
 */
@@ -59,8 +61,8 @@ final class Utils {
    * less than 16.
    *
    * @param dest array to fill with zeroes
-   * @param offset the first byte to fill
-   * @param length number of bytes to change
+   * @param start the first byte to fill
+   * @param end the last byte to fill
    */
   static void fillBytesWithZeroes(byte[] dest, int start, int end) {
     int cursor = start;
@@ -78,8 +80,8 @@ final class Utils {
    * less than 16.
    *
    * @param dest array to fill with zeroes
-   * @param offset the first item to fill
-   * @param length number of item to change
+   * @param start the first item to fill
+   * @param end the last item to fill
    */
   static void fillIntsWithZeroes(int[] dest, int start, int end) {
     int cursor = start;

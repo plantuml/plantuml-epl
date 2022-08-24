@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ import net.sourceforge.plantuml.version.Version;
 public class GetVersion extends SimpleReturnFunction {
 
 	public TFunctionSignature getSignature() {
-		return new TFunctionSignature("%version", 1);
+		return new TFunctionSignature("%version", 0);
 	}
 
 	public boolean canCover(int nbArg, Set<String> namedArgument) {

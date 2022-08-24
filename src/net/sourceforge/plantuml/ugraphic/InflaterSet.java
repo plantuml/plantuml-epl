@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -49,7 +49,7 @@ public class InflaterSet {
 		}
 	}
 
-	private final List<Inflater> all = new ArrayList<Inflater>();
+	private final List<Inflater> all = new ArrayList<>();
 
 	public void addInflater(double start, double size) {
 		all.add(new Inflater(start, size));

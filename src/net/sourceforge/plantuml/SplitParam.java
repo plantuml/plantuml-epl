@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,8 +45,8 @@ public class SplitParam {
 	private final HColor externalColor;
 	private final int externalMargin;
 
-	public SplitParam() {
-		this(null, null, 0);
+	private static SplitParam empty() {
+		return new SplitParam(null, null, 0);
 	}
 
 	public SplitParam(HColor borderColor, HColor externalColor, int externalMargin) {
@@ -67,16 +67,16 @@ public class SplitParam {
 	}
 
 	public Color getBorderColor() {
-		if (borderColor == null) {
+		if (borderColor == null)
 			return null;
-		}
+
 		return ((HColorSimple) borderColor).getColor999();
 	}
 
 	public Color getExternalColor() {
-		if (externalColor == null) {
+		if (externalColor == null)
 			return null;
-		}
+
 		return ((HColorSimple) externalColor).getColor999();
 	}
 

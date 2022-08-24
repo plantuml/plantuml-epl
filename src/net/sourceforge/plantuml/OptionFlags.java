@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,9 +40,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityUtils;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class OptionFlags {
 
@@ -59,7 +59,6 @@ public class OptionFlags {
 	}
 
 	static public void setMaxPixel(int max) {
-		ImageBuilder.setMaxPixel(max);
 	}
 
 	static public final boolean USE_HECTOR = false;
@@ -72,7 +71,7 @@ public class OptionFlags {
 	static public final boolean USE_INTERFACE_EYE2 = false;
 	// static public final boolean SWI2 = false;
 	// static public final boolean USE_COMPOUND = false;
-	static public final boolean OMEGA_CROSSING = false;
+	// static public final boolean OMEGA_CROSSING = false;
 
 	// static public final boolean LINK_BETWEEN_FIELDS = true;
 
@@ -123,6 +122,7 @@ public class OptionFlags {
 	private boolean enableStats = defaultForStats();
 	private boolean stdLib;
 	private boolean silentlyCompletelyIgnoreErrors;
+	private boolean replaceWhiteBackgroundByTransparent;
 	private boolean extractStdLib;
 	private boolean clipboardLoop;
 	private boolean clipboard;
@@ -210,20 +210,14 @@ public class OptionFlags {
 				return;
 			}
 			// final PSystemError systemError = (PSystemError) system;
-			PrintStream ps = null;
-			try {
-				ps = SecurityUtils.createPrintStream(logData.createFileOutputStream(true));
+			try (PrintStream ps = SecurityUtils.createPrintStream(logData.createFileOutputStream(true))) {
 				ps.println("Start of " + file.getName());
 				ps.println(warnOrError);
 				ps.println("End of " + file.getName());
 				ps.println();
 			} catch (FileNotFoundException e) {
 				Log.error("Cannot open " + logData);
-				e.printStackTrace();
-			} finally {
-				if (ps != null) {
-					ps.close();
-				}
+				Logme.error(e);
 			}
 		}
 	}
@@ -231,17 +225,11 @@ public class OptionFlags {
 	public final void setLogData(SFile logData) {
 		this.logData = logData;
 		logData.delete();
-		PrintStream ps = null;
-		try {
-			ps = SecurityUtils.createPrintStream(logData.createFileOutputStream());
+		try (PrintStream ps = SecurityUtils.createPrintStream(logData.createFileOutputStream())) {
 			ps.println();
 		} catch (FileNotFoundException e) {
 			Log.error("Cannot open " + logData);
-			e.printStackTrace();
-		} finally {
-			if (ps != null) {
-				ps.close();
-			}
+			Logme.error(e);
 		}
 	}
 
@@ -367,5 +355,13 @@ public class OptionFlags {
 
 	public final void setSilentlyCompletelyIgnoreErrors(boolean silentlyCompletelyIgnoreErrors) {
 		this.silentlyCompletelyIgnoreErrors = silentlyCompletelyIgnoreErrors;
+	}
+
+	public final boolean isReplaceWhiteBackgroundByTransparent() {
+		return replaceWhiteBackgroundByTransparent;
+	}
+
+	public final void setReplaceWhiteBackgroundByTransparent(boolean replaceWhiteBackgroundByTransparent) {
+		this.replaceWhiteBackgroundByTransparent = replaceWhiteBackgroundByTransparent;
 	}
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,8 +43,9 @@ import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.project.GanttDiagram;
 import net.sourceforge.plantuml.project.core.Task;
-import net.sourceforge.plantuml.project.lang.ComplementColors;
+import net.sourceforge.plantuml.project.lang.CenterBorderColor;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandColorTask extends SingleLineCommand2<GanttDiagram> {
 
@@ -54,14 +55,15 @@ public class CommandColorTask extends SingleLineCommand2<GanttDiagram> {
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandColorTask.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("CODE", "\\[([\\p{L}0-9_.]+)\\]"), //
+				new RegexLeaf("CODE", "\\[([%pLN_.]+)\\]"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("COLORS", "#(\\w+)(?:/(#?\\w+))?"), //
 				RegexLeaf.spaceZeroOrMore(), RegexLeaf.end());
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(GanttDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(GanttDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 
 		final String code = arg.get("CODE", 0);
 		final Task task = diagram.getExistingTask(code);
@@ -71,9 +73,11 @@ public class CommandColorTask extends SingleLineCommand2<GanttDiagram> {
 
 		final String color1 = arg.get("COLORS", 0);
 		final String color2 = arg.get("COLORS", 1);
-		final HColor col1 = diagram.getIHtmlColorSet().getColorIfValid(color1);
-		final HColor col2 = diagram.getIHtmlColorSet().getColorIfValid(color2);
-		task.setColors(new ComplementColors(col1, col2));
+		final HColor col1 = color1 == null ? null
+				: diagram.getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), color1);
+		final HColor col2 = color2 == null ? null
+				: diagram.getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), color2);
+		task.setColors(new CenterBorderColor(col1, col2));
 
 		return CommandExecutionResult.ok();
 	}

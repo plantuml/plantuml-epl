@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
-
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.png.PngTitler;
@@ -60,6 +58,36 @@ public class SequenceDiagramArea {
 	private double footerWidth;
 	private double footerHeight;
 	private double footerMargin;
+
+	private double legendWidth;
+	private double legendHeight;
+	private boolean isLegendTop;
+	private HorizontalAlignment legendHorizontalAlignment;
+
+	public void setLegend(Dimension2D dimLegend, boolean isLegendTop, HorizontalAlignment horizontalAlignment) {
+		this.legendHorizontalAlignment = horizontalAlignment;
+		this.legendWidth = dimLegend.getWidth();
+		this.legendHeight = dimLegend.getHeight();
+		this.isLegendTop = isLegendTop;
+	}
+
+	public double getLegendWidth() {
+		return legendWidth;
+	}
+
+	public boolean hasLegend() {
+		return legendHeight > 0 && legendWidth > 0;
+	}
+
+	public double getLegendX() {
+		if (legendHorizontalAlignment == HorizontalAlignment.LEFT)
+			return 0;
+		else if (legendHorizontalAlignment == HorizontalAlignment.RIGHT)
+			return Math.max(0, getWidth() - legendWidth);
+		else
+			return Math.max(0, getWidth() - legendWidth) / 2;
+
+	}
 
 	public SequenceDiagramArea(double width, double height) {
 		this.sequenceWidth = width;
@@ -97,7 +125,24 @@ public class SequenceDiagramArea {
 	}
 
 	public double getHeight() {
-		return sequenceHeight + headerHeight + headerMargin + titleHeight + footerMargin + footerHeight + captionHeight;
+		return sequenceHeight + headerHeight + headerMargin + titleHeight + footerMargin + footerHeight + captionHeight
+				+ legendHeight;
+	}
+
+	public double getFooterY() {
+		return sequenceHeight + headerHeight + headerMargin + titleHeight + footerMargin + captionHeight + legendHeight;
+	}
+
+	public double getCaptionY() {
+		return sequenceHeight + headerHeight + headerMargin + titleHeight + legendHeight;
+	}
+
+	public double getLegendY() {
+		if (isLegendTop) {
+			return titleHeight + headerHeight + headerMargin;
+		}
+		return sequenceHeight + headerHeight + headerMargin + titleHeight;
+
 	}
 
 	public double getTitleX() {
@@ -116,15 +161,14 @@ public class SequenceDiagramArea {
 		return (getWidth() - captionWidth) / 2;
 	}
 
-	public double getCaptionY() {
-		return sequenceHeight + headerHeight + headerMargin + titleHeight;
-	}
-
 	public double getSequenceAreaX() {
 		return (getWidth() - sequenceWidth) / 2;
 	}
 
 	public double getSequenceAreaY() {
+		if (isLegendTop)
+			return getTitleY() + titleHeight + legendHeight;
+
 		return getTitleY() + titleHeight;
 	}
 
@@ -132,54 +176,44 @@ public class SequenceDiagramArea {
 		return 0;
 	}
 
-	public double getFooterY() {
-		return sequenceHeight + headerHeight + headerMargin + titleHeight + footerMargin + captionHeight;
-	}
-
 	public double getFooterX(HorizontalAlignment align) {
-		if (align == HorizontalAlignment.LEFT) {
+		if (align == HorizontalAlignment.LEFT)
 			return 0;
-		}
-		if (align == HorizontalAlignment.RIGHT) {
+
+		if (align == HorizontalAlignment.RIGHT)
 			return getWidth() - footerWidth;
-		}
-		if (align == HorizontalAlignment.CENTER) {
+
+		if (align == HorizontalAlignment.CENTER)
 			return (getWidth() - footerWidth) / 2;
-		}
+
 		throw new IllegalStateException();
 	}
 
 	public double getHeaderX(HorizontalAlignment align) {
-		if (align == HorizontalAlignment.LEFT) {
+		if (align == HorizontalAlignment.LEFT)
 			return 0;
-		}
-		if (align == HorizontalAlignment.RIGHT) {
+
+		if (align == HorizontalAlignment.RIGHT)
 			return getWidth() - headerWidth;
-		}
-		if (align == HorizontalAlignment.CENTER) {
+
+		if (align == HorizontalAlignment.CENTER)
 			return (getWidth() - headerWidth) / 2;
-		}
+
 		throw new IllegalStateException();
 	}
 
 	public void initFooter(PngTitler pngTitler, StringBounder stringBounder) {
 		final Dimension2D dim = pngTitler.getTextDimension(stringBounder);
-		if (dim != null) {
-			if (SkinParam.USE_STYLES())
-				setFooterArea(dim.getWidth(), dim.getHeight(), 0);
-			else
-				setFooterArea(dim.getWidth(), dim.getHeight(), 3);
-		}
+		if (dim != null)
+			setFooterArea(dim.getWidth(), dim.getHeight(), 0);
+
 	}
 
 	public void initHeader(PngTitler pngTitler, StringBounder stringBounder) {
 		final Dimension2D dim = pngTitler.getTextDimension(stringBounder);
-		if (dim != null) {
-			if (SkinParam.USE_STYLES())
-				setHeaderArea(dim.getWidth(), dim.getHeight(), 0);
-			else
-				setHeaderArea(dim.getWidth(), dim.getHeight(), 3);
-		}
+		if (dim != null)
+			setHeaderArea(dim.getWidth(), dim.getHeight(), 0);
+
 	}
 
 }

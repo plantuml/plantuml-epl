@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,13 +35,11 @@
 
 package smetana.core;
 
-import h.Dtcompar_f;
-import h.Dtmemory_f;
-import h.Dtsearch_f;
-
-public interface CFunction extends __ptr__, Dtmemory_f, Dtcompar_f, Dtsearch_f {
+public interface CFunction extends __ptr__ {
 	
 	public Object exe(Object... args);
+
+	public String getName();
 
 
 }

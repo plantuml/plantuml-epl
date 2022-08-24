@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,15 +36,17 @@ package net.sourceforge.plantuml;
 
 import java.awt.Font;
 
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 
 interface FontParamConstant {
 	String FAMILY = "SansSerif";
 	String COLOR = "black";
 }
 
+@HaxeIgnored
 public enum FontParam {
 	TIMING(12, Font.PLAIN), //
 	ACTIVITY(12, Font.PLAIN), //
@@ -78,6 +80,9 @@ public enum FontParam {
 	ENTITY(14, Font.PLAIN), //
 	AGENT(14, Font.PLAIN), //
 	RECTANGLE(14, Font.PLAIN), //
+	LABEL(14, Font.PLAIN), //
+	HEXAGON(14, Font.PLAIN), //
+	PERSON(14, Font.PLAIN), //
 	ARCHIMATE(14, Font.PLAIN), //
 	CARD(14, Font.PLAIN), //
 	NODE(14, Font.PLAIN), //
@@ -112,6 +117,9 @@ public enum FontParam {
 	ENTITY_STEREOTYPE(14, Font.ITALIC), //
 	AGENT_STEREOTYPE(14, Font.ITALIC), //
 	RECTANGLE_STEREOTYPE(14, Font.ITALIC), //
+	LABEL_STEREOTYPE(14, Font.ITALIC), //
+	PERSON_STEREOTYPE(14, Font.ITALIC), //
+	HEXAGON_STEREOTYPE(14, Font.ITALIC), //
 	ARCHIMATE_STEREOTYPE(14, Font.ITALIC), //
 	CARD_STEREOTYPE(14, Font.ITALIC), //
 	NODE_STEREOTYPE(14, Font.ITALIC), //
@@ -177,26 +185,26 @@ public enum FontParam {
 	}
 
 	public FontConfiguration getFontConfiguration(ISkinParam skinParam) {
-		return new FontConfiguration(skinParam, this, null);
+		return FontConfiguration.create(skinParam, this, null);
 	}
 
-	public StyleSignature getStyleDefinition(SName diagramType) {
+	public StyleSignatureBasic getStyleDefinition(SName diagramType) {
 		if (this == FOOTER) {
-			return StyleSignature.of(SName.root, SName.footer);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.footer);
 		}
 		if (this == HEADER) {
-			return StyleSignature.of(SName.root, SName.header);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.header);
 		}
 		if (this == TITLE) {
-			return StyleSignature.of(SName.root, SName.title);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.title);
 		}
 		if (this == CLASS_ATTRIBUTE) {
-			return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.class_);
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.classDiagram, SName.class_);
 		}
 		if (this == RECTANGLE || this == NODE) {
-			return StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component);
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.componentDiagram, SName.component);
 		}
-		return StyleSignature.of(SName.root, SName.element, diagramType, SName.component);
+		return StyleSignatureBasic.of(SName.root, SName.element, diagramType, SName.component);
 //		System.err.println("Warning " + this);
 //		throw new UnsupportedOperationException();
 	}

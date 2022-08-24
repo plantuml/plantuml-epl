@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,17 +34,17 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.UPath;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 // https://stackoverflow.com/questions/39552127/algorithm-for-drawing-random-comic-style-clouds
 // http://martin-oehm.de/data/cloud.html
@@ -57,21 +57,20 @@ class USymbolCloud extends USymbol {
 	private final static boolean DEBUG = false;
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.CLOUD;
+	public SName getSName() {
+		return SName.cloud;
 	}
 
-	private void drawCloud(UGraphic ug, double width, double height, boolean shadowing) {
+	private void drawCloud(UGraphic ug, double width, double height, double shadowing) {
 		final UPath shape = getSpecificFrontierForCloud(width, height);
-		if (shadowing) {
-			 shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
+
 		ug.apply(UTranslate.dy(0)).draw(shape);
 	}
 
 	private UPath getSpecificFrontierForCloudNew(double width, double height) {
 		final Random rnd = new Random((long) width + 7919L * (long) height);
-		final List<Point2D> points = new ArrayList<Point2D>();
+		final List<Point2D> points = new ArrayList<>();
 
 		double bubbleSize = 11;
 		if (Math.max(width, height) / bubbleSize > 16) {
@@ -136,7 +135,7 @@ class USymbolCloud extends USymbol {
 	}
 
 	private void specialLine(double bubbleSize, Random rnd, List<Point2D> points, Point2D p1, Point2D p2) {
-		final CoordinateChange change = new CoordinateChange(p1, p2);
+		final CoordinateChange change = CoordinateChange.create(p1, p2);
 		final double length = change.getLength();
 		final Point2D middle = change.getTrueCoordinate(length / 2, -rnd(rnd, 1, 1 + Math.min(12, bubbleSize * 0.8)));
 		// final Point2D middle = change.getTrueCoordinate(length / 2, -13);
@@ -150,7 +149,7 @@ class USymbolCloud extends USymbol {
 	}
 
 	private void bubbleLine(Random rnd, List<Point2D> points, Point2D p1, Point2D p2, double bubbleSize) {
-		final CoordinateChange change = new CoordinateChange(p1, p2);
+		final CoordinateChange change = CoordinateChange.create(p1, p2);
 		final double length = change.getLength();
 		int nb = (int) (length / bubbleSize);
 		if (nb == 0) {
@@ -163,7 +162,7 @@ class USymbolCloud extends USymbol {
 	}
 
 	private void addCurve(Random rnd, UPath path, Point2D p1, Point2D p2) {
-		final CoordinateChange change = new CoordinateChange(p1, p2);
+		final CoordinateChange change = CoordinateChange.create(p1, p2);
 		final double length = change.getLength();
 		final double coef = rnd(rnd, .25, .35);
 		final Point2D middle = change.getTrueCoordinate(length * coef, -length * rnd(rnd, .4, .55));
@@ -224,9 +223,9 @@ class USymbolCloud extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawCloud(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawCloud(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
 				tb.drawU(ug.apply(new UTranslate(margin.getX1(), margin.getY1())));
@@ -249,7 +248,7 @@ class USymbolCloud extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawCloud(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
+				drawCloud(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
 				stereotype.drawU(ug.apply(new UTranslate(posStereo, 13)));
@@ -262,11 +261,6 @@ class USymbolCloud extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

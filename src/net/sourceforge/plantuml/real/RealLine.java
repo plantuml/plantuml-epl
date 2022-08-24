@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,11 +43,11 @@ import java.util.Set;
 
 class RealLine {
 
-	private final List<PositiveForce> forces = new ArrayList<PositiveForce>();
+	private final List<PositiveForce> forces = new ArrayList<>();
 
 	private double min;
 	private double max;
-	private Set<AbstractReal> all = new HashSet<AbstractReal>();
+	private Set<AbstractReal> all = new HashSet<>();
 
 	void register(double v) {
 		// System.err.println("RealLine::register " + v);

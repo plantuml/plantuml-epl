@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,30 +34,27 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UShape;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolComponent1 extends USymbol {
 
 	@Override
-	public SkinParameter getSkinParameter() {
-		return SkinParameter.COMPONENT1;
+	public SName getSName() {
+		return SName.component;
 	}
 
-	private void drawComponent1(UGraphic ug, double widthTotal, double heightTotal, boolean shadowing,
+	private void drawComponent1(UGraphic ug, double widthTotal, double heightTotal, double shadowing,
 			double roundCorner) {
 
 		final URectangle form = new URectangle(widthTotal, heightTotal).rounded(roundCorner);
-		if (shadowing) {
-			form.setDeltaShadow(4);
-		}
+		form.setDeltaShadow(shadowing);
 
 		ug.draw(form);
 		final UShape small = new URectangle(10, 5);
@@ -80,9 +77,9 @@ class USymbolComponent1 extends USymbol {
 			public void drawU(UGraphic ug) {
 				final StringBounder stringBounder = ug.getStringBounder();
 				final Dimension2D dimTotal = calculateDimension(stringBounder);
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dimTotal), new UStroke());
+				ug = UGraphicStencil.create(ug, dimTotal);
 				ug = symbolContext.apply(ug);
-				drawComponent1(ug, dimTotal.getWidth(), dimTotal.getHeight(), symbolContext.isShadowing(),
+				drawComponent1(ug, dimTotal.getWidth(), dimTotal.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
@@ -100,13 +97,8 @@ class USymbolComponent1 extends USymbol {
 	@Override
 	public TextBlock asBig(TextBlock title, HorizontalAlignment labelAlignment, TextBlock stereotype, double width,
 			double height, SymbolContext symbolContext, HorizontalAlignment stereoAlignment) {
-		return USymbol.COMPONENT2.asBig(title, labelAlignment, stereotype, width, height, symbolContext,
+		return USymbols.COMPONENT2.asBig(title, labelAlignment, stereotype, width, height, symbolContext,
 				stereoAlignment);
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

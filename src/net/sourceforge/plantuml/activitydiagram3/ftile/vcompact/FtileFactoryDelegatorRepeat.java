@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,12 +34,8 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.geom.Dimension2D;
 import java.util.List;
 
-import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Arrows;
 import net.sourceforge.plantuml.activitydiagram3.ftile.BoxStyle;
@@ -54,10 +50,10 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.WeldingPoint;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileDiamond;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.Rainbow;
-import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
@@ -74,48 +70,33 @@ public class FtileFactoryDelegatorRepeat extends FtileFactoryDelegator {
 
 	@Override
 	public Ftile repeat(BoxStyle boxStyleIn, Swimlane swimlane, Swimlane swimlaneOut, Display startLabel,
-			final Ftile repeat, Display test, Display yes, Display out, Colors colors,
-			LinkRendering backRepeatLinkRendering, Ftile backward, boolean noOut) {
+			final Ftile repeat, Display test, Display yes, Display out, Colors colors, Ftile backward, boolean noOut,
+			LinkRendering incoming1, LinkRendering incoming2) {
 
 		final ConditionStyle conditionStyle = skinParam().getConditionStyle();
 
-		final HColor borderColor;
-		final HColor diamondColor;
-		final Rainbow arrowColor;
-		final FontConfiguration fcDiamond;
-		final FontConfiguration fcArrow;
-		if (SkinParam.USE_STYLES()) {
-			final Style styleArrow = getDefaultStyleDefinitionArrow()
-					.getMergedStyle(skinParam().getCurrentStyleBuilder());
-			final Style styleDiamond = getDefaultStyleDefinitionDiamond()
-					.getMergedStyle(skinParam().getCurrentStyleBuilder());
-			borderColor = styleDiamond.value(PName.LineColor).asColor(skinParam().getIHtmlColorSet());
-			diamondColor = styleDiamond.value(PName.BackGroundColor).asColor(skinParam().getIHtmlColorSet());
-			arrowColor = Rainbow.build(styleArrow, skinParam().getIHtmlColorSet());
-			fcDiamond = styleDiamond.getFontConfiguration(skinParam().getIHtmlColorSet());
-			fcArrow = styleArrow.getFontConfiguration(skinParam().getIHtmlColorSet());
-		} else {
-			borderColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBorder);
-			// diamondColor = color == null ? getRose().getHtmlColor(skinParam(),
-			// ColorParam.activityDiamondBackground) : color;
-			if (colors.getColor(ColorType.BACK) != null && Display.isNull(startLabel)) {
-				diamondColor = colors.getColor(ColorType.BACK);
-			} else {
-				diamondColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBackground);
-			}
-			arrowColor = Rainbow.build(skinParam());
-			fcDiamond = new FontConfiguration(skinParam(), FontParam.ACTIVITY_DIAMOND, null);
-			fcArrow = new FontConfiguration(skinParam(), FontParam.ARROW, null);
-		}
+		final Style styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(skinParam().getCurrentStyleBuilder());
+		final Style styleDiamond = getDefaultStyleDefinitionDiamond()
+				.getMergedStyle(skinParam().getCurrentStyleBuilder());
+		final HColor borderColor = styleDiamond.value(PName.LineColor).asColor(skinParam().getThemeStyle(),
+				skinParam().getIHtmlColorSet());
+		final HColor diamondColor = styleDiamond.value(PName.BackGroundColor).asColor(skinParam().getThemeStyle(),
+				skinParam().getIHtmlColorSet());
+		final Rainbow arrowColor = Rainbow.build(styleArrow, skinParam().getIHtmlColorSet(),
+				skinParam().getThemeStyle());
+		final FontConfiguration fcDiamond = styleDiamond.getFontConfiguration(skinParam().getThemeStyle(),
+				skinParam().getIHtmlColorSet());
+		final FontConfiguration fcArrow = styleArrow.getFontConfiguration(skinParam().getThemeStyle(),
+				skinParam().getIHtmlColorSet());
 
 		final LinkRendering endRepeatLinkRendering = repeat.getOutLinkRendering();
 		final Rainbow endRepeatLinkColor = endRepeatLinkRendering == null ? null : endRepeatLinkRendering.getRainbow();
 
-		final Ftile entry = getEntry(swimlane, startLabel, colors, boxStyleIn);
+		final Ftile entry = getEntry(repeat.getSwimlaneIn(), startLabel, colors, boxStyleIn);
 
-		Ftile result = FtileRepeat.create(backRepeatLinkRendering, swimlane, swimlaneOut, entry, repeat, test, yes, out,
-				borderColor, diamondColor, arrowColor, endRepeatLinkColor, conditionStyle, this.skinParam(), fcDiamond,
-				fcArrow, backward, noOut);
+		Ftile result = FtileRepeat.create(swimlane, swimlaneOut, entry, repeat, test, yes, out, borderColor,
+				diamondColor, arrowColor, endRepeatLinkColor, conditionStyle, this.skinParam(), fcDiamond, fcArrow,
+				backward, noOut, incoming1, incoming2);
 
 		final List<WeldingPoint> weldingPoints = repeat.getWeldingPoints();
 		if (weldingPoints.size() > 0) {
@@ -133,8 +114,7 @@ public class FtileFactoryDelegatorRepeat extends FtileFactoryDelegator {
 					final UTranslate tr2 = genealogy.getTranslate(diamondBreak, ug.getStringBounder());
 					final Dimension2D dimDiamond = diamondBreak.calculateDimension(ug.getStringBounder());
 
-					final Snake snake = new Snake(getFtile1().arrowHorizontalAlignment(), arrowColor,
-							Arrows.asToRight());
+					final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToRight());
 					snake.addPoint(tr1.getDx(), tr1.getDy());
 					snake.addPoint(0, tr1.getDy());
 					snake.addPoint(0, tr2.getDy() + dimDiamond.getHeight() / 2);
@@ -161,6 +141,6 @@ public class FtileFactoryDelegatorRepeat extends FtileFactoryDelegator {
 			return null;
 		}
 		// final Colors colors = Colors.empty().add(ColorType.BACK, back);
-		return this.activity(startLabel, swimlane, boxStyleIn, colors);
+		return this.activity(startLabel, swimlane, boxStyleIn, colors, null);
 	}
 }

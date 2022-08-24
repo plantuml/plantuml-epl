@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.anim;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,7 +61,7 @@ public class Animation {
 	}
 
 	public static Animation create(List<String> descriptions) {
-		final List<AffineTransformation> all = new ArrayList<AffineTransformation>();
+		final List<AffineTransformation> all = new ArrayList<>();
 		for (String s : descriptions) {
 			final AffineTransformation tmp = AffineTransformation.create(s);
 			if (tmp != null) {

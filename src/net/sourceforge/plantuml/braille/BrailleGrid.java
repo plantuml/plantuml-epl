@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -50,7 +50,7 @@ public class BrailleGrid {
 	private int maxY;
 
 	private final double quanta;
-	private final Set<Coords> on = new HashSet<Coords>();
+	private final Set<Coords> on = new HashSet<>();
 
 	public BrailleGrid(double quanta) {
 		this.quanta = quanta;

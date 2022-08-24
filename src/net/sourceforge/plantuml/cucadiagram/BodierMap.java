@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,19 +39,23 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.Style;
 
 public class BodierMap implements Bodier {
 
-	private final List<String> rawBody = new ArrayList<String>();
+	private final List<CharSequence> rawBody = new ArrayList<>();
 	private final Map<String, String> map = new LinkedHashMap<String, String>();
 	private ILeaf leaf;
 
+	@Override
 	public void muteClassToObject() {
 		throw new UnsupportedOperationException();
 	}
@@ -59,11 +63,9 @@ public class BodierMap implements Bodier {
 	public BodierMap() {
 	}
 
+	@Override
 	public void setLeaf(ILeaf leaf) {
-		if (leaf == null) {
-			throw new IllegalArgumentException();
-		}
-		this.leaf = leaf;
+		this.leaf = Objects.requireNonNull(leaf);
 
 	}
 
@@ -76,35 +78,44 @@ public class BodierMap implements Bodier {
 		return null;
 	}
 
-	public void addFieldOrMethod(String s) {
+	@Override
+	public boolean addFieldOrMethod(String s) {
 		if (s.contains("=>")) {
 			final int x = s.indexOf("=>");
 			map.put(s.substring(0, x).trim(), s.substring(x + 2).trim());
+			return true;
 		} else if (getLinkedEntry(s) != null) {
 			final String link = getLinkedEntry(s);
 			final int x = s.indexOf(link);
 			map.put(s.substring(0, x).trim(), "\0");
+			return true;
 		}
+		return false;
 	}
 
-	public List<Member> getMethodsToDisplay() {
+	@Override
+	public Display getMethodsToDisplay() {
 		throw new UnsupportedOperationException();
 	}
 
-	public List<Member> getFieldsToDisplay() {
+	@Override
+	public Display getFieldsToDisplay() {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean hasUrl() {
 		return false;
 	}
 
+	@Override
 	public TextBlock getBody(FontParam fontParam, ISkinParam skinParam, final boolean showMethods,
-			final boolean showFields, Stereotype stereotype) {
-		return new TextBlockMap(fontParam, skinParam, map);
+			final boolean showFields, Stereotype stereotype, Style style, FontConfiguration fontConfiguration) {
+		return new TextBlockMap(fontConfiguration, fontParam, skinParam, map);
 	}
 
-	public List<String> getRawBody() {
+	@Override
+	public List<CharSequence> getRawBody() {
 		return Collections.unmodifiableList(rawBody);
 	}
 

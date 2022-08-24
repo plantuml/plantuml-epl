@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,8 +47,8 @@ public class MessageNumber implements CharSequence {
 		this.representation = s;
 	}
 
-	public String getNumber() {
-		return representation;
+	public String getNumberRaw() {
+		return representation.replaceAll("\\</?b\\>", "");
 	}
 
 	public char charAt(int arg0) {

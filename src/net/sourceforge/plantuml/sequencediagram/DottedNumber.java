@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,8 +53,8 @@ public class DottedNumber {
 	public static DottedNumber create(String value) {
 		final Pattern p = Pattern.compile("(\\d+)|(\\D+)");
 		final Matcher m = p.matcher(value);
-		final List<Integer> nums = new ArrayList<Integer>();
-		final List<String> separators = new ArrayList<String>();
+		final List<Integer> nums = new ArrayList<>();
+		final List<String> separators = new ArrayList<>();
 		while (m.find()) {
 			final String part = m.group();
 			if (isDigit(part.charAt(0))) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -33,7 +33,6 @@
  * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.skin;
-
 
 public enum ArrowDirection {
 	LEFT_TO_RIGHT_NORMAL, RIGHT_TO_LEFT_REVERSE, SELF, BOTH_DIRECTION;

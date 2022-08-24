@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
@@ -57,6 +57,7 @@ import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.ParticipantType;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiagram> {
 
@@ -81,7 +82,8 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 	}
 
 	@Override
-	final protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
+	final protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String code = arg.get("CODE", 0);
 		if (diagram.participantsContainsKey(code)) {
 			diagram.putParticipantInLast(code);
@@ -89,9 +91,8 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 		}
 
 		Display strings = Display.NULL;
-		if (arg.get("FULL", 0) != null) {
+		if (arg.get("FULL", 0) != null)
 			strings = Display.getWithNewlines(arg.get("FULL", 0));
-		}
 
 		final String typeString1 = arg.get("TYPE", 0);
 		final String typeCreate1 = arg.get("CREATE", 0);
@@ -117,24 +118,24 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 			final ISkinParam skinParam = diagram.getSkinParam();
 			final boolean stereotypePositionTop = skinParam.stereotypePositionTop();
 			final UFont font = skinParam.getFont(null, false, FontParam.CIRCLED_CHARACTER);
-			participant.setStereotype(new Stereotype(stereotype, skinParam.getCircledCharacterRadius(), font, diagram
-					.getSkinParam().getIHtmlColorSet()), stereotypePositionTop);
+			participant.setStereotype(Stereotype.build(stereotype, skinParam.getCircledCharacterRadius(), font,
+					diagram.getSkinParam().getIHtmlColorSet()), stereotypePositionTop);
 		}
-		participant.setSpecificColorTOBEREMOVED(ColorType.BACK, diagram.getSkinParam().getIHtmlColorSet()
-				.getColorIfValid(arg.get("COLOR", 0)));
+		final String s = arg.get("COLOR", 0);
+		participant.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			participant.setUrl(url);
 		}
 
 		if (create) {
 			final String error = diagram.activate(participant, LifeEventType.CREATE, null);
-			if (error != null) {
+			if (error != null)
 				return CommandExecutionResult.error(error);
-			}
 
 		}
 

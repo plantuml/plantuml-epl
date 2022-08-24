@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,17 +43,17 @@ public enum MultilinesStrategy {
 	REMOVE_STARTING_QUOTE, KEEP_STARTING_QUOTE;
 
 	public void cleanList(List<StringLocated> lines) {
-		if (this == REMOVE_STARTING_QUOTE) {
+		if (this == REMOVE_STARTING_QUOTE)
 			filterQuote(lines);
-		}
+
 	}
 
 	private void filterQuote(List<StringLocated> lines) {
 		for (final Iterator<StringLocated> it = lines.iterator(); it.hasNext();) {
 			final StringLocated s = it.next();
-			if (hasStartingQuote(s)) {
+			if (hasStartingQuote(s))
 				it.remove();
-			}
+
 		}
 	}
 

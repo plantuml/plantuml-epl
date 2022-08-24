@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -66,6 +66,8 @@ public class EaterInclude extends Eater {
 		}
 		skipSpaces();
 		this.location = context.applyFunctionsAndVariables(memory, getLineLocation(), this.eatAllToEnd());
+//		final TValue value = eatExpression(context, memory);
+//		this.location = value.toString();
 
 	}
 

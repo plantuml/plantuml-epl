@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,40 +35,39 @@
 package net.sourceforge.plantuml.project.core;
 
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.project.Load;
-import net.sourceforge.plantuml.project.lang.ComplementColors;
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.lang.CenterBorderColor;
+import net.sourceforge.plantuml.project.time.Day;
+import net.sourceforge.plantuml.project.time.DayOfWeek;
+import net.sourceforge.plantuml.style.StyleBuilder;
 
 public class TaskSeparator extends AbstractTask implements Task {
 
 	private final String comment;
 
-	public TaskSeparator(String comment, int id) {
-		super(new TaskCode("##" + id));
+	public TaskSeparator(StyleBuilder styleBuilder, String comment, int id) {
+		super(styleBuilder, new TaskCode("##" + id));
 		this.comment = comment;
 	}
 
-	public TaskCode getCode() {
-		return code;
-	}
-
-	public Wink getStart() {
+	public Day getStart() {
 		throw new UnsupportedOperationException();
 	}
 
-	public Wink getEnd() {
+	public Day getEnd() {
 		throw new UnsupportedOperationException();
 	}
 
-	public void setStart(Wink start) {
+	public void setStart(Day start) {
 		throw new UnsupportedOperationException();
 	}
 
-	public void setEnd(Wink end) {
+	public void setEnd(Day end) {
 		throw new UnsupportedOperationException();
 	}
 
-	public void setColors(ComplementColors colors) {
+	public void setColors(CenterBorderColor... colors) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -102,6 +101,17 @@ public class TaskSeparator extends AbstractTask implements Task {
 
 	public void setUrl(Url url) {
 		throw new UnsupportedOperationException();
+	}
+
+	public void addPause(Day pause) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void addPause(DayOfWeek pause) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setNote(Display note) {
 	}
 
 }

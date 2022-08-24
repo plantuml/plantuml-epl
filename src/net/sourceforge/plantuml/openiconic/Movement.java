@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class Movement {
 
@@ -52,6 +53,11 @@ public class Movement {
 			args[i] = (SvgCommandNumber) it.next();
 		}
 		this.arguments = Arrays.asList(args);
+	}
+
+	@Override
+	public String toString() {
+		return letter.getLetter() + " " + arguments;
 	}
 
 	private Movement(SvgCommandLetter letter, SvgCommandNumber... args) {
@@ -83,8 +89,6 @@ public class Movement {
 			throw new UnsupportedOperationException();
 		}
 		if (mirrorControlPoint == null) {
-			// return this;
-			// throw new IllegalArgumentException();
 			return new Movement(new SvgCommandLetter("C"), this.getSvgPosition(0), this.getSvgPosition(0),
 					lastPosition());
 		}
@@ -115,49 +119,52 @@ public class Movement {
 			return null;
 		}
 		return getSvgPosition(arguments.size() - 2);
-		// final SvgCommandNumber lastX = arguments.get(arguments.size() - 2);
-		// final SvgCommandNumber lastY = arguments.get(arguments.size() - 1);
-		// return new SvgPosition(lastX, lastY);
 	}
 
-	// public SvgPosition firstPosition() {
-	// return getSvgPosition(0);
-	// // final SvgCommandNumber firstX = arguments.get(0);
-	// // final SvgCommandNumber firstY = arguments.get(1);
-	// // return new SvgPosition(firstX, firstY);
-	// }
-
 	public Movement toAbsoluteUpperCase(SvgPosition delta) {
-		if (delta == null) {
-			throw new IllegalArgumentException();
+		Objects.requireNonNull(delta);
+		if (letter.is('H')) {
+			final SvgCommandNumber tmp = arguments.get(0);
+			return new Movement(new SvgCommandLetter("L"), new SvgPosition(tmp, delta.getY()));
 		}
-		if (letter.isUpperCase()) {
+		if (letter.is('V')) {
+			final SvgCommandNumber tmp = arguments.get(0);
+			return new Movement(new SvgCommandLetter("L"), new SvgPosition(delta.getX(), tmp));
+		}
+		if (letter.is('h')) {
+			final SvgCommandNumber tmp = arguments.get(0);
+			return new Movement(new SvgCommandLetter("L"), new SvgPosition(delta.getX().add(tmp), delta.getY()));
+		}
+		if (letter.is('v')) {
+			final SvgCommandNumber tmp = arguments.get(0);
+			return new Movement(new SvgCommandLetter("L"), new SvgPosition(delta.getX(), delta.getY().add(tmp)));
+		}
+
+		if (letter.isUpperCase())
 			return this;
-		}
-		if (letter.is('m')) {
+
+		if (letter.is('m'))
 			return new Movement(new SvgCommandLetter("M"), delta.add(getSvgPosition(0)));
-		}
-		if (letter.is('l')) {
+
+		if (letter.is('l'))
 			return new Movement(new SvgCommandLetter("L"), delta.add(getSvgPosition(0)));
-		}
-		if (letter.is('z')) {
+
+		if (letter.is('z'))
 			return new Movement(new SvgCommandLetter("Z"));
-		}
-		if (letter.is('c')) {
+
+		if (letter.is('c'))
 			return new Movement(new SvgCommandLetter("C"), delta.add(getSvgPosition(0)), delta.add(getSvgPosition(2)),
 					delta.add(getSvgPosition(4)));
-		}
-		if (letter.is('s')) {
+
+		if (letter.is('s'))
 			return new Movement(new SvgCommandLetter("S"), delta.add(getSvgPosition(0)), delta.add(getSvgPosition(2)));
-		}
+
 		if (letter.is('a')) {
 			final SvgPosition last = delta.add(lastPosition());
 			// System.err.println("LAST=" + last);
 			return new Movement(new SvgCommandLetter("A"), arguments.get(0), arguments.get(1), arguments.get(2),
 					arguments.get(3), arguments.get(4), last.getX(), last.getY());
 		}
-		// A still to be done
-		// System.err.println("Movement::goUpperCase " + letter);
 		throw new UnsupportedOperationException("Movement::goUpperCase " + letter);
 	}
 

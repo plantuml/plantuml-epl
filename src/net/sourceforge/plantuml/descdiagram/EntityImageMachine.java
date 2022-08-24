@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,6 @@
  */
 package net.sourceforge.plantuml.descdiagram;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
@@ -44,6 +42,7 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -72,13 +71,13 @@ public class EntityImageMachine extends AbstractEntityImage {
 		super(entity, skinParam);
 		final Stereotype stereotype = entity.getStereotype();
 		this.name = TextBlockUtils.withMargin(
-				entity.getDisplay().create(new FontConfiguration(getSkinParam(), FontParam.MACHINE, stereotype),
+				entity.getDisplay().create(FontConfiguration.create(getSkinParam(), FontParam.MACHINE, stereotype),
 						HorizontalAlignment.CENTER, skinParam), 2, 2);
 		if (stereotype == null || stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR) == null) {
 			this.stereo = null;
 		} else {
 			this.stereo = Display.create(stereotype.getLabels(skinParam.guillemet())).create(
-					new FontConfiguration(getSkinParam(), FontParam.MACHINE_STEREOTYPE, stereotype),
+					FontConfiguration.create(getSkinParam(), FontParam.MACHINE_STEREOTYPE, stereotype),
 					HorizontalAlignment.CENTER, skinParam);
 		}
 		this.url = entity.getUrl99();
@@ -125,7 +124,7 @@ public class EntityImageMachine extends AbstractEntityImage {
 		URectangle rect2 = new URectangle(4, heightTotal);
 
 		ug = ug.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.machineBorder));
-		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
+		HColor backcolor = getEntity().getColors().getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.machineBackground);
 		}

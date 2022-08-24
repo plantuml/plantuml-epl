@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import java.util.List;
 
 public class Notes extends AbstractEvent implements Event, Iterable<Note> {
 
-	private final List<Note> notes = new ArrayList<Note>();
+	private final List<Note> notes = new ArrayList<>();
 
 	public Notes(Note n1, Note n2) {
 		notes.add(n1);

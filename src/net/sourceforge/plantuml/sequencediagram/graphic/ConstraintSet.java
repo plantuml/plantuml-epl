@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.graphic.StringBounder;
 
@@ -49,7 +50,7 @@ public class ConstraintSet {
 
 	private final ParticipantBoxSimple lastborder;
 
-	final private List<Pushable> participantList = new ArrayList<Pushable>();
+	final private List<Pushable> participantList = new ArrayList<>();
 	final private Map<List<Pushable>, Constraint> constraints = new HashMap<List<Pushable>, Constraint>();
 
 	public ConstraintSet(Collection<? extends Pushable> all, double freeX) {
@@ -68,17 +69,17 @@ public class ConstraintSet {
 	}
 
 	public Constraint getConstraint(Pushable p1, Pushable p2) {
-		if (p1 == null || p2 == null || p1 == p2) {
+		if (p1 == null || p2 == null || p1 == p2)
 			throw new IllegalArgumentException();
-		}
+
 		final int i1 = participantList.indexOf(p1);
 		final int i2 = participantList.indexOf(p2);
-		if (i1 == -1 || i2 == -1) {
+		if (i1 == -1 || i2 == -1)
 			throw new IllegalArgumentException();
-		}
-		if (i1 > i2) {
+
+		if (i1 > i2)
 			return getConstraint(p2, p1);
-		}
+
 		final List<Pushable> key = Arrays.asList(p1, p2);
 		Constraint result = constraints.get(key);
 		if (result == null) {
@@ -89,17 +90,11 @@ public class ConstraintSet {
 	}
 
 	public Constraint getConstraintAfter(Pushable p1) {
-		if (p1 == null) {
-			throw new IllegalArgumentException();
-		}
-		return getConstraint(p1, getNext(p1));
+		return getConstraint(Objects.requireNonNull(p1), getNext(p1));
 	}
 
 	public Constraint getConstraintBefore(Pushable p1) {
-		if (p1 == null) {
-			throw new IllegalArgumentException();
-		}
-		return getConstraint(p1, getPrevious(p1));
+		return getConstraint(Objects.requireNonNull(p1), getPrevious(p1));
 	}
 
 	public Pushable getPrevious(Pushable p) {
@@ -112,16 +107,16 @@ public class ConstraintSet {
 
 	private Pushable getOtherParticipant(Pushable p, int delta) {
 		final int i = participantList.indexOf(p);
-		if (i == -1) {
+		if (i == -1)
 			throw new IllegalArgumentException();
-		}
+
 		return participantList.get(i + delta);
 	}
 
 	public void takeConstraintIntoAccount(StringBounder stringBounder) {
-		for (int dist = 1; dist < participantList.size(); dist++) {
+		for (int dist = 1; dist < participantList.size(); dist++)
 			pushEverybody(stringBounder, dist);
-		}
+
 	}
 
 	private void pushEverybody(StringBounder stringBounder, int dist) {
@@ -134,24 +129,22 @@ public class ConstraintSet {
 	}
 
 	public void pushToLeftParticipantBox(double deltaX, Pushable firstToChange, boolean including) {
-		if (deltaX <= 0) {
+		if (deltaX <= 0)
 			throw new IllegalArgumentException();
-		}
-		if (firstToChange == null) {
-			throw new IllegalArgumentException();
-		}
+
+		Objects.requireNonNull(firstToChange);
 		// freeX += deltaX;
 		boolean founded = false;
 		for (Pushable box : participantList) {
 			if (box.equals(firstToChange)) {
 				founded = true;
-				if (including == false) {
+				if (including == false)
 					continue;
-				}
+
 			}
-			if (founded) {
+			if (founded)
 				box.pushToLeft(deltaX);
-			}
+
 		}
 	}
 
@@ -160,18 +153,17 @@ public class ConstraintSet {
 	}
 
 	private void ensureSpaceAfter(StringBounder stringBounder, Pushable p1, Pushable p2, double space) {
-		if (p1.equals(p2)) {
+		if (p1.equals(p2))
 			throw new IllegalArgumentException();
-		}
+
 		if (p1.getCenterX(stringBounder) > p2.getCenterX(stringBounder)) {
 			ensureSpaceAfter(stringBounder, p2, p1, space);
 			return;
 		}
 		assert p1.getCenterX(stringBounder) < p2.getCenterX(stringBounder);
 		final double existingSpace = p2.getCenterX(stringBounder) - p1.getCenterX(stringBounder);
-		if (existingSpace < space) {
+		if (existingSpace < space)
 			pushToLeftParticipantBox(space - existingSpace, p2, true);
-		}
 
 	}
 

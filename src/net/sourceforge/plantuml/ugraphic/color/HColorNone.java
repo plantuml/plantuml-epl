@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,8 +36,12 @@ package net.sourceforge.plantuml.ugraphic.color;
 
 import net.sourceforge.plantuml.ugraphic.UBackground;
 
-public class HColorNone implements HColor {
+public class HColorNone extends HColorAbstract implements HColor {
 
+	HColorNone() {
+	}
+
+	@Override
 	public UBackground bg() {
 		return new UBackground() {
 			public HColor getBackColor() {

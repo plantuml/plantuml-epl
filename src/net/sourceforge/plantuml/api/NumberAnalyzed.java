@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.prefs.Preferences;
 
 import net.sourceforge.plantuml.Log;
-
+import net.sourceforge.plantuml.annotation.HaxeIgnored;
+import net.sourceforge.plantuml.log.Logme;
+@HaxeIgnored
 public class NumberAnalyzed implements INumberAnalyzed {
 
 	private static final int SLIDING_WINDOW = 1024;
@@ -126,7 +128,7 @@ public class NumberAnalyzed implements INumberAnalyzed {
 					Long.parseLong(st.nextToken(), 36), Long.parseLong(st.nextToken(), 36), Long.parseLong(
 							st.nextToken(), 36), Long.parseLong(st.nextToken(), 36));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logme.error(e);
 			Log.info("Error reading " + value);
 			return null;
 		}

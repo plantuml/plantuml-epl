@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,6 +39,7 @@ import java.io.IOException;
 
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.error.PSystemError;
+import net.sourceforge.plantuml.log.Logme;
 import net.sourceforge.plantuml.security.SFile;
 
 public class GeneratedImageImpl implements GeneratedImage {
@@ -60,7 +61,7 @@ public class GeneratedImageImpl implements GeneratedImage {
 	}
 
 	public File getPngFile() {
-		return pngFile.internal;
+		return pngFile.conv();
 	}
 
 	public String getDescription() {
@@ -87,7 +88,7 @@ public class GeneratedImageImpl implements GeneratedImage {
 				return cmp;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logme.error(e);
 		}
 		return this.description.compareTo(this2.getDescription());
 	}

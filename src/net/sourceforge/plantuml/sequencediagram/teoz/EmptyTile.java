@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,7 +35,6 @@
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
 import net.sourceforge.plantuml.Url;
-import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.real.Real;
 import net.sourceforge.plantuml.sequencediagram.Event;
 import net.sourceforge.plantuml.sequencediagram.Participant;
@@ -47,6 +46,7 @@ public class EmptyTile extends AbstractTile implements Tile {
 	private final Tile position;
 
 	public EmptyTile(double height, Tile position) {
+		super(((AbstractTile) position).getStringBounder());
 		this.height = height;
 		this.position = position;
 	}
@@ -54,19 +54,19 @@ public class EmptyTile extends AbstractTile implements Tile {
 	public void drawU(UGraphic ug) {
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
+	public double getPreferredHeight() {
 		return height;
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 	}
 
-	public Real getMinX(StringBounder stringBounder) {
-		return position.getMinX(stringBounder);
+	public Real getMinX() {
+		return position.getMinX();
 	}
 
-	public Real getMaxX(StringBounder stringBounder) {
-		return position.getMaxX(stringBounder);
+	public Real getMaxX() {
+		return position.getMaxX();
 	}
 
 	public Event getEvent() {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -57,10 +57,11 @@ import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateElementMultilines extends CommandMultilines2<AbstractEntityDiagram> {
 
@@ -78,10 +79,10 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 	@Override
 	public String getPatternEnd() {
 		if (type == 0) {
-			return "(?i)^(.*)[%g]$";
+			return "^(.*)[%g]$";
 		}
 		if (type == 1) {
-			return "(?i)^(.*)\\]$";
+			return "^([^\\[\\]]*)\\]$";
 		}
 		throw new IllegalArgumentException();
 	}
@@ -90,7 +91,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		if (type == 0) {
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
 					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+					new RegexLeaf("CODE", "([%pLN_.]+)"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					RegexLeaf.spaceZeroOrMore(), //
@@ -107,7 +108,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		if (type == 1) {
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
 					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+					new RegexLeaf("CODE", "([%pLN_.]+)"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					RegexLeaf.spaceZeroOrMore(), //
@@ -123,7 +124,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines)
+			throws NoSuchColorException {
 		lines = lines.trimSmart(1);
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final String symbol = StringUtils.goUpperCase(line0.get("TYPE", 0));
@@ -134,7 +136,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 			type = LeafType.USECASE;
 			usymbol = null;
 		} else {
-			usymbol = USymbol.fromString(symbol, diagram.getSkinParam().actorStyle(),
+			usymbol = USymbols.fromString(symbol, diagram.getSkinParam().actorStyle(),
 					diagram.getSkinParam().componentStyle(), diagram.getSkinParam().packageStyle());
 			if (usymbol == null) {
 				throw new IllegalStateException();
@@ -169,14 +171,14 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		}
 		result.setUSymbol(usymbol);
 		if (stereotype != null) {
-			result.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+			result.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
 					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
 					diagram.getSkinParam().getIHtmlColorSet()));
 		}
 
 		final String urlString = line0.get("URL", 0);
 		if (urlString != null) {
-			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), UrlMode.STRICT);
 			final Url url = urlBuilder.getUrl(urlString);
 			result.addUrl(url);
 		}
@@ -184,7 +186,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		// final HColor backColor =
 		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR",
 		// 0));
-		final Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
 		result.setColors(colors);
 		// result.setSpecificColorTOBEREMOVED(ColorType.BACK, backColor);
 

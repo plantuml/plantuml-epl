@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.salt.element;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class Grid {
 
@@ -53,8 +53,8 @@ public class Grid {
 	private final TableStrategy strategy;
 	private final TextBlock title;
 
-	private final Set<Segment> horizontals = new HashSet<Segment>();
-	private final Set<Segment> verticals = new HashSet<Segment>();
+	private final Set<Segment> horizontals = new HashSet<>();
+	private final Set<Segment> verticals = new HashSet<>();
 
 	public Grid(double[] rowsStart, double[] colsStart, TableStrategy strategy, TextBlock title) {
 		this.title = title;
@@ -81,7 +81,7 @@ public class Grid {
 
 	}
 
-	public void drawU(UGraphic ug, double x, double y) {
+	public void drawU(UGraphic ug, double x, double y, HColor white) {
 		// Hlines
 		for (Segment seg : horizontals) {
 			final int row1 = seg.getRow();
@@ -101,8 +101,7 @@ public class Grid {
 
 		if (dim.getWidth() > 0 && dim.getHeight() > 0) {
 			final UGraphic ug2 = ug.apply(new UTranslate(x + 6, y - dim.getHeight() * 0));
-			ug2.apply(HColorUtils.WHITE.bg()).apply(HColorUtils.WHITE)
-					.draw(new URectangle(dim));
+			ug2.apply(white.bg()).apply(white).draw(new URectangle(dim));
 			title.drawU(ug2);
 		}
 

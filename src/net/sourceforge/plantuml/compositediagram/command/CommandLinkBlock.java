@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,13 +57,13 @@ public class CommandLinkBlock extends SingleLineCommand2<CompositeDiagram> {
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandLinkBlock.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("ENT1", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("ENT1", "([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("DECO1", "(\\[\\]|\\*\\))?"), //
 				new RegexLeaf("QUEUE", "([=-]+|\\.+)"), //
 				new RegexLeaf("DECO2", "(\\[\\]|\\(\\*)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("ENT2", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("ENT2", "([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional( //
 						new RegexConcat( //
@@ -94,15 +94,15 @@ public class CommandLinkBlock extends SingleLineCommand2<CompositeDiagram> {
 
 		final String queue = arg.get("QUEUE", 0);
 
-		final Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(arg.get("DISPLAY", 0)), queue.length(),
-				diagram.getSkinParam().getCurrentStyleBuilder());
+		final Link link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), cl1, cl2, linkType, Display.getWithNewlines(arg.get("DISPLAY", 0)),
+				queue.length());
 		diagram.addLink(link);
 		return CommandExecutionResult.ok();
 	}
 
 	private LinkDecor getLinkDecor(String s) {
 		if ("[]".equals(s)) {
-			return LinkDecor.SQUARRE_toberemoved;
+			return LinkDecor.SQUARE_toberemoved;
 		}
 		return LinkDecor.NONE;
 	}

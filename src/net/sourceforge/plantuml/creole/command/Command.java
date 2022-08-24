@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -37,6 +37,8 @@ package net.sourceforge.plantuml.creole.command;
 import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 
 public interface Command {
+
+	public String startingChars();
 
 	public int matchingSize(String line);
 

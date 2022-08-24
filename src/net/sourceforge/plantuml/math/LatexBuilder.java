@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -36,15 +36,15 @@ package net.sourceforge.plantuml.math;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Icon;
 
-import net.sourceforge.plantuml.SvgString;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.MutableImage;
+import net.sourceforge.plantuml.ugraphic.UImageSvg;
 
 public class LatexBuilder implements ScientificEquation {
 
@@ -66,14 +66,14 @@ public class LatexBuilder implements ScientificEquation {
 		return new TeXIconBuilder(tex, foregroundColor).getIcon();
 	}
 
-	public SvgString getSvg(double scale, Color foregroundColor, Color backgroundColor)
+	public UImageSvg getSvg(double scale, Color foregroundColor, Color backgroundColor)
 			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, InstantiationException, IOException {
 		final Icon icon = buildIcon(foregroundColor);
 		final ConverterSvg converterSvg = new ConverterSvg(icon);
 		final String svg = converterSvg.getSvg(scale, true, backgroundColor);
 		dimension = converterSvg.getDimension();
-		return new SvgString(svg, scale);
+		return new UImageSvg(svg, scale);
 	}
 
 	public MutableImage getImage(Color foregroundColor, Color backgroundColor)
@@ -117,11 +117,18 @@ public class LatexBuilder implements ScientificEquation {
 			return new LatexImage(icon, this.scale * scale, foregroundColor, backgroundColor);
 		}
 
+		@Override
 		public MutableImage muteColor(Color newColor) {
 			return this;
 		}
 
+		@Override
 		public MutableImage muteTransparentColor(Color newColor) {
+			return this;
+		}
+
+		@Override
+		public MutableImage monochrome() {
 			return this;
 		}
 

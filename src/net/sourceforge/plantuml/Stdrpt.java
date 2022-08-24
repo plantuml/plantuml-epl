@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import net.sourceforge.plantuml.core.Diagram;
@@ -41,5 +42,9 @@ import net.sourceforge.plantuml.core.Diagram;
 public interface Stdrpt {
 
 	public void printInfo(PrintStream output, Diagram sys);
+
+	public void finalMessage(ErrorStatus error);
+
+	public void errorLine(int lineError, File file);
 
 }

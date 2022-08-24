@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,56 +41,68 @@ import net.sourceforge.plantuml.creole.legacy.StripeSimple;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorRuntimeException;
 
 public class CommandCreoleColorAndSizeChange implements Command {
 
-	private final Pattern2 pattern;
+	@Override
+	public String startingChars() {
+		return "<";
+	}
+
+	private final Pattern2 mypattern;
 
 	public static final String fontPattern = "\\<font(?:[%s]+size[%s]*=[%s]*[%g]?(\\d+)[%g]?|[%s]+color[%s]*=[%s]*[%g]?(#[0-9a-fA-F]{6}|\\w+)[%g]?)+[%s]*\\>";
 
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + fontPattern + "(.*?)\\</font\\>)");
+
+	private static final Pattern2 patternEol = MyPattern.cmpile("^(" + fontPattern + "(.*))$");
+
 	public static Command create() {
-		return new CommandCreoleColorAndSizeChange("^(?i)(" + fontPattern + "(.*?)\\</font\\>)");
+		return new CommandCreoleColorAndSizeChange(pattern);
 	}
 
 	public static Command createEol() {
-		return new CommandCreoleColorAndSizeChange("^(?i)(" + fontPattern + "(.*))$");
+		return new CommandCreoleColorAndSizeChange(patternEol);
 	}
 
-	private CommandCreoleColorAndSizeChange(String p) {
-		this.pattern = MyPattern.cmpile(p);
-
+	private CommandCreoleColorAndSizeChange(Pattern2 pattern) {
+		this.mypattern = pattern;
 	}
 
 	public int matchingSize(String line) {
-		final Matcher2 m = pattern.matcher(line);
-		if (m.find() == false) {
+		final Matcher2 m = mypattern.matcher(line);
+		if (m.find() == false)
 			return 0;
-		}
+
 		return m.group(1).length();
 	}
 
-	public String executeAndGetRemaining(String line, StripeSimple stripe) {
-		final Matcher2 m = pattern.matcher(line);
-		if (m.find() == false) {
+	public String executeAndGetRemaining(String line, StripeSimple stripe) throws NoSuchColorRuntimeException {
+		final Matcher2 m = mypattern.matcher(line);
+		if (m.find() == false)
 			throw new IllegalStateException();
-		}
-		// for (int i = 1; i <= m.groupCount(); i++) {
-		// System.err.println("i=" + i + " " + m.group(i));
-		// }
 
 		final FontConfiguration fc1 = stripe.getActualFontConfiguration();
 		FontConfiguration fc2 = fc1;
-		if (m.group(2) != null) {
+		if (m.group(2) != null)
 			fc2 = fc2.changeSize(Integer.parseInt(m.group(2)));
-		}
-		if (m.group(3) != null) {
-			final HColor color = HColorSet.instance().getColorIfValid(m.group(3));
-			fc2 = fc2.changeColor(color);
-		}
 
-		stripe.setActualFontConfiguration(fc2);
-		stripe.analyzeAndAdd(m.group(4));
-		stripe.setActualFontConfiguration(fc1);
-		return line.substring(m.group(1).length());
+		try {
+			if (m.group(3) != null) {
+				final String s = m.group(3);
+				final HColor color = HColorSet.instance().getColor(stripe.getSkinParam().getThemeStyle(), s);
+				fc2 = fc2.changeColor(color);
+			}
+
+			stripe.setActualFontConfiguration(fc2);
+			stripe.analyzeAndAdd(m.group(4));
+			stripe.setActualFontConfiguration(fc1);
+			return line.substring(m.group(1).length());
+		} catch (NoSuchColorException e) {
+			throw new NoSuchColorRuntimeException();
+		}
 	}
+
 }

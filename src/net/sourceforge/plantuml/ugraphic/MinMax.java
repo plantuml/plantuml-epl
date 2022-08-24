@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,12 +34,12 @@
  */
 package net.sourceforge.plantuml.ugraphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class MinMax {
 
@@ -152,8 +152,8 @@ public class MinMax {
 		return new Dimension2DDouble(maxX - minX, maxY - minY);
 	}
 
-	public void drawGrey(UGraphic ug) {
-		draw(ug, HColorUtils.GRAY);
+	public void drawGray(UGraphic ug) {
+		draw(ug, HColors.GRAY);
 	}
 
 	public void draw(UGraphic ug, HColor color) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,7 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
-
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -62,8 +61,7 @@ public final class InnerActivity extends AbstractTextBlock implements IEntityIma
 	public void drawU(UGraphic ug) {
 		final Dimension2D total = calculateDimension(ug.getStringBounder());
 
-		ug = ug.apply(backColor.bg()).apply(borderColor)
-				.apply(new UStroke(THICKNESS_BORDER));
+		ug = ug.apply(backColor.bg()).apply(borderColor).apply(new UStroke(THICKNESS_BORDER));
 		final URectangle rect = new URectangle(total.getWidth(), total.getHeight()).rounded(IEntityImage.CORNER);
 		rect.setDeltaShadow(shadowing);
 		ug.draw(rect);

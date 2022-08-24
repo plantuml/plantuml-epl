@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,9 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
-import net.sourceforge.plantuml.SkinParamBackcolored;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.AbstractTextualComponent;
 import net.sourceforge.plantuml.skin.Area;
@@ -50,43 +45,56 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
+import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.URectangle;
+import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ComponentRoseGroupingElse extends AbstractTextualComponent {
 
 	private final HColor groupBorder;
 	private final HColor backgroundColor;
+	private final double roundCorner;
 
-	public ComponentRoseGroupingElse(Style style, HColor groupBorder, FontConfiguration smallFont,
-			CharSequence comment, ISkinSimple spriteContainer, HColor backgroundColor) {
-		super(style, LineBreakStrategy.NONE, comment == null ? null : "[" + comment + "]", smallFont,
-				HorizontalAlignment.LEFT, 5, 5, 1, spriteContainer, null, null);
-		if (SkinParam.USE_STYLES()) {
-			if (spriteContainer instanceof SkinParamBackcolored) {
-				style = style.eventuallyOverride(PName.BackGroundColor,
-						((SkinParamBackcolored) spriteContainer).getBackgroundColor(false));
-			}
-			this.groupBorder = style.value(PName.LineColor).asColor(getIHtmlColorSet());
-			this.backgroundColor = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
-		} else {
-			this.groupBorder = groupBorder;
-			this.backgroundColor = backgroundColor;
-		}
+	public ComponentRoseGroupingElse(Style style, CharSequence comment, ISkinSimple spriteContainer) {
+		super(style, LineBreakStrategy.NONE, 5, 5, 1, spriteContainer, comment == null ? null : "[" + comment + "]");
+
+		this.roundCorner = style.value(PName.RoundCorner).asInt();
+		this.groupBorder = style.value(PName.LineColor).asColor(spriteContainer.getThemeStyle(), getIHtmlColorSet());
+		this.backgroundColor = style.value(PName.BackGroundColor).asColor(spriteContainer.getThemeStyle(),
+				getIHtmlColorSet());
 	}
 
 	@Override
 	protected void drawBackgroundInternalU(UGraphic ug, Area area) {
-		if (backgroundColor instanceof HColorBackground) {
+		if (HColors.isTransparent(backgroundColor))
 			return;
-		}
+
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
-		final URectangle rect = new URectangle(dimensionToUse.getWidth(), dimensionToUse.getHeight());
-		ug.apply(new HColorNone()).apply(backgroundColor.bg()).draw(rect);
+		ug = ug.apply(HColors.none()).apply(backgroundColor.bg());
+		final double width = dimensionToUse.getWidth();
+		final double height = dimensionToUse.getHeight();
+		final UShape rect;
+		if (roundCorner == 0) {
+			rect = new URectangle(width, height);
+		} else {
+			final UPath path = new UPath();
+			path.moveTo(0, 0);
+			path.lineTo(width, 0);
+
+			path.lineTo(width, height - roundCorner / 2);
+			path.arcTo(roundCorner / 2, roundCorner / 2, 0, 0, 1, width - roundCorner / 2, height);
+
+			path.lineTo(roundCorner / 2, height);
+			path.arcTo(roundCorner / 2, roundCorner / 2, 0, 0, 1, 0, height - roundCorner / 2);
+
+			path.lineTo(0, 0);
+			rect = path;
+		}
+		ug.draw(rect);
 	}
 
 	@Override

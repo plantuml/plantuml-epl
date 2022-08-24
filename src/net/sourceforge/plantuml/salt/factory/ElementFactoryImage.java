@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -59,7 +59,7 @@ public class ElementFactoryImage implements ElementFactory {
 		}
 		final String header = dataSource.next().getElement();
 		final String name = header.length() > 2 ? header.substring(2) : null;
-		final List<String> img = new ArrayList<String>();
+		final List<String> img = new ArrayList<>();
 		while (dataSource.peek(0).getElement().equals(">>") == false) {
 			img.add(dataSource.next().getElement());
 		}

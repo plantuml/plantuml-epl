@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,15 +45,11 @@ import net.sourceforge.plantuml.core.UmlSource;
 public class PSystemErrorPreprocessor extends PSystemError {
 
 	public PSystemErrorPreprocessor(List<StringLocated> input, List<StringLocated> trace) {
-		final DiagramType type = DiagramType.getTypeFromArobaseStart(input.get(0).getString());
-		this.setSource(new UmlSource(input, type == DiagramType.UML));
+		super(UmlSource.create(input, DiagramType.getTypeFromArobaseStart(input.get(0).getString()) == DiagramType.UML));
 		this.trace = trace;
-		this.singleError = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, getLastLine().getPreprocessorError(), getLastLine()
-				.getLocation());
+		this.singleError = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, getLastLine().getPreprocessorError(), 0,
+				getLastLine().getLocation());
 
 	}
-
-
-
 
 }

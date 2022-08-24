@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,15 +34,15 @@
  */
 package net.sourceforge.plantuml.eggs;
 
-import java.io.UnsupportedEncodingException;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SentenceProducer {
 
 	private final String secret;
 
-	public SentenceProducer(String sentence1, String sentence2) throws UnsupportedEncodingException {
+	public SentenceProducer(String sentence1, String sentence2) {
 		final byte[] key = EggUtils.fromSecretSentence(sentence1).toByteArray();
-		final byte[] sen2 = sentence2.getBytes("UTF-8");
+		final byte[] sen2 = sentence2.getBytes(UTF_8);
 		final byte[] crypted = EggUtils.xor(sen2, key);
 		this.secret = EggUtils.fromByteArrays(crypted);
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -48,6 +48,7 @@ import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandMindMapOrgmodeMultiline extends CommandMultilines2<MindMapDiagram> {
 
@@ -71,7 +72,7 @@ public class CommandMindMapOrgmodeMultiline extends CommandMultilines2<MindMapDi
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(MindMapDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(MindMapDiagram diagram, BlocLines lines) throws NoSuchColorException {
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 
 		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()),
@@ -87,7 +88,8 @@ public class CommandMindMapOrgmodeMultiline extends CommandMultilines2<MindMapDi
 		final String stringColor = line0.get("BACKCOLOR", 0);
 		HColor backColor = null;
 		if (stringColor != null) {
-			backColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(stringColor);
+			backColor = diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(),
+					stringColor);
 		}
 
 		if (stereotype == null) {

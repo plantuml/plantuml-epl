@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -88,7 +88,7 @@ public class DataSourceImpl implements DataSource {
 	private void addInternal(String s, Terminator t) {
 		s = StringUtils.trin(s);
 		if (s.length() > 0) {
-			data.add(new Terminated<String>(s, t));
+			data.add(new Terminated<>(s, t));
 		}
 	}
 

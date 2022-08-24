@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,10 +35,11 @@
 package net.sourceforge.plantuml.command;
 
 import net.sourceforge.plantuml.core.Diagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public interface Command<D extends Diagram> {
 
-	CommandExecutionResult execute(D diagram, BlocLines lines);
+	CommandExecutionResult execute(D diagram, BlocLines lines) throws NoSuchColorException;
 
 	CommandControl isValid(BlocLines lines);
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -41,7 +41,7 @@ import net.sourceforge.plantuml.preproc.ReadLine;
 
 public class ReadFilterAnd implements ReadFilter {
 
-	private final Collection<ReadFilter> all = new ArrayList<ReadFilter>();
+	private final Collection<ReadFilter> all = new ArrayList<>();
 
 	public void add(ReadFilter filter) {
 		all.add(filter);

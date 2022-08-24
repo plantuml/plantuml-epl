@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,6 +45,7 @@ import net.sourceforge.plantuml.sequencediagram.LinkAnchor;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.LimitFinder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class PlayingSpace implements Bordered {
 
@@ -53,33 +54,33 @@ public class PlayingSpace implements Bordered {
 	private final Real max;
 	private final boolean isShowFootbox;
 
-	private final List<Tile> tiles = new ArrayList<Tile>();
+	private final List<Tile> tiles = new ArrayList<>();
 	private final LivingSpaces livingSpaces;
 	private final List<LinkAnchor> linkAnchors;
 	private final ISkinParam skinParam;
 
-	public PlayingSpace(SequenceDiagram diagram, Englobers englobers, TileArguments tileArguments) {
+	public PlayingSpace(SequenceDiagram diagram, Dolls dolls, TileArguments tileArguments) {
 
 		this.livingSpaces = tileArguments.getLivingSpaces();
 		this.linkAnchors = diagram.getLinkAnchors();
 		this.skinParam = diagram.getSkinParam();
 
-		final List<Real> min2 = new ArrayList<Real>();
-		final List<Real> max2 = new ArrayList<Real>();
+		final List<Real> min2 = new ArrayList<>();
+		final List<Real> max2 = new ArrayList<>();
 
 		min2.add(tileArguments.getOrigin());
 		max2.add(tileArguments.getOrigin());
 
-		if (englobers.size() > 0) {
-			min2.add(englobers.getMinX(tileArguments.getStringBounder()));
-			max2.add(englobers.getMaxX(tileArguments.getStringBounder()));
+		if (dolls.size() > 0) {
+			min2.add(dolls.getMinX(tileArguments.getStringBounder()));
+			max2.add(dolls.getMaxX(tileArguments.getStringBounder()));
 		}
 
 		tiles.addAll(TileBuilder.buildSeveral(diagram.events().iterator(), tileArguments, null));
 
 		for (Tile tile : tiles) {
-			min2.add(tile.getMinX(tileArguments.getStringBounder()));
-			max2.add(tile.getMaxX(tileArguments.getStringBounder()));
+			min2.add(tile.getMinX());
+			max2.add(tile.getMaxX());
 		}
 
 		for (LivingSpace livingSpace : livingSpaces.values()) {
@@ -94,10 +95,6 @@ public class PlayingSpace implements Bordered {
 	}
 
 	public void drawBackground(UGraphic ug) {
-		final StringBounder stringBounder = ug.getStringBounder();
-		final LiveBoxFinder liveBoxFinder = new LiveBoxFinder(stringBounder);
-
-		drawUInternal(liveBoxFinder, false);
 		final UGraphicInterceptorTile interceptor = new UGraphicInterceptorTile(ug, true);
 		drawUInternal(interceptor, false);
 	}
@@ -109,15 +106,16 @@ public class PlayingSpace implements Bordered {
 
 	private double drawUInternal(UGraphic ug, boolean trace) {
 		final StringBounder stringBounder = ug.getStringBounder();
-		final List<YPositionedTile> local = new ArrayList<YPositionedTile>();
-		final List<YPositionedTile> full = new ArrayList<YPositionedTile>();
+		final List<CommonTile> local = new ArrayList<>();
+		final List<CommonTile> full = new ArrayList<>();
 		final double y = GroupingTile.fillPositionelTiles(stringBounder, startingY, tiles, local, full);
-		for (YPositionedTile tile : local) {
-			tile.drawInArea(ug);
+		for (CommonTile tile : local) {
+			final UTranslate dy = UTranslate.dy(((CommonTile) tile).getY());
+			((CommonTile) tile).drawU(ug.apply(dy));
 		}
 		for (LinkAnchor linkAnchor : linkAnchors) {
-			final YPositionedTile ytile1 = getFromAnchor(full, linkAnchor.getAnchor1());
-			final YPositionedTile ytile2 = getFromAnchor(full, linkAnchor.getAnchor2());
+			final CommonTile ytile1 = getFromAnchor(full, linkAnchor.getAnchor1());
+			final CommonTile ytile2 = getFromAnchor(full, linkAnchor.getAnchor2());
 			if (ytile1 != null && ytile2 != null) {
 				linkAnchor.drawAnchor(ug, ytile1, ytile2, skinParam);
 			}
@@ -126,10 +124,9 @@ public class PlayingSpace implements Bordered {
 		return y;
 	}
 
-	private YPositionedTile getFromAnchor(List<YPositionedTile> positionedTiles, String anchor) {
-		for (YPositionedTile ytile : positionedTiles) {
-			final boolean matchAnchorV2 = ytile.matchAnchorV2(anchor);
-			if (matchAnchorV2) {
+	private CommonTile getFromAnchor(List<CommonTile> positionedTiles, String anchor) {
+		for (CommonTile ytile : positionedTiles) {
+			if (ytile.matchAnchor(anchor)) {
 				return ytile;
 			}
 		}
@@ -137,7 +134,7 @@ public class PlayingSpace implements Bordered {
 	}
 
 	public double getPreferredHeight(StringBounder stringBounder) {
-		final LimitFinder limitFinder = new LimitFinder(stringBounder, true);
+		final LimitFinder limitFinder = LimitFinder.create(stringBounder, true);
 		final UGraphicInterceptorTile interceptor = new UGraphicInterceptorTile(limitFinder, false);
 		final double finalY = drawUInternal(interceptor, false);
 		final double result = Math.max(limitFinder.getMinMax().getDimension().getHeight(), finalY) + 10;
@@ -145,9 +142,9 @@ public class PlayingSpace implements Bordered {
 		return result;
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 		for (Tile tile : tiles) {
-			tile.addConstraints(stringBounder);
+			tile.addConstraints();
 		}
 	}
 
@@ -176,14 +173,14 @@ public class PlayingSpace implements Bordered {
 	}
 
 	public List<Double> yNewPages() {
-		final List<Double> yNewPages = new ArrayList<Double>();
+		final List<Double> yNewPages = new ArrayList<>();
 		yNewPages.add((double) 0);
 		for (Tile tile : tiles) {
 			if (tile instanceof GroupingTile) {
 				((GroupingTile) tile).addYNewPages(yNewPages);
 			}
 			if (tile instanceof NewpageTile) {
-				final double y = ((NewpageTile) tile).getCallbackY();
+				final double y = ((NewpageTile) tile).getY();
 				yNewPages.add(y);
 			}
 		}

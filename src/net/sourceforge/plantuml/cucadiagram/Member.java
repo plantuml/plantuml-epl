@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,15 +38,16 @@ import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 
-public class Member {
+public class Member implements CharSequence {
 
 	private final String display;
+	private final CharSequence raw;
 	private final boolean staticModifier;
 	private final boolean abstractModifier;
 	private final Url url;
@@ -56,11 +57,40 @@ public class Member {
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + display;
+		return raw.toString();
 	}
 
-	public Member(String tmpDisplay, boolean isMethod, boolean manageModifier) {
-		tmpDisplay = tmpDisplay.replaceAll("(?i)\\{(method|field)\\}\\s*", "");
+	public char charAt(int index) {
+		return raw.charAt(index);
+	}
+
+	public int length() {
+		return raw.length();
+	}
+
+	public CharSequence subSequence(int start, int end) {
+		return raw.subSequence(start, end);
+	}
+
+	public static Member method(CharSequence tmpDisplay) {
+		return new Member(true, tmpDisplay, true);
+	}
+
+	public static Member field(CharSequence tmpDisplay) {
+		return new Member(true, tmpDisplay, false);
+	}
+
+	public static Member method(CharSequence tmpDisplay, boolean manageModifier) {
+		return new Member(manageModifier, tmpDisplay, true);
+	}
+
+	public static Member field(CharSequence tmpDisplay, boolean manageModifier) {
+		return new Member(manageModifier, tmpDisplay, false);
+	}
+
+	private Member(boolean manageModifier, CharSequence tmpDisplay, boolean isMethod) {
+		this.raw = tmpDisplay;
+		tmpDisplay = tmpDisplay.toString().replaceAll("(?i)\\{(method|field)\\}\\s*", "");
 		if (manageModifier) {
 			final Pattern2 finalUrl = MyPattern.cmpile("^(.*?)(?:\\[(" + UrlBuilder.getRegexp() + ")\\])?$");
 			final Matcher2 matcher = finalUrl.matcher(tmpDisplay);
@@ -72,18 +102,19 @@ public class Member {
 			if (urlString == null) {
 				this.url = null;
 			} else {
-				this.url = new UrlBuilder(null, ModeUrl.STRICT).getUrl(urlString);
+				this.url = new UrlBuilder(null, UrlMode.STRICT).getUrl(urlString);
 			}
 		} else {
 			this.url = null;
 		}
 		this.hasUrl = this.url != null;
-		final String lower = StringUtils.goLowerCase(tmpDisplay);
+		final String lower = StringUtils.goLowerCase(tmpDisplay.toString());
 
 		if (manageModifier) {
 			this.staticModifier = lower.contains("{static}") || lower.contains("{classifier}");
 			this.abstractModifier = lower.contains("{abstract}");
-			String displayClean = tmpDisplay.replaceAll("(?i)\\{(static|classifier|abstract)\\}\\s*", "").trim();
+			String displayClean = tmpDisplay.toString().replaceAll("(?i)\\{(static|classifier|abstract)\\}\\s*", "")
+					.trim();
 			if (displayClean.length() == 0) {
 				displayClean = " ";
 			}
@@ -99,9 +130,9 @@ public class Member {
 			this.staticModifier = false;
 			this.visibilityModifier = null;
 			this.abstractModifier = false;
-			tmpDisplay = StringUtils.trin(tmpDisplay);
-			this.display = tmpDisplay.length() == 0 ? " " : Guillemet.GUILLEMET.manageGuillemet(StringUtils
-					.trin(tmpDisplay));
+			tmpDisplay = StringUtils.trin(tmpDisplay.toString());
+			this.display = tmpDisplay.length() == 0 ? " "
+					: Guillemet.GUILLEMET.manageGuillemet(StringUtils.trin(tmpDisplay.toString()));
 		}
 	}
 
@@ -113,7 +144,6 @@ public class Member {
 	}
 
 	private String getDisplayWithoutVisibilityChar() {
-		// assert display.length() == 0 || VisibilityModifier.isVisibilityCharacter(display.charAt(0)) == false;
 		return display;
 	}
 
@@ -191,14 +221,6 @@ public class Member {
 		return hasUrl;
 	}
 
-	public static boolean isMethod(String s) {
-		// s = UrlBuilder.purgeUrl(s);
-		if (s.contains("{method}")) {
-			return true;
-		}
-		if (s.contains("{field}")) {
-			return false;
-		}
-		return s.contains("(") || s.contains(")");
-	}
+
+
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,7 +57,7 @@ public class CommandDiamondAssociation extends SingleLineCommand2<ClassDiagram> 
 		return RegexConcat.build(CommandDiamondAssociation.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("\\<\\>"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("CODE", "([%pLN_.]+)"), //
 				RegexLeaf.end()); //
 	}
 

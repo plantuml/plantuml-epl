@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -45,17 +45,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.EnsureVisible;
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.TikzFontDistortion;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.anim.AffineTransformation;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.png.PngIO;
 import net.sourceforge.plantuml.posimo.DotPath;
+import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.ugraphic.AbstractCommonUGraphic;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphic;
 import net.sourceforge.plantuml.ugraphic.UAntiAliasing;
@@ -64,7 +63,6 @@ import net.sourceforge.plantuml.ugraphic.UChange;
 import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UGraphic2;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UImageSvg;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -74,8 +72,9 @@ import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureVisible, UGraphic2 {
+public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureVisible {
 
 	private BufferedImage bufferedImage;
 
@@ -83,8 +82,8 @@ public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureV
 
 	private UAntiAliasing antiAliasing = UAntiAliasing.ANTI_ALIASING_ON;
 
-	private/* final */List<Url> urls = new ArrayList<Url>();
-	private Set<Url> allUrls = new HashSet<Url>();
+	private List<Url> urls = new ArrayList<>();
+	private Set<Url> allUrls = new HashSet<>();
 
 	private final boolean hasAffineTransform;
 
@@ -117,22 +116,22 @@ public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureV
 		register(dpiFactor);
 	}
 
-	public UGraphicG2d(ColorMapper colorMapper, Graphics2D g2d, double dpiFactor) {
-		this(colorMapper, g2d, dpiFactor, null, 0, 0);
+	public UGraphicG2d(HColor defaultBackground, ColorMapper colorMapper, StringBounder stringBounder, Graphics2D g2d,
+			double dpiFactor) {
+		this(defaultBackground, colorMapper, stringBounder, g2d, dpiFactor, null, 0, 0);
 	}
 
-	public UGraphicG2d(ColorMapper colorMapper, Graphics2D g2d, double dpiFactor, AffineTransformation affineTransform,
-			double dx, double dy) {
-		super(colorMapper, g2d);
+	public UGraphicG2d(HColor defaultBackground, ColorMapper colorMapper, StringBounder stringBounder, Graphics2D g2d,
+			double dpiFactor, AffineTransformation affineTransform, double dx, double dy) {
+		super(defaultBackground, colorMapper, stringBounder, g2d);
 		this.hasAffineTransform = affineTransform != null;
 		this.dpiFactor = dpiFactor;
-		if (dpiFactor != 1.0) {
+		if (dpiFactor != 1.0)
 			g2d.scale(dpiFactor, dpiFactor);
-		}
+
 		if (this.hasAffineTransform) {
-			if (dx != 0 || dy != 0) {
+			if (dx != 0 || dy != 0)
 				getGraphicObject().transform(AffineTransform.getTranslateInstance(dx, dy));
-			}
 			getGraphicObject().transform(affineTransform.getAffineTransform());
 		}
 		register(dpiFactor);
@@ -141,26 +140,19 @@ public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureV
 	private void register(double dpiFactor) {
 		registerDriver(URectangle.class, new DriverRectangleG2d(dpiFactor, this));
 		if (this.hasAffineTransform || dpiFactor != 1.0) {
-			registerDriver(UText.class, new DriverTextAsPathG2d(this, TextBlockUtils.getFontRenderContext()));
+			registerDriver(UText.class, new DriverTextAsPathG2d(this, getStringBounder()));
 		} else {
-			registerDriver(UText.class, new DriverTextG2d(this));
+			registerDriver(UText.class, new DriverTextG2d(this, getStringBounder()));
 		}
 		registerDriver(ULine.class, new DriverLineG2d(dpiFactor));
 		registerDriver(UPixel.class, new DriverPixelG2d());
 		registerDriver(UPolygon.class, new DriverPolygonG2d(dpiFactor, this));
 		registerDriver(UEllipse.class, new DriverEllipseG2d(dpiFactor, this));
-		registerDriver(UImageSvg.class, new DriverImageG2d(dpiFactor, this));
+		ignoreShape(UImageSvg.class);
 		registerDriver(UImage.class, new DriverImageG2d(dpiFactor, this));
 		registerDriver(DotPath.class, new DriverDotPathG2d(this));
 		registerDriver(UPath.class, new DriverPathG2d(dpiFactor));
 		registerDriver(UCenteredCharacter.class, new DriverCenteredCharacterG2d());
-	}
-
-	public StringBounder getStringBounder() {
-		// if (hasAffineTransform) {
-		// return TextBlockUtils.getDummyStringBounder();
-		// }
-		return FileFormat.PNG.getDefaultStringBounder(TikzFontDistortion.getDefault());
 	}
 
 	@Override
@@ -184,24 +176,28 @@ public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureV
 		return dpiFactor;
 	}
 
+	@Override
 	public void startUrl(Url url) {
-		if (url == null) {
-			throw new IllegalArgumentException();
+		Objects.requireNonNull(url);
+		// javascript: security issue
+		if (SecurityUtils.ignoreThisLink(url.getUrl())) {
+			urls.add(null);
+		} else {
+			urls.add(url);
+			allUrls.add(url);
 		}
-		urls.add(url);
-		allUrls.add(url);
 	}
 
+	@Override
 	public void closeUrl() {
 		urls.remove(urls.size() - 1);
 	}
 
 	public void ensureVisible(double x, double y) {
-		for (Url u : urls) {
-			if (getClip() == null || getClip().isInside(x, y)) {
+		for (Url u : urls)
+			if (u != null && (getClip() == null || getClip().isInside(x, y)))
 				u.ensureVisible(x, y);
-			}
-		}
+
 	}
 
 	public BufferedImage getBufferedImage() {
@@ -216,7 +212,8 @@ public class UGraphicG2d extends AbstractUGraphic<Graphics2D> implements EnsureV
 		return getGraphicObject();
 	}
 
-	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
 		final BufferedImage im = getBufferedImage();
 		PngIO.write(im, os, metadata, dpi);
 	}

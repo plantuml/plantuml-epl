@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,7 +47,7 @@ import net.sourceforge.plantuml.tim.expression.TValue;
 public class Lower extends SimpleReturnFunction {
 
 	public TFunctionSignature getSignature() {
-		return new TFunctionSignature("%lower", 3);
+		return new TFunctionSignature("%lower", 1);
 	}
 
 	public boolean canCover(int nbArg, Set<String> namedArgument) {

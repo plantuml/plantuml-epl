@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -39,24 +39,18 @@ import java.awt.Color;
 public class ColorChangerMonochrome {
 
 	public Color getChangedColor(Color color) {
-		if (color == null) {
+		if (color == null)
 			return null;
-		}
-		final int grayScale = getGrayScale(color);
+
+		final int grayScale = ColorUtils.getGrayScale(color);
 		return new Color(grayScale, grayScale, grayScale);
 	}
 
-	private static int getGrayScale(Color color) {
-		final int red = color.getRed();
-		final int green = color.getGreen();
-		final int blue = color.getBlue();
-		return (int) (red * .3 + green * .59 + blue * .11);
+	public Color getChangedColor(HColor color) {
+		if (color == null)
+			return null;
+
+		return getChangedColor(((HColorSimple) color).getColor999());
 	}
 
-	public static int getGrayScale(int rgb) {
-		final int red = rgb & 0x00FF0000;
-		final int green = (rgb & 0x0000FF00) >> 8;
-		final int blue = (rgb & 0x000000FF) >> 16;
-		return (int) (red * .3 + green * .59 + blue * .11);
-	}
 }

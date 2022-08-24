@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -57,19 +57,15 @@ public abstract class PSystemAbstractFactory implements PSystemFactory {
 
 	final protected PSystemError buildEmptyError(UmlSource source, LineLocation lineLocation,
 			List<StringLocated> trace) {
-		final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, EMPTY_DESCRIPTION, /* 1, */lineLocation);
-		// final AbstractPSystemError result = PSystemErrorUtils.buildV1(source, err, null);
+		final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, EMPTY_DESCRIPTION, 0, lineLocation);
 		final PSystemError result = PSystemErrorUtils.buildV2(source, err, null, trace);
-		result.setSource(source);
 		return result;
 	}
 
-	final protected PSystemError buildExecutionError(UmlSource source, String stringError,
-			LineLocation lineLocation, List<StringLocated> trace) {
-		final ErrorUml err = new ErrorUml(ErrorUmlType.EXECUTION_ERROR, stringError, /* 1, */
-		lineLocation);
+	final protected PSystemError buildExecutionError(UmlSource source, String stringError, LineLocation lineLocation,
+			List<StringLocated> trace) {
+		final ErrorUml err = new ErrorUml(ErrorUmlType.EXECUTION_ERROR, stringError, 0, lineLocation);
 		final PSystemError result = PSystemErrorUtils.buildV2(source, err, null, trace);
-		result.setSource(source);
 		return result;
 	}
 

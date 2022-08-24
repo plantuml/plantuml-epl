@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.salt.element;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.List;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -51,7 +51,7 @@ import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class ElementRadioCheckbox extends AbstractElement {
 
@@ -78,9 +78,10 @@ public class ElementRadioCheckbox extends AbstractElement {
 	}
 
 	public void drawU(UGraphic ug, int zIndex, Dimension2D dimToUse) {
-		if (zIndex != 0) {
+		if (zIndex != 0)
 			return;
-		}
+
+		ug = ug.apply(getBlack());
 		block.drawU(ug.apply(UTranslate.dx(margin)));
 
 		final Dimension2D dim = getPreferredDimension(ug.getStringBounder(), 0, 0);
@@ -102,7 +103,7 @@ public class ElementRadioCheckbox extends AbstractElement {
 			poly.addPoint(3, 3);
 			poly.addPoint(10, -6);
 			poly.addPoint(3, 1);
-			ug = ug.apply(HColorUtils.changeBack(ug));
+			ug = ug.apply(HColors.changeBack(ug));
 			ug = ug.apply(new UTranslate(3, 6));
 			ug.draw(poly);
 		}
@@ -111,7 +112,7 @@ public class ElementRadioCheckbox extends AbstractElement {
 	private void drawRadio(UGraphic ug, final double height) {
 		ug.apply(new UTranslate(2, (height - ELLIPSE) / 2)).draw(new UEllipse(ELLIPSE, ELLIPSE));
 		if (checked) {
-			ug = ug.apply(HColorUtils.changeBack(ug));
+			ug = ug.apply(HColors.changeBack(ug));
 			ug = ug.apply(new UTranslate(2 + (ELLIPSE - ELLIPSE2) / 2, (height - ELLIPSE2) / 2));
 			ug.draw(new UEllipse(ELLIPSE2, ELLIPSE2));
 		}

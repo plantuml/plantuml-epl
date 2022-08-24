@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -43,23 +43,33 @@ import net.sourceforge.plantuml.graphic.Splitter;
 
 public class CommandCreoleFontFamilyChange implements Command {
 
-	private final Pattern2 pattern;
+	@Override
+	public String startingChars() {
+		return "<";
+	}
+
+	private static final Pattern2 pattern = MyPattern
+			.cmpile("^(" + Splitter.fontFamilyPattern + "(.*?)\\</font\\>)");
+
+	private static final Pattern2 patternEol = MyPattern.cmpile("^(" + Splitter.fontFamilyPattern + "(.*)$)");
+
+	private final Pattern2 mypattern;
 
 	public static Command create() {
-		return new CommandCreoleFontFamilyChange("^(?i)(" + Splitter.fontFamilyPattern + "(.*?)\\</font\\>)");
+		return new CommandCreoleFontFamilyChange(pattern);
 	}
 
 	public static Command createEol() {
-		return new CommandCreoleFontFamilyChange("^(?i)(" + Splitter.fontFamilyPattern + "(.*)$)");
+		return new CommandCreoleFontFamilyChange(patternEol);
 	}
 
-	private CommandCreoleFontFamilyChange(String p) {
-		this.pattern = MyPattern.cmpile(p);
+	private CommandCreoleFontFamilyChange(Pattern2 p) {
+		this.mypattern = p;
 
 	}
 
 	public int matchingSize(String line) {
-		final Matcher2 m = pattern.matcher(line);
+		final Matcher2 m = mypattern.matcher(line);
 		if (m.find() == false) {
 			return 0;
 		}
@@ -67,7 +77,7 @@ public class CommandCreoleFontFamilyChange implements Command {
 	}
 
 	public String executeAndGetRemaining(String line, StripeSimple stripe) {
-		final Matcher2 m = pattern.matcher(line);
+		final Matcher2 m = mypattern.matcher(line);
 		if (m.find() == false) {
 			throw new IllegalStateException();
 		}

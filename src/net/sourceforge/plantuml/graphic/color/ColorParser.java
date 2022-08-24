@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,11 @@
  */
 package net.sourceforge.plantuml.graphic.color;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class ColorParser {
 
@@ -55,7 +57,7 @@ public class ColorParser {
 		this.mainType = mainType;
 	}
 
-	public Colors getColor(RegexResult arg, HColorSet set) {
+	public Colors getColor(ThemeStyle themeStyle, RegexResult arg, HColorSet set) throws NoSuchColorException {
 		if (mainType == null) {
 			throw new IllegalStateException();
 		}
@@ -63,8 +65,7 @@ public class ColorParser {
 		if (data == null) {
 			return Colors.empty();
 		}
-		return new Colors(data, set, mainType);
-		// return result.getColor(type);
+		return new Colors(themeStyle, data, set, mainType);
 	}
 
 	// New Parsers

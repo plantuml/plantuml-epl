@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.salt.element;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +48,7 @@ public class ElementTreeEntry {
 
 	private final Element firstElement;
 	private final int level;
-	private final List<Element> otherElements = new ArrayList<Element>();
+	private final List<Element> otherElements = new ArrayList<>();
 
 	public ElementTreeEntry(int level, Element elmt) {
 		this.firstElement = elmt;

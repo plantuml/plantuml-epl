@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -68,9 +68,9 @@ public class ULayoutGroup {
 	public Rectangle2D getInnerPosition(String member, double width, double height, StringBounder stringBounder) {
 		final Set<Entry<TextBlock, Point2D>> all = placementStrategy.getPositions(width, height).entrySet();
 		Rectangle2D result = tryOne(all, member, stringBounder, InnerStrategy.STRICT);
-		if (result == null) {
+		if (result == null)
 			result = tryOne(all, member, stringBounder, InnerStrategy.LAZZY);
-		}
+
 		return result;
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -53,7 +53,7 @@ public class CommandTicks extends SingleLineCommand2<TimingDiagram> {
 
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandTicks.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("PLAYER", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("PLAYER", "([%pLN_.@]+)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("ticks"), //
 				RegexLeaf.spaceOneOrMore(), //

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,11 +34,13 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
+import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -48,7 +50,7 @@ import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class FtileThinSplit extends AbstractFtile {
 
@@ -63,6 +65,11 @@ public class FtileThinSplit extends AbstractFtile {
 		super(skinParam);
 		this.colorBar = colorBar;
 		this.swimlane = swimlane;
+	}
+	
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return Collections.emptyList();
 	}
 
 	public void setGeom(double first, double last, double width) {
@@ -80,7 +87,7 @@ public class FtileThinSplit extends AbstractFtile {
 		final UShape rect = ULine.hline(last - first);
 		ug = ug.apply(UTranslate.dx(first));
 		if (colorBar == null) {
-			ug = ug.apply(new HColorNone());
+			ug = ug.apply(HColors.none());
 		} else {
 			ug = ug.apply(colorBar);
 		}

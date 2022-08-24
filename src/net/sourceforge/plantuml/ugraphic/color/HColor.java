@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,5 +40,23 @@ import net.sourceforge.plantuml.ugraphic.UChange;
 public interface HColor extends UChange {
 
 	public UBackground bg();
+
+	public HColor withDark(HColor dark);
+
+	public HColor darken(int ratio);
+
+	public HColor lighten(int ratio);
+
+	public String asString();
+
+	public boolean isDark();
+
+	public HColor reverseHsluv();
+
+	public HColor reverse();
+
+	public HColor darkSchemeTheme();
+
+	public HColor opposite();
 
 }

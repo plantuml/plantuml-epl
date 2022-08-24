@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -38,7 +38,7 @@ import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
-import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.UrlMode;
 import net.sourceforge.plantuml.activitydiagram.ActivityDiagram;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
@@ -61,6 +61,7 @@ import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public final class CommandFactoryNoteActivity implements SingleMultiFactoryCommand<ActivityDiagram> {
@@ -94,10 +95,11 @@ public final class CommandFactoryNoteActivity implements SingleMultiFactoryComma
 
 			@Override
 			public String getPatternEnd() {
-				return "(?i)^[%s]*end[%s]?note$";
+				return "^[%s]*end[%s]?note$";
 			}
 
-			public final CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines) {
+			public final CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines)
+					throws NoSuchColorException {
 				// StringUtils.trim(lines, true);
 				final RegexResult arg = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
@@ -108,7 +110,7 @@ public final class CommandFactoryNoteActivity implements SingleMultiFactoryComma
 				Url url = null;
 				if (strings.size() > 0) {
 					final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"),
-							ModeUrl.STRICT);
+							UrlMode.STRICT);
 					url = urlBuilder.getUrl(strings.get(0).toString());
 				}
 				if (url != null) {
@@ -134,7 +136,7 @@ public final class CommandFactoryNoteActivity implements SingleMultiFactoryComma
 
 			@Override
 			protected CommandExecutionResult executeArg(final ActivityDiagram diagram, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				final String tmp = UniqueSequence.getString("GN");
 				final Ident ident = diagram.buildLeafIdent(tmp);
 				final Code code = diagram.V1972() ? ident : diagram.buildCode(tmp);
@@ -144,10 +146,12 @@ public final class CommandFactoryNoteActivity implements SingleMultiFactoryComma
 		};
 	}
 
-	private CommandExecutionResult executeInternal(ActivityDiagram diagram, RegexResult arg, IEntity note) {
+	private CommandExecutionResult executeInternal(ActivityDiagram diagram, RegexResult arg, IEntity note)
+			throws NoSuchColorException {
 
-		note.setSpecificColorTOBEREMOVED(ColorType.BACK,
-				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
+		final String s = arg.get("COLOR", 0);
+		note.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 
 		IEntity activity = diagram.getLastEntityConsulted();
 		if (activity == null) {
@@ -156,19 +160,19 @@ public final class CommandFactoryNoteActivity implements SingleMultiFactoryComma
 
 		final Link link;
 
-		final Position position = Position.valueOf(StringUtils.goUpperCase(arg.get("POSITION", 0))).withRankdir(
-				diagram.getSkinParam().getRankdir());
+		final Position position = Position.valueOf(StringUtils.goUpperCase(arg.get("POSITION", 0)))
+				.withRankdir(diagram.getSkinParam().getRankdir());
 
 		final LinkType type = new LinkType(LinkDecor.NONE, LinkDecor.NONE).goDashed();
 
 		if (position == Position.RIGHT) {
-			link = new Link(activity, note, type, Display.NULL, 1, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), activity, note, type, Display.NULL, 1);
 		} else if (position == Position.LEFT) {
-			link = new Link(note, activity, type, Display.NULL, 1, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), note, activity, type, Display.NULL, 1);
 		} else if (position == Position.BOTTOM) {
-			link = new Link(activity, note, type, Display.NULL, 2, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), activity, note, type, Display.NULL, 2);
 		} else if (position == Position.TOP) {
-			link = new Link(note, activity, type, Display.NULL, 2, diagram.getSkinParam().getCurrentStyleBuilder());
+			link = new Link(diagram.getSkinParam().getCurrentStyleBuilder(), note, activity, type, Display.NULL, 2);
 		} else {
 			throw new IllegalArgumentException();
 		}

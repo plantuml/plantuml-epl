@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,9 +34,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -58,9 +59,7 @@ public enum HorizontalAlignment {
 	}
 
 	public static HorizontalAlignment fromString(String s, HorizontalAlignment defaultValue) {
-		if (defaultValue == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(defaultValue);
 		if (s == null) {
 			return defaultValue;
 		}
@@ -76,15 +75,15 @@ public enum HorizontalAlignment {
 		return toString().substring(0, 1).toLowerCase();
 	}
 
-	public void draw(UGraphic ug, TextBlock tb, double padding, Dimension2D dimTotal) {
+	public void draw(UGraphic ug, TextBlock tb, double padding, double width) {
 		if (this == HorizontalAlignment.LEFT) {
 			tb.drawU(ug.apply(new UTranslate(padding, padding)));
 		} else if (this == HorizontalAlignment.RIGHT) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimTb.getWidth() - padding, padding)));
+			tb.drawU(ug.apply(new UTranslate(width - dimTb.getWidth() - padding, padding)));
 		} else if (this == HorizontalAlignment.CENTER) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate((dimTotal.getWidth() - dimTb.getWidth()) / 2, padding)));
+			tb.drawU(ug.apply(new UTranslate((width - dimTb.getWidth()) / 2, padding)));
 		}
 
 	}

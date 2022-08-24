@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,14 +34,12 @@
  */
 package net.sourceforge.plantuml.creole;
 
-import java.awt.geom.Dimension2D;
-
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColors;
 
 public class Position {
 
@@ -96,7 +94,7 @@ public class Position {
 	}
 
 	public void drawDebug(UGraphic ug) {
-		ug = ug.apply(HColorUtils.BLACK).apply(new HColorNone().bg());
+		ug = ug.apply(HColors.BLACK).apply(HColors.none().bg());
 		ug = ug.apply(new UTranslate(x, y));
 		ug.draw(new URectangle(dim));
 	}

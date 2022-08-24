@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,8 +34,9 @@
  */
 package net.sourceforge.plantuml.posimo;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.Collection;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Log;
 
@@ -92,9 +93,7 @@ public class DotxMaker {
 	}
 
 	private String getPathString(Path p) {
-		if (p == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(p);
 		final StringBuilder sb = new StringBuilder("b" + p.getStart().getUid() + " -> b" + p.getEnd().getUid());
 		sb.append(" [dir=none, arrowhead=none, headclip=true, tailclip=true");
 		final int len = p.getLength();

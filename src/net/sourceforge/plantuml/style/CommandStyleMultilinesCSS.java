@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,7 +35,7 @@
 package net.sourceforge.plantuml.style;
 
 import net.sourceforge.plantuml.SkinParam;
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.CommandMultilines2;
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 
-public class CommandStyleMultilinesCSS extends CommandMultilines2<UmlDiagram> {
+public class CommandStyleMultilinesCSS extends CommandMultilines2<TitledDiagram> {
 
 	public CommandStyleMultilinesCSS() {
 		super(getRegexConcat(), MultilinesStrategy.REMOVE_STARTING_QUOTE);
@@ -52,26 +52,28 @@ public class CommandStyleMultilinesCSS extends CommandMultilines2<UmlDiagram> {
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^[%s]*\\</style\\>[%s]*$";
+		return "^[%s]*\\</style\\>[%s]*$";
 	}
 
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandStyleMultilinesCSS.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("\\<style\\>"), //
 				RegexLeaf.end() //
-				);
+		);
 	}
 
-	protected CommandExecutionResult executeNow(UmlDiagram diagram, BlocLines lines) {
-		SkinParam.setBetaStyle(true);
-		if (SkinParam.USE_STYLES() == false) {
+	protected CommandExecutionResult executeNow(TitledDiagram diagram, BlocLines lines) {
+		try {
+			final StyleBuilder styleBuilder = diagram.getSkinParam().getCurrentStyleBuilder();
+			for (Style modifiedStyle : StyleLoader.getDeclaredStyles(lines.subExtract(1, 1), styleBuilder))
+				diagram.getSkinParam().muteStyle(modifiedStyle);
+
+			((SkinParam) diagram.getSkinParam()).applyPendingStyleMigration();
 			return CommandExecutionResult.ok();
+		} catch (NoStyleAvailableException e) {
+			// Logme.error(e);
+			return CommandExecutionResult.error("General failure: no style available.");
 		}
-		final StyleBuilder styleBuilder = diagram.getSkinParam().getCurrentStyleBuilder();
-		for (Style modifiedStyle : StyleLoader.getDeclaredStyles(lines.subExtract(1, 1), styleBuilder)) {
-			diagram.getSkinParam().muteStyle(modifiedStyle);
-		}
-		return CommandExecutionResult.ok();
 	}
 
 }

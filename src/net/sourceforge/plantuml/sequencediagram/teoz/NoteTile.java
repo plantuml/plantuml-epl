@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -34,7 +34,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -65,11 +65,13 @@ public class NoteTile extends AbstractTile implements Tile {
 	}
 
 	@Override
-	public double getYPoint(StringBounder stringBounder) {
-		return getComponent(stringBounder).getPreferredHeight(stringBounder) / 2;
+	public double getContactPointRelative() {
+		return getComponent(getStringBounder()).getPreferredHeight(getStringBounder()) / 2;
 	}
 
-	public NoteTile(LivingSpace livingSpace1, LivingSpace livingSpace2, Note note, Rose skin, ISkinParam skinParam) {
+	public NoteTile(StringBounder stringBounder, LivingSpace livingSpace1, LivingSpace livingSpace2, Note note,
+			Rose skin, ISkinParam skinParam) {
+		super(stringBounder);
 		this.livingSpace1 = livingSpace1;
 		this.livingSpace2 = livingSpace2;
 		this.note = note;
@@ -78,8 +80,8 @@ public class NoteTile extends AbstractTile implements Tile {
 	}
 
 	private Component getComponent(StringBounder stringBounder) {
-		final Component comp = skin.createComponent(note.getUsedStyles(), getNoteComponentType(note.getNoteStyle()),
-				null, note.getSkinParamBackcolored(skinParam), note.getStrings());
+		final Component comp = skin.createComponentNote(note.getUsedStyles(), getNoteComponentType(note.getNoteStyle()),
+				note.getSkinParamBackcolored(skinParam), note.getStrings(), note.getPosition());
 		return comp;
 	}
 
@@ -98,7 +100,7 @@ public class NoteTile extends AbstractTile implements Tile {
 		final Component comp = getComponent(stringBounder);
 		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
 		final double x = getX(stringBounder).getCurrentValue();
-		final Area area = new Area(getUsedWidth(stringBounder), dim.getHeight());
+		final Area area = Area.create(getUsedWidth(stringBounder), dim.getHeight());
 
 		ug = ug.apply(UTranslate.dx(x));
 		comp.drawU(ug, area, (Context2D) ug);
@@ -109,7 +111,7 @@ public class NoteTile extends AbstractTile implements Tile {
 		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
 		final double width = dim.getWidth();
 		if (note.getPosition() == NotePosition.OVER_SEVERAL) {
-			final double x1 = livingSpace1.getPosB().getCurrentValue();
+			final double x1 = livingSpace1.getPosB(stringBounder).getCurrentValue();
 			final double x2 = livingSpace2.getPosD(stringBounder).getCurrentValue();
 			final double w = x2 - x1;
 			if (width < w) {
@@ -139,31 +141,31 @@ public class NoteTile extends AbstractTile implements Tile {
 		}
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
-		final Component comp = getComponent(stringBounder);
-		final Dimension2D dim = comp.getPreferredDimension(stringBounder);
+	public double getPreferredHeight() {
+		final Component comp = getComponent(getStringBounder());
+		final Dimension2D dim = comp.getPreferredDimension(getStringBounder());
 		return dim.getHeight();
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 		// final Component comp = getComponent(stringBounder);
 		// final Dimension2D dim = comp.getPreferredDimension(stringBounder);
 		// final double width = dim.getWidth();
 	}
 
-	public Real getMinX(StringBounder stringBounder) {
-		final Real result = getX(stringBounder);
+	public Real getMinX() {
+		final Real result = getX(getStringBounder());
 		if (note.getPosition() == NotePosition.OVER_SEVERAL) {
-			final Real x1 = livingSpace1.getPosB();
+			final Real x1 = livingSpace1.getPosB(getStringBounder());
 			return RealUtils.min(result, x1);
 		}
 		return result;
 	}
 
-	public Real getMaxX(StringBounder stringBounder) {
-		final Real result = getX(stringBounder).addFixed(getUsedWidth(stringBounder));
+	public Real getMaxX() {
+		final Real result = getX(getStringBounder()).addFixed(getUsedWidth(getStringBounder()));
 		if (note.getPosition() == NotePosition.OVER_SEVERAL) {
-			final Real x2 = livingSpace2.getPosD(stringBounder);
+			final Real x2 = livingSpace2.getPosD(getStringBounder());
 			return RealUtils.max(result, x2);
 		}
 		return result;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -35,13 +35,14 @@
 package net.sourceforge.plantuml.command;
 
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.style.NoStyleAvailableException;
 
-public class CommandSkinParam extends SingleLineCommand2<UmlDiagram> {
+public class CommandSkinParam extends SingleLineCommand2<TitledDiagram> {
 
 	public CommandSkinParam() {
 		super(getRegexConcat());
@@ -57,10 +58,15 @@ public class CommandSkinParam extends SingleLineCommand2<UmlDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(UmlDiagram diagram, LineLocation location, RegexResult arg) {
-		// arg.get(0).endsWith("locked");
-		diagram.setParam(arg.get("NAME", 0), arg.get("VALUE", 0));
-		return CommandExecutionResult.ok();
+	protected CommandExecutionResult executeArg(TitledDiagram diagram, LineLocation location, RegexResult arg) {
+		try {
+			diagram.setParam(arg.get("NAME", 0), arg.get("VALUE", 0));
+			return CommandExecutionResult.ok();
+		} catch (NoStyleAvailableException e) {
+			// Logme.error(e);
+			return CommandExecutionResult.error("General failure: no style available.");
+		}
+
 	}
 
 }

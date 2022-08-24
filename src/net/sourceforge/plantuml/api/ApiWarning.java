@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -40,7 +40,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
-@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
+@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.TYPE })
 public @interface ApiWarning {
 
 	String willBeRemoved() default "";

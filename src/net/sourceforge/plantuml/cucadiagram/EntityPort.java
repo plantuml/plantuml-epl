@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  https://plantuml.com
  * 
@@ -47,9 +47,9 @@ public class EntityPort {
 	}
 
 	public String getFullString() {
-		if (portId != null) {
+		if (portId != null)
 			return entityUid + ":" + portId;
-		}
+
 		return entityUid;
 	}
 
@@ -58,9 +58,9 @@ public class EntityPort {
 	}
 
 	public String getPrefix() {
-		if (isShielded()) {
+		if (isShielded())
 			return entityUid.substring(0, entityUid.length() - 2);
-		}
+
 		return entityUid;
 	}
 
